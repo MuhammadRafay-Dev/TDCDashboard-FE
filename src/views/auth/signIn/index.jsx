@@ -1,26 +1,3 @@
-/* eslint-disable */
-/*!
-  _   _  ___  ____  ___ ________  _   _   _   _ ___   
- | | | |/ _ \|  _ \|_ _|__  / _ \| \ | | | | | |_ _| 
- | |_| | | | | |_) || |  / / | | |  \| | | | | || | 
- |  _  | |_| |  _ < | | / /| |_| | |\  | | |_| || |
- |_| |_|\___/|_| \_\___/____\___/|_| \_|  \___/|___|
-                                                                                                                                                                                                                                                                                                                                       
-=========================================================
-* Horizon UI - v1.1.0
-=========================================================
-
-* Product Page: https://www.horizon-ui.com/
-* Copyright 2023 Horizon UI (https://www.horizon-ui.com/)
-
-* Designed and Coded by Simmmple
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 import React from "react";
 import { NavLink } from "react-router-dom";
 // Chakra imports
@@ -48,13 +25,15 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 import {useDispatch} from 'react-redux'
-import fetchUserById from "store/thunk/auth.thunk";
+import login from "store/thunk/auth.thunk";
+import { useHistory } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function SignIn() {
   // Chakra color mode
+  const navigate = useHistory()
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
@@ -75,15 +54,10 @@ function SignIn() {
   const [password, setPassword] = React.useState("");
   //added by R
   const dispatch = useDispatch();
-
   const handleSignIn = () => {
-  // Assuming you have a form with email and password inputs
-  // const email = "m.rafay@gmail.com"/* get the email value from your form */;
-  //const password = "123456"/* get the password value from your form */;
-
-  // Dispatch the signInThunk with the credentials
-  dispatch(fetchUserById({ email, password }));
+  dispatch(login({ email, password, navigate }));
 };
+
   const handleClick = () => setShow(!show);
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
@@ -130,7 +104,7 @@ function SignIn() {
           me="auto"
           mb={{ base: "20px", md: "auto" }}
         >
-          <Button
+          {/* <Button
             fontSize="sm"
             me="0px"
             mb="26px"
@@ -146,14 +120,14 @@ function SignIn() {
           >
             <Icon as={FcGoogle} w="20px" h="20px" me="10px" />
             Sign in with Google
-          </Button>
-          <Flex align="center" mb="25px">
+          </Button> */}
+          {/* <Flex align="center" mb="25px">
             <HSeparator />
             <Text color="gray.400" mx="14px">
               or
             </Text>
             <HSeparator />
-          </Flex>
+          </Flex> */}
           <FormControl>
             <FormLabel
               display="flex"
@@ -248,7 +222,7 @@ function SignIn() {
               Sign In
             </Button>
           </FormControl>
-          <Flex
+          {/* <Flex
             flexDirection="column"
             justifyContent="center"
             alignItems="start"
@@ -268,7 +242,7 @@ function SignIn() {
                 </Text>
               </NavLink>
             </Text>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
     </DefaultAuth>

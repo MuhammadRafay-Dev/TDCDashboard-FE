@@ -1,9 +1,13 @@
 // authReducer.js
 import { createSlice } from "@reduxjs/toolkit";
-import fetchUserById from "store/thunk/auth.thunk";
+import login from "store/thunk/auth.thunk";
 
 const initialState = {
-  user: null,
+  user: {
+    accesstoken: null,
+    role: null,
+    name: null,
+  },
   isAuthenticated: false,
   loading: false,
 };
@@ -22,21 +26,16 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // this is an action
-    // Add reducers for additional action types here, and handle loading state as needed
-    builder.addCase(fetchUserById.fulfilled, (state, action) => {
-      // Add user to the state array
-      //state.entities.push(action.payload);
+    builder.addCase(login.fulfilled, (state, action) => {
       state.isAuthenticated = true
+      state.user.accesstoken = action.payload.accesstoken
+      state.user.name = action.payload.name
+      state.user.role = action.payload.role
     });
-    builder.addCase(fetchUserById.pending, (state, action) => {
-      // show loading state
-      // Add user to the state array
-      //   state.entities.push(action.payload);
+    builder.addCase(login.pending, (state, action) => {
       state.loading = true;
     });
   },
 });
 
-// export const { setUser, clearUser } = authSlice.actions;
 export default authSlice.reducer;
