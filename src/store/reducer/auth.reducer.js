@@ -27,10 +27,10 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(login.fulfilled, (state, action) => {
-      state.isAuthenticated = true
-      state.user.accesstoken = action.payload.accesstoken
-      state.user.name = action.payload.name
-      state.user.role = action.payload.role
+      state.isAuthenticated = true;
+      state.user.accesstoken = action.payload.accesstoken;
+      state.user.name = action.payload.name;
+      state.user.role = action.payload.role;
     });
     builder.addCase(login.pending, (state, action) => {
       state.loading = true;
