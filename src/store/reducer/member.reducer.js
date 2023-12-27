@@ -1,5 +1,6 @@
 // authReducer.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { BaseUrl } from "API/Urls";
 import { GET_MEMBERS } from "API/Urls";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -26,14 +27,30 @@ export const getMembers = createAsyncThunk("data/getMembers", async () => {
     console.log(response.data, "dataaaaa");
     return response?.data;
   } catch (err) {
-    //   if (err.message === "Request failed with status code 401") {
-    //     notifyLogout();
-    //     window.location.reload();
-    //     localStorage.clear();
-    //   }
+    if (err.message === "Request failed with status code 401") {
+      notifyLogout();
+      window.location.reload();
+      localStorage.clear();
+    }
     return err;
   }
 });
+
+export const deleteMember = createAsyncThunk(
+  "data/deleteMember",
+  async (id) => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    try {
+      await axios.delete(`${BaseUrl}members/${id}`, {
+        headers: {
+          Authorization: `Bearer ${userData.accesstoken}`,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+);
 
 const memberSlice = createSlice({
   name: "members",
