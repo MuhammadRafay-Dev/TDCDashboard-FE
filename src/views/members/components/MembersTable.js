@@ -34,7 +34,7 @@ const MembersTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {members.map((row, index) => (
+            {members?.map((row, index) => (
               <Tr>
                 <Td>{row.name}</Td>
                 <Td>{row.email}</Td>
