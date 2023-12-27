@@ -55,7 +55,9 @@ function SignIn() {
   //added by R
   const dispatch = useDispatch();
   const handleSignIn = () => {
-  dispatch(login({ email, password, navigate }));
+  dispatch(login({ email, password, navigate })).then((res)=>{
+    localStorage.setItem("userData",JSON.stringify(res.payload))
+  });
 };
 
   const handleClick = () => setShow(!show);
