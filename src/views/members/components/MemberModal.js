@@ -14,8 +14,17 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
-const MemberModal = ({ open, close, onSave, editData, edit, teamData }) => {
+const MemberModal = ({
+  open,
+  close,
+  onSave,
+  editData,
+  edit,
+  teamData,
+  departmentData,
+}) => {
   const initialData = {
     name: "",
     email: "",
@@ -47,15 +56,24 @@ const MemberModal = ({ open, close, onSave, editData, edit, teamData }) => {
     }));
   };
 
-  useEffect(() => {
-    if (editData) {
-      setMemberData(editData);
-    } else {
-      setMemberData(initialData);
-    }
-  }, [editData]);
-
   const handleSubmit = () => {
+    if (!memberData.name) {
+      toast.error("Name is required!");
+      return;
+    }
+    if (!memberData.email) {
+      toast.error("Email is required!");
+      return;
+    }
+    if (!memberData.role) {
+      toast.error("Role is required!");
+      return;
+    }
+    if (!memberData.contactNumber) {
+      toast.error("Contact Number is required!");
+      return;
+    }
+
     if (!memberData.department) {
       const { department, ...newMemberData } = memberData;
       setMemberData(newMemberData);
@@ -86,7 +104,23 @@ const MemberModal = ({ open, close, onSave, editData, edit, teamData }) => {
     close();
   };
 
-  console.log("Teams", teamData);
+  useEffect(() => {
+    if (editData) {
+      setMemberData(editData);
+      setMemberData((prevData) => ({
+        ...prevData,
+        department: editData?.department?._id || "",
+        teams: editData?.teams[0]?._id || "",
+      }));
+    } else {
+      setMemberData(initialData);
+    }
+  }, [editData]);
+
+  // console.log("State ", memberData);
+  // console.log("Edit Data", editData);
+  // console.log("Departments", departmentData);
+  // console.log("Teams", teamData);
   const RoleOptions = [
     "",
     "ADMIN",
@@ -160,13 +194,19 @@ const MemberModal = ({ open, close, onSave, editData, edit, teamData }) => {
 
             <FormControl mt={4}>
               <FormLabel>Department</FormLabel>
-              <Input
+              <Select
                 placeholder="Department"
                 value={memberData.department}
                 onChange={(e) => {
                   handleInputChange("department", e.target.value);
                 }}
-              />
+              >
+                {departmentData?.map((option) => (
+                  <option key={option._id} value={option._id}>
+                    {option.name}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <FormControl mt={4}>

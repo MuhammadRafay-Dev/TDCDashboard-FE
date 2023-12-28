@@ -9,7 +9,6 @@ import {
   Flex,
   Button,
   useDisclosure,
-  IconButton,
   useColorModeValue,
   Icon,
   Td,
@@ -17,74 +16,85 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { getMembers } from "store/reducer/member.reducer";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import MemberModal from "./MemberModal";
-import { deleteMember } from "store/reducer/member.reducer";
 import { toast } from "react-toastify";
-import { addMember } from "store/reducer/member.reducer";
-import { editMember } from "store/reducer/member.reducer";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import { getDepartments } from "store/thunk/department.thunk";
+import TeamModal from "./TeamModal";
+import { addTeam } from "store/reducer/teams.reducer";
+import { deleteTeam } from "store/reducer/teams.reducer";
+import { editTeam } from "store/reducer/teams.reducer";
+import { getProjects } from "store/reducer/projects.reducer";
 
-const MembersTable = () => {
+const TeamTable = () => {
   //States
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const data = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(data);
-  const [memberEditData, setMemberEditData] = useState(null);
+  const [teamEditData, setTeamEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
+  console.log("teams", teams);
   const departmentData = useSelector(
     (state) => state.department?.data?.departments
   );
   const [departments, setDepartments] = useState(departmentData);
+  const projectData = useSelector((state) => state.projects?.data);
+  const [projects, setProjects] = useState(projectData);
 
   //API Calls
   const triggerSave = () => {
-    setMemberEditData(null);
+    setTeamEditData(null);
     onOpen();
   };
 
-  const handleSaveMember = (memberData) => {
+  const handleSaveTeam = (teamData) => {
     try {
-      dispatch(addMember({ memberData })).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Added Succesfully");
+      dispatch(addTeam({ teamData })).then((res) => {
+        dispatch(getTeams()).then((res) => {
+          setTeams(res.payload);
+          toast.success("Team Added Succesfully");
         });
       });
     } catch (error) {
-      console.error("Error adding member", error);
+      console.error("Error adding team", error);
+      toast.error("Error adding team");
     }
   };
 
   const handleDelete = (id) => {
     try {
-      dispatch(deleteMember(id)).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Deleted Succesfully");
+      dispatch(deleteTeam(id)).then((res) => {
+        dispatch(getTeams()).then((res) => {
+          setTeams(res.payload);
+          toast.success("Team Deleted Succesfully");
         });
       });
     } catch (error) {
       console.log("Error Deleting Member");
+      toast.error("Error Deleting Member");
     }
   };
 
-  const triggerEditMember = (rowData) => {
-    setMemberEditData(rowData);
+  const triggerEdit = (rowData) => {
+    setTeamEditData(rowData);
     onOpen();
   };
 
-  const handleEditMember = (memberData) => {
+  const handleEditTeam = (memberData) => {
     console.log("Edit Data function", memberData);
-    dispatch(editMember(memberData)).then((res) => {
-      dispatch(getMembers()).then((res) => {
-        setMembers(res.payload);
-        toast.success("Member Edited Succesfully");
+    try {
+      dispatch(editTeam(memberData)).then((res) => {
+        dispatch(getTeams()).then((res) => {
+          setTeams(res.payload);
+          toast.success("Team Edited Succesfully");
+        });
       });
-    });
+    } catch (error) {
+      console.log("Error Editing Member");
+      toast.error("Error Editing Member");
+    }
   };
 
   useEffect(() => {
@@ -96,6 +106,9 @@ const MembersTable = () => {
     });
     dispatch(getDepartments()).then((res) => {
       setDepartments(res.payload);
+    });
+    dispatch(getProjects()).then((res) => {
+      setProjects(res.payload);
     });
   }, []);
 
@@ -112,19 +125,19 @@ const MembersTable = () => {
 
   return (
     <div>
-      <MemberModal
+      <TeamModal
         open={isOpen}
         close={onClose}
-        onSave={handleSaveMember}
-        editData={memberEditData}
-        edit={handleEditMember}
-        teamData={teams}
+        onSave={handleSaveTeam}
+        editData={teamEditData}
+        edit={handleEditTeam}
+        memberData={members}
         departmentData={departments}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Members</h1>
+        <h1>Teams</h1>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
-          Add Member
+          Add Team
         </Button>
       </Box>
       <TableContainer>
@@ -132,26 +145,37 @@ const MembersTable = () => {
           <Thead>
             <Tr>
               <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Role</Th>
+              <Th>Technology</Th>
               <Th>Department</Th>
-              <Th>Teams</Th>
-              <Th>Contact Number</Th>
+              <Th>Team Head</Th>
+              <Th>Members</Th>
+              <Th>Projects</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {members?.map((row, index) => (
+            {teams?.map((row) => (
               <Tr key={row._id}>
                 <Td>{row.name}</Td>
-                <Td>{row.email}</Td>
-                <Td>{row.role}</Td>
+                <Td>{row.technology}</Td>
                 <Td>{row.department ? row.department.name : "N/A"}</Td>
+                <Td>{row.team_head ? row.team_head.name : "N/A"}</Td>
                 <Td>
-                  {row.teams && row.teams.length > 0
-                    ? row.teams?.map((team) => team.name).join(", ")
+                  {row.members && row.members.length > 0
+                    ? row.members?.map((member) => member.name).join(", ")
                     : "N/A"}
                 </Td>
-                <Td>{row.contactNumber ? row.contactNumber : "N/A"}</Td>
+                <Td>
+                  {row.project
+                    ? projects?.find(
+                        (project) => project._id === row.project._id
+                      )?.name
+                    : "N/A"}
+                </Td>
+                {/* <Td>
+                  {row.projects && row.projects.length > 0
+                    ? row.projects?.map((project) => project.name).join(", ")
+                    : "N/A"}
+                </Td> */}
                 <Td>
                   <Button
                     align="center"
@@ -164,7 +188,7 @@ const MembersTable = () => {
                     h="37px"
                     lineHeight="100%"
                     borderRadius="10px"
-                    onClick={() => triggerEditMember(row)}
+                    onClick={() => triggerEdit(row)}
                   >
                     <Icon
                       as={EditIcon}
@@ -210,4 +234,4 @@ const MembersTable = () => {
   );
 };
 
-export default MembersTable;
+export default TeamTable;
