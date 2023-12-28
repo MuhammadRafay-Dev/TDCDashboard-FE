@@ -5,7 +5,6 @@ import {
   Th,
   Thead,
   Tr,
-  TableContainer,
   Box,
   Flex,
   Button,
@@ -13,6 +12,7 @@ import {
   IconButton,
   useColorModeValue,
   Icon,
+  Td,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMembers } from "store/reducer/member.reducer";
@@ -23,6 +23,7 @@ import { toast } from "react-toastify";
 import { addMember } from "store/reducer/member.reducer";
 import { editMember } from "store/reducer/member.reducer";
 import { getTeams } from "store/reducer/teams.reducer";
+import { useEffect, useState } from "react";
 
 const MembersTable = () => {
   //States
