@@ -21,6 +21,9 @@ import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import MemberModal from "./MemberModal";
 import { deleteMember } from "store/reducer/member.reducer";
 import { toast } from "react-toastify";
+import { addMember } from "store/reducer/member.reducer";
+import { editMember } from "store/reducer/member.reducer";
+import { getTeams } from "store/reducer/teams.reducer";
 
 const MembersTable = () => {
   //States
@@ -28,11 +31,31 @@ const MembersTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const data = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(data);
-  console.log("members", members);
+  const [memberEditData, setMemberEditData] = useState(null);
+  const teamData = useSelector((state) => state.teams?.data);
+  const [teams, setTeams] = useState(teamData);
 
   //API Calls
+  const triggerSave = () => {
+    setMemberEditData(null);
+    onOpen();
+  };
+
+  const handleSaveMember = (memberData) => {
+    console.log("MemberData", memberData);
+    try {
+      dispatch(addMember({ memberData })).then((res) => {
+        dispatch(getMembers()).then((res) => {
+          setMembers(res.payload);
+          toast.success("Member Added");
+        });
+      });
+    } catch (error) {
+      console.error("Error adding member", error);
+    }
+  };
+
   const handleDelete = (id) => {
-    console.log("ID", id);
     try {
       dispatch(deleteMember(id)).then((res) => {
         dispatch(getMembers()).then((res) => {
@@ -45,9 +68,26 @@ const MembersTable = () => {
     }
   };
 
+  const triggerEditMember = (rowData) => {
+    setMemberEditData(rowData);
+    onOpen();
+  };
+
+  const handleEditMember = (memberData) => {
+    console.log("Edit Data function", memberData);
+    dispatch(editMember(memberData)).then((res) => {
+      dispatch(getMembers()).then((res) => {
+        setMembers(res.payload);
+      });
+    });
+  };
+
   useEffect(() => {
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
+    });
+    dispatch(getTeams()).then((res) => {
+      setTeams(res.payload);
     });
   }, []);
 
@@ -64,10 +104,17 @@ const MembersTable = () => {
 
   return (
     <div>
-      <MemberModal open={isOpen} close={onClose} />
+      <MemberModal
+        open={isOpen}
+        close={onClose}
+        onSave={handleSaveMember}
+        editData={memberEditData}
+        edit={handleEditMember}
+        teamData={teams}
+      />
       <Box display="flex" justifyContent="space-between">
         <h1>Members</h1>
-        <Button colorScheme="blue" onClick={onOpen}>
+        <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Member
         </Button>
       </Box>
@@ -79,16 +126,19 @@ const MembersTable = () => {
               <Th>Email</Th>
               <Th>Role</Th>
               <Th>Department</Th>
+              <Th>Teams</Th>
               <Th>Contact Number</Th>
             </Tr>
           </Thead>
           <Tbody>
             {members?.map((row, index) => (
-              <Tr key={index}>
+              <Tr key={row._id}>
                 <Td>{row.name}</Td>
                 <Td>{row.email}</Td>
                 <Td>{row.role}</Td>
-                <Td>{row.department ? row.department : "N/A"}</Td>
+                <Td>{row.department ? row.department.name : "N/A"}</Td>
+                {/* <Td>{row.teams ? row.teams[0].name : "N/A"}</Td> */}
+                <Td>N/A</Td>
                 <Td>{row.contactNumber ? row.contactNumber : "N/A"}</Td>
                 <Td>
                   <Button
@@ -102,6 +152,7 @@ const MembersTable = () => {
                     h="37px"
                     lineHeight="100%"
                     borderRadius="10px"
+                    onClick={() => triggerEditMember(row)}
                   >
                     <Icon
                       as={EditIcon}
