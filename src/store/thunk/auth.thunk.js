@@ -12,7 +12,7 @@ const login = createAsyncThunk(
       );
       navigate.push("/admin");
       toast.success(response.data.message);
-      console.log(response.data, "dataaaaa");
+      // console.log(response.data, "dataaaaa");
       return response.data;
     } catch (error) {
       console.error(error, "error");

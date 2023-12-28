@@ -1,35 +1,76 @@
 // authReducer.js
 import { createSlice } from "@reduxjs/toolkit";
-import addDepartments from "store/thunk/department.thunk";
+import {
+  addDepartments,
+  getDepartments,
+  deleteDepartments,
+  updateDepartments
+} from "store/thunk/department.thunk";
 
 const initialState = {
   data: {
-    name: null,
-    departmentHead: null,
-    isSuccess:null
+    departments: null,
   },
+  error: null,
+  isLoading: false,
 };
 
 const departmentSlice = createSlice({
   name: "department",
   initialState,
-  reducers: {
-   
-  },
+  reducers: {},
   extraReducers: (builder) => {
-    //Add Employee
+    //Add departments
     builder.addCase(addDepartments.pending, (state) => {
-      state.loading = true;
-      state.error = "";
+      state.isLoading = true;
     });
-    builder.addCase(addDepartments.fulfilled, (state, action) => {
-      state.loading = false;
-      state.data = [];
-      state.isSuccess = action.payload;
+    builder.addCase(addDepartments.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      // state.data.departments = payload;
     });
     builder.addCase(addDepartments.rejected, (state, action) => {
-      state.loading = false;
-      state.data = [];
+      state.isLoading = false;
+      state.error = action.error.message;
+    });
+    // Get Departments
+    builder
+      .addCase(getDepartments.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getDepartments.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.data.departments = payload;
+      })
+      .addCase(getDepartments.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      });
+
+    // Delete Departments:
+    builder
+      .addCase(deleteDepartments.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteDepartments.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        // state.data.departments = payload;
+      })
+      .addCase(deleteDepartments.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      });
+
+       // Update Departments:
+    builder
+    .addCase(updateDepartments.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(updateDepartments.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      // state.data.departments = payload;
+    })
+    .addCase(updateDepartments.rejected, (state, action) => {
+      state.isLoading = false;
       state.error = action.error.message;
     });
   },

@@ -3,3 +3,7 @@ export const MembersUrl = BaseUrl + "members";
 export const Add_MemberUrl = MembersUrl + "/create";
 export const TeamsUrl = BaseUrl + "teams";
 export const Add_TeamsUrl = TeamsUrl + "/create";
+export const GET_MEMBERS = BaseUrl + "members";
+export const GET_DEPARTMENTS = BaseUrl + "department";
+export const DELETE_DEPARTMENTS = BaseUrl + "department";
+export const UPDATE_DEPARTMENTS = BaseUrl + "department";
