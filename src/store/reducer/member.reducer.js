@@ -23,7 +23,7 @@ export const getMembers = createAsyncThunk("data/getMembers", async () => {
       },
     });
     toast.success(response.data.message);
-    console.log(response.data, "dataaaaa");
+    // console.log(response.data, "dataaaaa");
     return response?.data;
   } catch (err) {
     //   if (err.message === "Request failed with status code 401") {

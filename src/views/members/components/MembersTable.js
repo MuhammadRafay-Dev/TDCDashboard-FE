@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from "react";
 import {
   Table,
+  TableContainer,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
-  TableContainer,
+  Td
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getMembers } from "store/reducer/member.reducer";
 
 const MembersTable = () => {
   const dispatch = useDispatch();
-  const [members, setMembers] = useState(null);
-  console.log("members", members);
+  const [members, setMembers] = useState([]);
+  // console.log("members", members);
 
   useEffect(() => {
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
   }, []);
+
+  // console.log("jKJ", members);
 
   return (
     <div>
@@ -34,7 +36,7 @@ const MembersTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {members?.map((row, index) => (
+            {members && members?.map((row, index) => (
               <Tr>
                 <Td>{row.name}</Td>
                 <Td>{row.email}</Td>

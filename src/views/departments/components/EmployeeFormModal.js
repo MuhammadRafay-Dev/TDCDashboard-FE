@@ -1,32 +1,46 @@
-import React, { useState } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Button,
   FormControl,
   FormLabel,
-  Input,
-  Select,
-  Button,
-  VStack,
   HStack,
-  Alert,
-} from '@chakra-ui/react';
-import { useSelector, useDispatch } from "react-redux";
-import addDepartments from "../../../store/thunk/department.thunk";
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  VStack,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  addDepartments,
+  getDepartments,
+  updateDepartments,
+} from "../../../store/thunk/department.thunk";
 
-const EmployeeFormModal = ({ isOpen, onClose, onBack }) => {
+const EmployeeFormModal = ({
+  isOpen,
+  onClose,
+  onBack,
+  members,
+  formProp,
+  departmentId,
+}) => {
   const dispatch = useDispatch();
-  const isSuccess = useSelector((state) => state.data);
-  const [formData, setFormData] = useState({
-    name: '',
-    departmentHead: '',
-  });
+  const [formData, setFormData] = useState({});
 
+  useEffect(() => {
+    // Update the state when formProp changes
+    setFormData({ ...formProp });
+  }, [formProp]);
+
+  // console.log(
+  //   "fromProp", formProp,formData
+  // );
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -37,12 +51,14 @@ const EmployeeFormModal = ({ isOpen, onClose, onBack }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addDepartments(formData));
-
-    // Perform any validation before submitting
-
-    // onSubmit(formData);
-    // onClose(); // Close the modal after submitting
+    if (departmentId) {
+      dispatch(updateDepartments({formData, departmentId}));
+    } else {
+      dispatch(addDepartments(formData));
+    }
+    // dispatch(getDepartments());
+    onClose(); // Close the modal after submitting
+    dispatch(getDepartments());
   };
 
   return (
@@ -51,15 +67,6 @@ const EmployeeFormModal = ({ isOpen, onClose, onBack }) => {
       <ModalContent>
         <ModalHeader>Update Department</ModalHeader>
         <ModalCloseButton />
-
-        {
-          isSuccess && (
-            <Alert status="success" variant="subtle">
-              Successfully added department.
-            </Alert>
-          )
-        }
-
         <ModalBody>
           <VStack spacing={4} align="stretch">
             <FormControl>
@@ -79,10 +86,14 @@ const EmployeeFormModal = ({ isOpen, onClose, onBack }) => {
                 value={formData.departmentHead}
                 onChange={handleChange}
               >
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
-                <option value="employee">Employee</option>
-                <option value="hr">HR</option>
+                {members &&
+                  members?.map((row, index) => {
+                    return (
+                      <option key={row?._id} value={row?._id}>
+                        {row?.name}
+                      </option>
+                    );
+                  })}
               </Select>
             </FormControl>
           </VStack>
