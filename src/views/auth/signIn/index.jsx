@@ -1,5 +1,4 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
 // Chakra imports
 import {
   Box,
@@ -17,23 +16,39 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 // Custom components
-import { HSeparator } from "components/separator/Separator";
 import DefaultAuth from "layouts/auth/Default";
 // Assets
 import illustration from "assets/img/auth/auth.png";
-import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
-import {useDispatch} from 'react-redux'
-import login from "store/thunk/auth.thunk";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import login from "store/thunk/auth.thunk";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import EmailModal from "./EmailModal";
 
 function SignIn() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    console.log("JKJKJKJKJK", isModalOpen);
+
+  };
+
+  const handleCloseModal = () => {
+    console.log("KJK", isModalOpen);
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = (email) => {
+    // Handle the email submission here
+    console.log("Submitted email:", email);
+  };
+
   // Chakra color mode
-  const navigate = useHistory()
+  const navigate = useHistory();
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
@@ -55,10 +70,10 @@ function SignIn() {
   //added by R
   const dispatch = useDispatch();
   const handleSignIn = () => {
-  dispatch(login({ email, password, navigate })).then((res)=>{
-    localStorage.setItem("userData",JSON.stringify(res.payload))
-  });
-};
+    dispatch(login({ email, password, navigate })).then((res) => {
+      localStorage.setItem("userData", JSON.stringify(res.payload));
+    });
+  };
 
   const handleClick = () => setShow(!show);
   return (
@@ -201,16 +216,22 @@ function SignIn() {
                   Keep me logged in
                 </FormLabel>
               </FormControl>
-              <NavLink to="/auth/forgot-password">
+              {/* <NavLink to="/auth/forgot-password"> */}
                 <Text
                   color={textColorBrand}
                   fontSize="sm"
                   w="124px"
                   fontWeight="500"
                 >
-                  Forgot password?
+                  
+                  <Button onClick={()=> setIsModalOpen(true)}>Forgot password?</Button>
+                  <EmailModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onSubmit={handleSubmit}
+                  />
                 </Text>
-              </NavLink>
+              {/* </NavLink> */}
             </Flex>
             <Button
               fontSize="sm"

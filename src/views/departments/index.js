@@ -1,4 +1,3 @@
-import { AddIcon } from '@chakra-ui/icons';
 import { Box, Button, ChakraProvider } from "@chakra-ui/react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,8 +23,15 @@ export default function Departments() {
   };
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+       
+      
       <ChakraProvider>
-      <Button border="2px solid blue" onClick={handleClick}>Departments<AddIcon color={"blue"} boxSize={4} borderRadius={5} border={"2px solid blue"} marginLeft={"5px"} padding={"2px"} /></Button>
+      <Box display="flex" justifyContent="space-between">
+        <h1>Departments</h1>
+        <Button colorScheme="blue" onClick={handleClick}>
+          Add Department
+        </Button>
+      </Box>
       <EmployeeFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
