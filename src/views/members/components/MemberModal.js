@@ -1,8 +1,11 @@
 import {
   Button,
+  Checkbox,
+  Collapse,
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   Input,
   Modal,
   ModalBody,
@@ -12,8 +15,11 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const MemberModal = ({
@@ -37,23 +43,18 @@ const MemberModal = ({
     emergencyContactRelation: "",
   };
   const [memberData, setMemberData] = useState(initialData);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleInputChange = (field, value) => {
-    let updatedValue;
-
-    if (field === "teams") {
-      // Check if the value is an array, if not, set it as an array
-      updatedValue = Array.isArray(value)
-        ? value.map((option) => option.value)
-        : [value];
-    } else {
-      updatedValue = value;
-    }
-
+  const handleInputChange = (field, values) => {
     setMemberData((prevData) => ({
       ...prevData,
-      [field]: updatedValue,
+      [field]: values,
     }));
+  };
+
+  const handleModalClose = () => {
+    setIsExpanded(false);
+    close();
   };
 
   const handleSubmit = () => {
@@ -101,6 +102,8 @@ const MemberModal = ({
         setMemberData(initialData);
       }
     }
+
+    setIsExpanded(false);
     close();
   };
 
@@ -110,17 +113,13 @@ const MemberModal = ({
       setMemberData((prevData) => ({
         ...prevData,
         department: editData?.department?._id || "",
-        teams: editData?.teams[0]?._id || "",
+        teams: editData?.teams?.map((team) => team._id) || "",
       }));
     } else {
       setMemberData(initialData);
     }
   }, [editData]);
 
-  // console.log("State ", memberData);
-  // console.log("Edit Data", editData);
-  // console.log("Departments", departmentData);
-  // console.log("Teams", teamData);
   const RoleOptions = [
     "",
     "ADMIN",
@@ -210,20 +209,35 @@ const MemberModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Teams</FormLabel>
-              <Select
-                placeholder="Teams"
-                value={memberData.teams}
-                onChange={(e) => {
-                  handleInputChange("teams", e.target.value);
-                }}
-              >
-                {teamData?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
+              <FormLabel>Team</FormLabel>
+              <IconButton
+                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+                mb={2}
+              />
+              <Collapse in={isExpanded}>
+                <Wrap spacing={4}>
+                  {teamData?.map((option) => (
+                    <WrapItem key={option._id}>
+                      <Checkbox
+                        value={option._id}
+                        onChange={(e) => {
+                          const selectedValues = e.target.checked
+                            ? [...memberData.teams, option._id]
+                            : memberData.teams.filter(
+                                (id) => id !== option._id
+                              );
+                          handleInputChange("teams", selectedValues);
+                        }}
+                        isChecked={memberData.teams.includes(option._id)}
+                      >
+                        {option.name}
+                      </Checkbox>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+              </Collapse>
             </FormControl>
 
             <FormControl mt={4}>
@@ -265,7 +279,7 @@ const MemberModal = ({
             <Button colorScheme="blue" mr={3} onClick={() => handleSubmit()}>
               Save
             </Button>
-            <Button onClick={close}>Cancel</Button>
+            <Button onClick={() => handleModalClose()}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

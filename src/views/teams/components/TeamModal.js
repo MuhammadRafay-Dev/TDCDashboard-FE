@@ -1,8 +1,11 @@
 import {
   Button,
+  Checkbox,
+  Collapse,
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   Input,
   Modal,
   ModalBody,
@@ -12,8 +15,11 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const TeamModal = ({
@@ -24,6 +30,7 @@ const TeamModal = ({
   edit,
   memberData,
   departmentData,
+  projectData,
 }) => {
   const initialData = {
     name: "",
@@ -34,23 +41,20 @@ const TeamModal = ({
     projects: [],
   };
   const [teamData, setTeamData] = useState(initialData);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded2, setIsExpanded2] = useState(false);
 
-  const handleInputChange = (field, value) => {
-    let updatedValue;
-
-    if (field === "members") {
-      // Check if the value is an array, if not, set it as an array
-      updatedValue = Array.isArray(value)
-        ? value.map((option) => option.value)
-        : [value];
-    } else {
-      updatedValue = value;
-    }
-
+  const handleInputChange = (field, values) => {
     setTeamData((prevData) => ({
       ...prevData,
-      [field]: updatedValue,
+      [field]: values,
     }));
+  };
+
+  const handleModalClose = () => {
+    setIsExpanded(false);
+    setIsExpanded2(false);
+    close();
   };
 
   const handleSubmit = () => {
@@ -72,11 +76,19 @@ const TeamModal = ({
     }
 
     if (editData) {
-      edit(teamData);
+      if (!teamData.members) {
+        const { members, ...newMemData } = teamData;
+        edit(newMemData);
+      } else {
+        edit(teamData);
+      }
     } else {
       onSave(teamData);
       setTeamData(initialData);
     }
+
+    setIsExpanded(false);
+    setIsExpanded2(false);
 
     close();
   };
@@ -84,15 +96,16 @@ const TeamModal = ({
   useEffect(() => {
     if (editData) {
       setTeamData(editData);
+      setTeamData((prevData) => ({
+        ...prevData,
+        department: editData?.department?._id || "",
+        team_head: editData?.team_head?._id || "",
+        members: editData?.members?.map((member) => member._id) || "",
+      }));
     } else {
       setTeamData(initialData);
     }
   }, [editData]);
-
-  // console.log("State ", memberData);
-  // console.log("Edit Data", editData);
-  // console.log("Departments", departmentData);
-  // console.log("Teams", teamData);
 
   return (
     <>
@@ -118,7 +131,7 @@ const TeamModal = ({
             <FormControl mt={4}>
               <FormLabel>Technology</FormLabel>
               <Input
-                placeholder="Email"
+                placeholder="Technology"
                 value={teamData.technology}
                 onChange={(e) => {
                   handleInputChange("technology", e.target.value);
@@ -163,19 +176,66 @@ const TeamModal = ({
 
             <FormControl mt={4}>
               <FormLabel>Members</FormLabel>
-              <Select
-                placeholder="Members"
-                value={teamData.members}
-                onChange={(e) => {
-                  handleInputChange("members", e.target.value);
-                }}
-              >
-                {memberData?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
+              <IconButton
+                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+                mb={2}
+              />
+              <Collapse in={isExpanded}>
+                <Wrap spacing={4}>
+                  {memberData?.map((option) => (
+                    <WrapItem key={option._id}>
+                      <Checkbox
+                        value={option._id}
+                        onChange={(e) => {
+                          const selectedValues = e.target.checked
+                            ? [...teamData.members, option._id]
+                            : teamData.members.filter(
+                                (id) => id !== option._id
+                              );
+                          handleInputChange("members", selectedValues);
+                        }}
+                        isChecked={teamData.members.includes(option._id)}
+                      >
+                        {option.name}
+                      </Checkbox>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+              </Collapse>
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Projects</FormLabel>
+              <IconButton
+                icon={isExpanded2 ? <FaChevronUp /> : <FaChevronDown />}
+                onClick={() => setIsExpanded2(!isExpanded)}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+                mb={2}
+              />
+              <Collapse in={isExpanded2}>
+                <Wrap spacing={4}>
+                  {projectData?.map((option) => (
+                    <WrapItem key={option._id}>
+                      <Checkbox
+                        value={option._id}
+                        onChange={(e) => {
+                          const selectedValues = e.target.checked
+                            ? [...teamData.projects, option._id]
+                            : teamData.projects.filter(
+                                (id) => id !== option._id
+                              );
+                          handleInputChange("projects", selectedValues);
+                        }}
+                        isChecked={teamData.projects.includes(option._id)}
+                      >
+                        {option.name}
+                      </Checkbox>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+              </Collapse>
             </FormControl>
 
             {/* </Flex> */}
@@ -185,7 +245,7 @@ const TeamModal = ({
             <Button colorScheme="blue" mr={3} onClick={() => handleSubmit()}>
               Save
             </Button>
-            <Button onClick={close}>Cancel</Button>
+            <Button onClick={() => handleModalClose()}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

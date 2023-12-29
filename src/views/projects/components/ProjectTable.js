@@ -20,19 +20,19 @@ import { toast } from "react-toastify";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import { getDepartments } from "store/thunk/department.thunk";
-import TeamModal from "./TeamModal";
-import { addTeam } from "store/reducer/teams.reducer";
-import { deleteTeam } from "store/reducer/teams.reducer";
-import { editTeam } from "store/reducer/teams.reducer";
 import { getProjects } from "store/reducer/projects.reducer";
+import { addProject } from "store/reducer/projects.reducer";
+import { deleteProject } from "store/reducer/projects.reducer";
+import { editProject } from "store/reducer/projects.reducer";
+import ProjectModal from "./ProjectModal";
 
-const TeamTable = () => {
+const ProjectTable = () => {
   const dispatch = useDispatch();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
   const data = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(data);
-  const [teamEditData, setTeamEditData] = useState(null);
+  const [projectEditData, setProjectEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
   const departmentData = useSelector(
@@ -44,69 +44,69 @@ const TeamTable = () => {
 
   //API Calls
   const triggerSave = () => {
-    setTeamEditData(null);
+    setProjectEditData(null);
     onOpen();
   };
 
-  const handleSaveTeam = (teamData) => {
+  const handleSaveProject = (projectData) => {
     try {
-      dispatch(addTeam({ teamData })).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Added Succesfully");
+      dispatch(addProject({ projectData })).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Added Succesfully");
         });
       });
     } catch (error) {
-      console.error("Error adding team", error);
-      toast.error("Error adding team");
+      console.error("Error adding project", error);
+      toast.error("Error adding project");
     }
   };
 
   const handleDelete = (id) => {
     try {
-      dispatch(deleteTeam(id)).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Deleted Succesfully");
+      dispatch(deleteProject(id)).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Deleted Succesfully");
         });
       });
     } catch (error) {
-      console.log("Error Deleting Team");
-      toast.error("Error Deleting Team");
+      console.log("Error Deleting Project");
+      toast.error("Error Deleting Project");
     }
   };
 
   const triggerEdit = (rowData) => {
-    setTeamEditData(rowData);
+    setProjectEditData(rowData);
     onOpen();
   };
 
-  const handleEditTeam = (teamData) => {
+  const handleEditProject = (projectData) => {
     try {
-      dispatch(editTeam(teamData)).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Edited Succesfully");
+      dispatch(editProject(projectData)).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Edited Succesfully");
         });
       });
     } catch (error) {
-      console.log("Error Editing Team");
-      toast.error("Error Editing Team");
+      console.log("Error Editing Project");
+      toast.error("Error Editing Project");
     }
   };
 
   useEffect(() => {
-    dispatch(getTeams()).then((res) => {
-      setTeams(res.payload);
+    dispatch(getProjects()).then((res) => {
+      setProjects(res.payload);
     });
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
+    dispatch(getTeams()).then((res) => {
+      setTeams(res.payload);
+    });
     dispatch(getDepartments()).then((res) => {
       setDepartments(res.payload);
-    });
-    dispatch(getProjects()).then((res) => {
-      setProjects(res.payload);
     });
   }, []);
 
@@ -123,20 +123,20 @@ const TeamTable = () => {
 
   return (
     <div>
-      <TeamModal
+      <ProjectModal
         open={isOpen}
         close={onClose}
-        onSave={handleSaveTeam}
-        editData={teamEditData}
-        edit={handleEditTeam}
+        onSave={handleSaveProject}
+        editData={projectEditData}
+        edit={handleEditProject}
         memberData={members}
         departmentData={departments}
-        projectData={projects}
+        teamsData={teams}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Teams</h1>
+        <h1>Projects</h1>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
-          Add Team
+          Add Project
         </Button>
       </Box>
       <TableContainer>
@@ -144,37 +144,35 @@ const TeamTable = () => {
           <Thead>
             <Tr>
               <Th>Name</Th>
-              <Th>Technology</Th>
-              <Th>Department</Th>
-              <Th>Team Head</Th>
-              <Th>Members</Th>
-              <Th>Projects</Th>
+              <Th>Team Lead</Th>
+              <Th>Sales Coordinator</Th>
+              <Th>Teams Assigned</Th>
+              <Th>Contract Type</Th>
+              <Th>Status</Th>
+              <Th>Start Date</Th>
+              <Th>End Date</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {teams?.map((row) => (
+            {projects?.map((row) => (
               <Tr key={row._id}>
                 <Td>{row.name}</Td>
-                <Td>{row.technology}</Td>
-                <Td>{row.department ? row.department.name : "N/A"}</Td>
-                <Td>{row.team_head ? row.team_head.name : "N/A"}</Td>
+                <Td>{row.team_lead.name}</Td>
+                <Td>{row.sales_coordinator.name}</Td>
                 <Td>
-                  {row.members && row.members.length > 0
-                    ? row.members?.map((member) => member.name).join(", ")
-                    : "N/A"}
-                </Td>
-                <Td>
-                  {row.project
-                    ? projects?.find(
-                        (project) => project._id === row.project._id
-                      )?.name
+                  {row.teams_assigned && row.teams_assigned.length > 0
+                    ? row.teams_assigned?.map((team) => team.name).join(", ")
                     : "N/A"}
                 </Td>
                 {/* <Td>
-                  {row.projects && row.projects.length > 0
-                    ? row.projects?.map((project) => project.name).join(", ")
+                  {row.teams_assigned
+                    ? teams?.find((team) => team._id === row.team._id)?.name
                     : "N/A"}
                 </Td> */}
+                <Td>{row.contract_type}</Td>
+                <Td>{row.status}</Td>
+                <Td>{new Date(row.start_date).toLocaleDateString()}</Td>
+                <Td>{new Date(row.end_date).toLocaleDateString()}</Td>
                 <Td>
                   <Button
                     align="center"
@@ -233,4 +231,4 @@ const TeamTable = () => {
   );
 };
 
-export default TeamTable;
+export default ProjectTable;
