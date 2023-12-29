@@ -24,6 +24,7 @@ import Clients from "views/clients";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
+import PasswordReset from "views/forget_password/components/PasswordReset";
 
 const routes = [
   {
@@ -120,6 +121,13 @@ const routes = [
     path: "/sign-in",
     icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
     component: SignInCentered,
+  },
+
+  {
+    name: "Password Reset", 
+    layout: "/auth", 
+    path: "/reset-password/:token", 
+    component: PasswordReset,
   },
 
   // {

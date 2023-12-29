@@ -56,7 +56,7 @@ const EmployeeFormModal = ({
     } else {
       dispatch(addDepartments(formData));
     }
-    // dispatch(getDepartments());
+    dispatch(getDepartments());
     onClose(); // Close the modal after submitting
     dispatch(getDepartments());
   };
