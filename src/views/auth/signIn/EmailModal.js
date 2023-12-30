@@ -1,26 +1,34 @@
 // EmailModal.js
 import {
-    Button,
-    FormControl,
-    FormLabel,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay
-} from '@chakra-ui/react';
-import { useState } from 'react';
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const EmailModal = ({ isOpen, onClose, onSubmit }) => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
 
   const handleSubmit = () => {
-    // You can perform validation or any other logic here before submitting
-    onSubmit(email);
-    onClose(); // Close the modal after submission
+    if (!email) {
+      toast.error("Please Enter Your Email");
+    }
+    const Email = {
+      email: email,
+    };
+
+    onSubmit(Email);
+    setEmail("");
+    onClose();
   };
 
   return (

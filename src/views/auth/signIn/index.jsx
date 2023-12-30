@@ -25,26 +25,33 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import login from "store/thunk/auth.thunk";
 
-import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EmailModal from "./EmailModal";
+import axios from "axios";
+import { ForgetPasswordUrl } from "API/Urls";
 
 function SignIn() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    console.log("JKJKJKJKJK", isModalOpen);
-
   };
 
   const handleCloseModal = () => {
-    console.log("KJK", isModalOpen);
     setIsModalOpen(false);
   };
 
   const handleSubmit = (email) => {
-    // Handle the email submission here
-    console.log("Submitted email:", email);
+    axios
+      .post(ForgetPasswordUrl, email)
+      .then((res) => {
+        console.log("res", res);
+        toast.success("Kindly check your Email");
+      })
+      .catch((err) => {
+        console.log("Error", err);
+        toast.error(err.response.data.message);
+      });
   };
 
   // Chakra color mode
@@ -105,11 +112,6 @@ function SignIn() {
             Enter your email and password to sign in!
           </Text>
         </Box>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-        />
         <Flex
           zIndex="2"
           direction="column"
@@ -217,20 +219,21 @@ function SignIn() {
                 </FormLabel>
               </FormControl>
               {/* <NavLink to="/auth/forgot-password"> */}
-                <Text
-                  color={textColorBrand}
-                  fontSize="sm"
-                  w="124px"
-                  fontWeight="500"
-                >
-                  
-                  <Button onClick={()=> setIsModalOpen(true)}>Forgot password?</Button>
-                  <EmailModal
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                    onSubmit={handleSubmit}
-                  />
-                </Text>
+              <Text
+                color={textColorBrand}
+                fontSize="sm"
+                w="124px"
+                fontWeight="500"
+              >
+                <Button onClick={() => setIsModalOpen(true)}>
+                  Forgot password?
+                </Button>
+                <EmailModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  onSubmit={handleSubmit}
+                />
+              </Text>
               {/* </NavLink> */}
             </Flex>
             <Button

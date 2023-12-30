@@ -210,8 +210,8 @@ const TeamModal = ({
               <FormLabel>Projects</FormLabel>
               <IconButton
                 icon={isExpanded2 ? <FaChevronUp /> : <FaChevronDown />}
-                onClick={() => setIsExpanded2(!isExpanded)}
-                aria-label={isExpanded ? "Collapse" : "Expand"}
+                onClick={() => setIsExpanded2(!isExpanded2)}
+                aria-label={isExpanded2 ? "Collapse" : "Expand"}
                 mb={2}
               />
               <Collapse in={isExpanded2}>

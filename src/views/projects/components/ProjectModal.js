@@ -34,7 +34,6 @@ const ProjectModal = ({
   editData,
   edit,
   memberData,
-  departmentData,
   teamData,
 }) => {
   const initialData = {
@@ -56,7 +55,6 @@ const ProjectModal = ({
   };
   const [projectData, setProjectData] = useState(initialData);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isExpanded2, setIsExpanded2] = useState(false);
 
   const handleInputChange = (field, values) => {
     setProjectData((prevData) => ({
@@ -67,7 +65,6 @@ const ProjectModal = ({
 
   const handleModalClose = () => {
     setIsExpanded(false);
-    setIsExpanded2(false);
     close();
   };
 
@@ -134,7 +131,6 @@ const ProjectModal = ({
     }
 
     setIsExpanded(false);
-    setIsExpanded2(false);
 
     close();
   };
@@ -144,9 +140,10 @@ const ProjectModal = ({
       setProjectData(editData);
       setProjectData((prevData) => ({
         ...prevData,
-        department: editData?.department?._id || "",
-        team_head: editData?.team_head?._id || "",
-        members: editData?.members?.map((member) => member._id) || "",
+        team_lead: editData?.team_lead?._id || "",
+        sales_coordinator: editData?.sales_coordinator?._id || "",
+        client: editData?.client?._id || "",
+        teams_assigned: editData?.teams_assigned?.map((team) => team._id) || "",
       }));
     } else {
       setProjectData(initialData);
@@ -220,22 +217,39 @@ const ProjectModal = ({
               </Select>
             </FormControl>
 
-            {/* <FormControl mt={4}>
-                <FormLabel>Team Head</FormLabel>
-                <Select
-                  placeholder="Team Head"
-                  value={teamData.team_head}
-                  onChange={(e) => {
-                    handleInputChange("team_head", e.target.value);
-                  }}
-                >
-                  {memberData?.map((option) => (
-                    <option key={option._id} value={option._id}>
-                      {option.name}
-                    </option>
+            <FormControl mt={4}>
+              <FormLabel>Teams Assigned</FormLabel>
+              <IconButton
+                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-label={isExpanded ? "Collapse" : "Expand"}
+                mb={2}
+              />
+              <Collapse in={isExpanded}>
+                <Wrap spacing={4}>
+                  {teamData?.map((option) => (
+                    <WrapItem key={option._id}>
+                      <Checkbox
+                        value={option._id}
+                        onChange={(e) => {
+                          const selectedValues = e.target.checked
+                            ? [...projectData.teams_assigned, option._id]
+                            : projectData.teams_assigned.filter(
+                                (id) => id !== option._id
+                              );
+                          handleInputChange("teams_assigned", selectedValues);
+                        }}
+                        isChecked={projectData.teams_assigned.includes(
+                          option._id
+                        )}
+                      >
+                        {option.name}
+                      </Checkbox>
+                    </WrapItem>
                   ))}
-                </Select>
-                  </FormControl>*/}
+                </Wrap>
+              </Collapse>
+            </FormControl>
 
             <FormControl mt={4}>
               <FormLabel>Platform</FormLabel>
@@ -312,12 +326,10 @@ const ProjectModal = ({
             <FormControl mt={4}>
               <FormLabel>Duration</FormLabel>
               <NumberInput
-                defaultValue={0}
-                min={10}
-                max={20}
+                min={0}
                 value={projectData.duration}
                 onChange={(e) => {
-                  handleInputChange("duration", e.target.value);
+                  handleInputChange("duration", e);
                 }}
               >
                 <NumberInputField />
