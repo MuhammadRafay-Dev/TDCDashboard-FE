@@ -11,18 +11,21 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMembers } from "store/reducer/member.reducer";
-import { deleteDepartments, getDepartments } from "store/thunk/department.thunk";
+import {
+  deleteDepartments,
+  getDepartments,
+} from "store/thunk/department.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
+import { toast } from "react-toastify";
 
-const DepartmentTable = ({isOpen}) => {
+const DepartmentTable = () => {
   const { departments } = useSelector((state) => state.department.data);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
-  const [formProp, setFormProp] = useState({})
-  const [departmentId, setDepartmentId] = useState("")
-
+  const [formProp, setFormProp] = useState({});
+  const [departmentId, setDepartmentId] = useState("");
 
   const handleBack = () => {
     // Handle going back logic
@@ -31,27 +34,40 @@ const DepartmentTable = ({isOpen}) => {
 
   useEffect(() => {
     dispatch(getDepartments());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleClickDelete = (id)=>{
-    dispatch(deleteDepartments(id))
-    dispatch(getDepartments());
-  }
+  const handleClickDelete = async (id) => {
+    try {
+      // Dispatch the deleteDepartments action
+      await dispatch(deleteDepartments(id));
 
-  const handleClickUpdate = (id, value )=>{
-    setDepartmentId(id)
-    setFormProp(value)
+      // After the delete operation is completed, dispatch getDepartments to update the state
+      await dispatch(getDepartments());
 
-    setIsModalOpen(true)
+      // Display success toast
+      toast.success("Department Deleted Successfully");
+    } catch (error) {
+      console.error("Error Deleting Department", error);
+
+      // Display error toast
+      toast.error("Error Deleting Department");
+    }
+  };
+
+  const handleClickUpdate = (id, value) => {
+    setDepartmentId(id);
+    setFormProp(value);
+
+    setIsModalOpen(true);
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
-
-  }
+    
+  };
   return (
     <div>
-       <EmployeeFormModal
+      <EmployeeFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onBack={handleBack}
@@ -86,7 +102,12 @@ const DepartmentTable = ({isOpen}) => {
                         marginLeft={"5px"}
                         padding={"2px"}
                         cursor={"pointer"}
-                        onClick={()=> handleClickUpdate(row._id,{name:  row.name,departmentHead: row.departmentHead._id})}
+                        onClick={() =>
+                          handleClickUpdate(row._id, {
+                            name: row.name,
+                            departmentHead: row.departmentHead._id,
+                          })
+                        }
                       />
                       <DeleteIcon
                         color={"blue"}
@@ -96,7 +117,7 @@ const DepartmentTable = ({isOpen}) => {
                         marginLeft={"5px"}
                         padding={"2px"}
                         cursor={"pointer"}
-                        onClick={()=> handleClickDelete(row._id)}
+                        onClick={() => handleClickDelete(row._id)}
                       />
                     </Td>
                   </Tr>
