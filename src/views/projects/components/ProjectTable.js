@@ -25,6 +25,7 @@ import { addProject } from "store/reducer/projects.reducer";
 import { deleteProject } from "store/reducer/projects.reducer";
 import { editProject } from "store/reducer/projects.reducer";
 import ProjectModal from "./ProjectModal";
+import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const ProjectTable = () => {
   const dispatch = useDispatch();
@@ -103,6 +104,16 @@ const ProjectTable = () => {
     });
   }, []);
 
+  //Search
+  const filterSearch = (search) => {
+    const data = projectData?.filter((data) => {
+      return search.toLowerCase() === ""
+        ? data
+        : data.name.toLowerCase().includes(search);
+    });
+    setProjects(data);
+  };
+
   //Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
@@ -113,6 +124,7 @@ const ProjectTable = () => {
     { bg: "secondaryGray.300" },
     { bg: "whiteAlpha.100" }
   );
+  let menuBg = useColorModeValue("white", "navy.800");
 
   return (
     <div>
@@ -126,7 +138,14 @@ const ProjectTable = () => {
         teamData={teams}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Projects</h1>
+        <Box
+          w={{ sm: "100%", md: "auto" }}
+          bg={menuBg}
+          p="8px"
+          borderRadius="30px"
+        >
+          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+        </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Project
         </Button>

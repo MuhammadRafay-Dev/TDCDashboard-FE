@@ -25,13 +25,14 @@ import { editMember } from "store/reducer/member.reducer";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import { getDepartments } from "store/thunk/department.thunk";
+import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const MembersTable = () => {
   //States
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const data = useSelector((state) => state.members?.data);
-  const [members, setMembers] = useState(data);
+  const memberData = useSelector((state) => state.members?.data);
+  const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
@@ -99,6 +100,16 @@ const MembersTable = () => {
     });
   }, []);
 
+  //Search
+  const filterSearch = (search) => {
+    const data = memberData?.filter((data) => {
+      return search.toLowerCase() === ""
+        ? data
+        : data.name.toLowerCase().includes(search);
+    });
+    setMembers(data);
+  };
+
   //Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
@@ -109,6 +120,7 @@ const MembersTable = () => {
     { bg: "secondaryGray.300" },
     { bg: "whiteAlpha.100" }
   );
+  let menuBg = useColorModeValue("white", "navy.800");
 
   return (
     <div>
@@ -122,7 +134,14 @@ const MembersTable = () => {
         departmentData={departments}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Members</h1>
+        <Box
+          w={{ sm: "100%", md: "auto" }}
+          bg={menuBg}
+          p="8px"
+          borderRadius="30px"
+        >
+          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+        </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Member
         </Button>

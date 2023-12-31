@@ -20,15 +20,17 @@ export const getTeams = createAsyncThunk("data/getTeams", async () => {
   try {
     const response = await axios.get(TeamsUrl, {
       headers: {
+        // Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NThkODY5MDU3ZWExOTYyMjBjNzQ4MzYiLCJyb2xlIjoiU1VQRVJBRE1JTiIsImlhdCI6MTcwMzk1ODQ3MCwiZXhwIjoxNzA0MDAxNjcwfQ.jTk7MuJKORFn6ZgTggAinFG_-cdyHrKlGwBxwuIZmMk`,
         Authorization: `Bearer ${userData.accesstoken}`,
       },
     });
     toast.success(response.data.message);
     return response?.data;
   } catch (err) {
+    console.log("TOken Error", err);
     if (err.message === "Request failed with status code 401") {
       notifyLogout();
-      window.location.reload();
+      // window.location.reload();
       localStorage.clear();
     }
     return err;
