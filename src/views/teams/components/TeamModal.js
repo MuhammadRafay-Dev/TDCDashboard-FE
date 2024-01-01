@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Collapse,
@@ -175,13 +176,15 @@ const TeamModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Members</FormLabel>
-              <IconButton
-                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                onClick={() => setIsExpanded(!isExpanded)}
-                aria-label={isExpanded ? "Collapse" : "Expand"}
-                mb={2}
-              />
+              <Box display="flex">
+                <FormLabel mt={2}>Members</FormLabel>
+                <IconButton
+                  icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  aria-label={isExpanded ? "Collapse" : "Expand"}
+                  mb={2}
+                />
+              </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
                   {memberData?.map((option) => (
@@ -207,13 +210,15 @@ const TeamModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Projects</FormLabel>
-              <IconButton
-                icon={isExpanded2 ? <FaChevronUp /> : <FaChevronDown />}
-                onClick={() => setIsExpanded2(!isExpanded2)}
-                aria-label={isExpanded2 ? "Collapse" : "Expand"}
-                mb={2}
-              />
+              <Box display="flex">
+                <FormLabel mt={2}>Projects</FormLabel>
+                <IconButton
+                  icon={isExpanded2 ? <FaChevronUp /> : <FaChevronDown />}
+                  onClick={() => setIsExpanded2(!isExpanded2)}
+                  aria-label={isExpanded2 ? "Collapse" : "Expand"}
+                  mb={2}
+                />
+              </Box>
               <Collapse in={isExpanded2}>
                 <Wrap spacing={4}>
                   {projectData?.map((option) => (

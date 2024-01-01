@@ -15,13 +15,13 @@ import {
   Td,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/reducer/member.reducer";
+import { getMembers } from "store/thunk/member.thunk";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import MemberModal from "./MemberModal";
-import { deleteMember } from "store/reducer/member.reducer";
+import { deleteMember } from "store/thunk/member.thunk";
 import { toast } from "react-toastify";
-import { addMember } from "store/reducer/member.reducer";
-import { editMember } from "store/reducer/member.reducer";
+import { addMember } from "store/thunk/member.thunk";
+import { editMember } from "store/thunk/member.thunk";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import { getDepartments } from "store/thunk/department.thunk";

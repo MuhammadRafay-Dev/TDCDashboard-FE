@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Collapse,
@@ -144,6 +145,8 @@ const ProjectModal = ({
         sales_coordinator: editData?.sales_coordinator?._id || "",
         client: editData?.client?._id || "",
         teams_assigned: editData?.teams_assigned?.map((team) => team._id) || "",
+        start_date: new Date(editData?.start_date).toISOString().split("T")[0],
+        end_date: new Date(editData?.end_date).toISOString().split("T")[0],
       }));
     } else {
       setProjectData(initialData);
@@ -172,9 +175,9 @@ const ProjectModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Stack</FormLabel>
+              <FormLabel>Tech Stack</FormLabel>
               <Input
-                placeholder="Stack"
+                placeholder="Tech Stack"
                 value={projectData.tech_stack}
                 onChange={(e) => {
                   handleInputChange("tech_stack", e.target.value);
@@ -218,13 +221,15 @@ const ProjectModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Teams Assigned</FormLabel>
-              <IconButton
-                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                onClick={() => setIsExpanded(!isExpanded)}
-                aria-label={isExpanded ? "Collapse" : "Expand"}
-                mb={2}
-              />
+              <Box display="flex">
+                <FormLabel mt={2}>Teams Assigned</FormLabel>
+                <IconButton
+                  icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  aria-label={isExpanded ? "Collapse" : "Expand"}
+                  mb={2}
+                />
+              </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
                   {teamData?.map((option) => (
