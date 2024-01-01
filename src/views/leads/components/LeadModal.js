@@ -17,13 +17,16 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { getLeads, addLeads } from "store/thunk/lead.thunk";
+import { getLeads, addLeads, updateLeads } from "store/thunk/lead.thunk";
 
 const LeadModal = ({
   isOpen,
   onClose,
   onBack,
   members,
+  clients,
+  leadProp,
+  leadId,
 }) => {
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState({
@@ -39,6 +42,14 @@ const LeadModal = ({
     leadStatus: "",
   });
 
+  useEffect(() => {
+    // Update the state when formProp changes
+    setLeadData({ ...leadProp });
+  }, [leadProp]);
+
+  // console.log(
+  //   "leadProp", leadProp,leadData
+  // );
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLeadData((prevData) => ({
@@ -47,16 +58,44 @@ const LeadModal = ({
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   await dispatch(addLeads({ leadData }));
+  //   //  console.log(addLeads)
+  //   dispatch(getLeads());
+
+  //   // Close the modal after submitting
+  //   onClose();
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-     dispatch(addLeads(leadData));
-     console.log(addLeads)
-     dispatch(getLeads);
+  
+    try {
+      if (leadId) {
+        // Update existing lead
+        await dispatch(updateLeads({ leadData, leadId }));
+      } else {
+        // Add new lead
+        await dispatch(addLeads(leadData));
+        console.log(leadData, "if check")
+      }
+      // Display success toast
+      toast.success("Lead Update successfully!");
+  
+      // Refresh leads after the update
+       dispatch(getLeads());
   
       // Close the modal after submitting
       onClose();
-    
+    } catch (error) {
+      // Display error toast
+      toast.error("An error occurred. Please try again.");
+    }
   };
+
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
@@ -95,12 +134,12 @@ const LeadModal = ({
               >
                 {members &&
                   members.map((row, index) => {
-                    console.log(row, "Memeber test")
-                    return(
-                    <option key={row?._id} value={row?._id}>
-                      {row?.name}
-                    </option>
-                  )})}
+                    return (
+                      <option key={row?._id} value={row?._id}>
+                        {row?.name}
+                      </option>
+                    );
+                  })}
               </Select>
             </FormControl>
 
@@ -111,11 +150,14 @@ const LeadModal = ({
                 value={leadData.client}
                 onChange={handleChange}
               >
-                {/* Fetch and map clients from API */}
-                {/* Example: */}
-                <option value="client1">Client 1</option>
-                <option value="client2">Client 2</option>
-                {/* Add more options based on your API response */}
+                {clients &&
+                  clients.map((row, index) => {
+                    return (
+                      <option key={row?._id} value={row?._id}>
+                        {row?.name}
+                      </option>
+                    );
+                  })}
               </Select>
             </FormControl>
 

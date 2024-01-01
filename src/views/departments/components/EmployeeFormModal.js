@@ -49,7 +49,6 @@ const EmployeeFormModal = ({
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -61,12 +60,11 @@ const EmployeeFormModal = ({
         // Add new department
         await dispatch(addDepartments(formData));
       }
-  
       // Display success toast
       toast.success("Department Update successfully!");
   
       // Refresh departments after the update
-      await dispatch(getDepartments());
+       dispatch(getDepartments());
   
       // Close the modal after submitting
       onClose();

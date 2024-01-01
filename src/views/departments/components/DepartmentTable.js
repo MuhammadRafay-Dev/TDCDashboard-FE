@@ -58,12 +58,10 @@ const DepartmentTable = () => {
   const handleClickUpdate = (id, value) => {
     setDepartmentId(id);
     setFormProp(value);
-
     setIsModalOpen(true);
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
-    
   };
   return (
     <div>

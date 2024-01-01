@@ -4,19 +4,25 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import LeadModal from "./components/LeadModal";
 import LeadTable from "./components/LeadTable";
-import { getLeads } from "store/thunk/lead.thunk";
+import { getMembers } from "store/reducer/member.reducer";
+import { getClients } from "store/thunk/client.thunk";
 
 export default function Leads() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [members, setMembers] = useState([]);
+  const [clients, setClients] = useState([]);
   const dispatch = useDispatch();
 
-  const handleClick =()=>{
-    setIsModalOpen(true)
-    dispatch(getLeads()).then((res) => {
+  const handleClick = () => {
+    setIsModalOpen(true);
+    dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
-  }
+
+    dispatch(getClients()).then((res) => {
+      setClients(res.payload);
+    });
+  };
 
   const handleBack = () => {
     // Handle going back logic
@@ -36,6 +42,7 @@ export default function Leads() {
           onClose={() => setIsModalOpen(false)}
           onBack={handleBack}
           members={members}
+          clients={clients}
         />
       </ChakraProvider>
       <Box>

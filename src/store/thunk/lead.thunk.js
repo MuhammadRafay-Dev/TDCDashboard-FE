@@ -1,6 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { ADD_LEADS } from "API/Urls";
-import { GET_LEADS } from "API/Urls";
+import { ADD_LEADS, GET_LEADS, DELETE_LEADS, UPDATE_LEADS } from "API/Urls";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -28,10 +27,11 @@ const getLeads = createAsyncThunk("leads/getLeads", async () => {
 });
 
 //Add Leads Api
-const addLeads = createAsyncThunk("leads/addLeads", async () => {
+const addLeads = createAsyncThunk("leads/addLeads", async (leadData) => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   try {
-    const response = await axios.post(ADD_LEADS, {
+    const response = await axios.post(ADD_LEADS,
+      leadData,  {
       headers: { Authorization: `Bearer ${userData.accesstoken}` },
     });
     return response?.data;
@@ -40,4 +40,47 @@ const addLeads = createAsyncThunk("leads/addLeads", async () => {
   }
 });
 
-export { getLeads, addLeads };
+
+// Delete Leads:
+const deleteLeads = createAsyncThunk(
+  "leads/deleteLeads",
+  async (id) => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    try {
+      const response = await axios.delete(DELETE_LEADS + `/${id}`, {
+        headers: {
+          Authorization: `Bearer ${userData.accesstoken}`,
+        },
+      });
+      return response?.data;
+    } catch (err) {
+      return err;
+    }
+  }
+);
+
+// Update Leads:
+const updateLeads = createAsyncThunk(
+  "leads/updateLeads",
+  async ({ leadData, leadId }) => {
+    // console.log("Id", id);
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    try {
+      const response = await axios.patch(
+        UPDATE_LEADS + `/${leadId}`,
+        leadData,
+        {
+          headers: {
+            Authorization: `Bearer ${userData.accesstoken}`,
+          },
+        }
+      );
+      return response?.data;
+    } catch (err) {
+      return err;
+    }
+  }
+);
+
+export { addLeads, deleteLeads, getLeads, updateLeads };
+
