@@ -9,26 +9,83 @@ import {
   FormControl,
   FormLabel,
 } from "@chakra-ui/react";
+import {
+  useHistory,
+  useLocation,
+} from "react-router-dom/cjs/react-router-dom.min";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { ResetForgotPasswordUrl } from "API/Urls";
+import { VerifyUrl } from "API/Urls";
 
 const PasswordReset = () => {
   const [loading, setLoading] = useState(true);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const initialData = {
+    new_password: "",
+    confirm_password: "",
+  };
+  const [passwords, setPasswords] = useState(initialData);
+  const history = useHistory();
 
-  useEffect(() => {
-    // Simulate loading for 2 seconds
-    const timeout = setTimeout(() => {
-      setLoading(false);
-    }, 5000);
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const token = queryParams.get("token");
 
-    return () => clearTimeout(timeout);
-  }, []);
+  const handleInputChange = (field, values) => {
+    setPasswords((prevData) => ({
+      ...prevData,
+      [field]: values,
+    }));
+  };
 
   const handleSubmit = () => {
-    // Perform password reset logic here
-    console.log("New Password:", newPassword);
-    console.log("Confirm New Password:", confirmNewPassword);
+    if (!passwords.new_password) {
+      toast.error("please Enter New Password");
+      return;
+    }
+    if (passwords.new_password.length < 5) {
+      toast.error("Min Password length is 5");
+      return;
+    }
+    if (!passwords.confirm_password) {
+      toast.error("please Enter Confirm Password");
+      return;
+    }
+    if (passwords.new_password !== passwords.confirm_password) {
+      toast.error("Confirm Password is not same as New Password");
+      return;
+    }
+
+    axios
+      .post(ResetForgotPasswordUrl, passwords, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        toast.success(res.data.message);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
+
+  let count = 1;
+  useEffect(() => {
+    if (count === 1) {
+      axios
+        .post(VerifyUrl + token)
+        .then((res) => {
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log("err", err);
+          toast.error(err.response.data.message);
+          history.push("/auth");
+        });
+      count++;
+    }
+  }, []);
 
   return (
     <Box
@@ -40,8 +97,19 @@ const PasswordReset = () => {
       alignItems={"center"}
       alignContent={"center"}
     >
-      <Box border={"2px blue"} width={"500px"} padding={"50px"} borderRadius={"250px"} boxShadow='dark-lg' p='6' rounded='md' bg='white'>
-        <Heading color="blue"  mb={4}>Password Reset</Heading>
+      <Box
+        border={"2px blue"}
+        width={"500px"}
+        padding={"50px"}
+        borderRadius={"250px"}
+        boxShadow="dark-lg"
+        p="6"
+        rounded="md"
+        bg="white"
+      >
+        <Heading color="blue" mb={4}>
+          Password Reset
+        </Heading>
 
         {loading ? (
           <Box textAlign="center" width={"200px"}>
@@ -54,8 +122,10 @@ const PasswordReset = () => {
               <Input
                 type="password"
                 placeholder="Enter new password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                value={passwords.new_password}
+                onChange={(e) =>
+                  handleInputChange("new_password", e.target.value)
+                }
               />
             </FormControl>
 
@@ -64,8 +134,10 @@ const PasswordReset = () => {
               <Input
                 type="password"
                 placeholder="Confirm new password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
+                value={passwords.confirm_password}
+                onChange={(e) =>
+                  handleInputChange("confirm_password", e.target.value)
+                }
               />
             </FormControl>
 

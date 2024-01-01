@@ -28,7 +28,7 @@ export const getMembers = createAsyncThunk("data/getMembers", async () => {
   } catch (err) {
     if (err.message === "Request failed with status code 401") {
       notifyLogout();
-      window.location.reload();
+      // window.location.reload();
       localStorage.clear();
     }
     return err;

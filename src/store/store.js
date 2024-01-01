@@ -12,7 +12,7 @@ const store = configureStore({
     auth: authReducer,
     department: departmentReducer,
     members: memberReducer,
-    team: teamsReducer,
+    teams: teamsReducer,
     projects: projectsReducer,
     lead: leadReducer,
     client: clientReducer,

@@ -22,3 +22,6 @@ export const UPDATE_LEADS = BaseUrl + "leads";
 export const GET_CLIENTS = BaseUrl + "clients";
 
 
+export const ForgetPasswordUrl = BaseUrl + "forget-password";
+export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
+export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";

@@ -25,6 +25,7 @@ import { addTeam } from "store/reducer/teams.reducer";
 import { deleteTeam } from "store/reducer/teams.reducer";
 import { editTeam } from "store/reducer/teams.reducer";
 import { getProjects } from "store/reducer/projects.reducer";
+import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const TeamTable = () => {
   const dispatch = useDispatch();
@@ -95,6 +96,16 @@ const TeamTable = () => {
     }
   };
 
+  //Search
+  const filterSearch = (search) => {
+    const data = teamData?.filter((data) => {
+      return search.toLowerCase() === ""
+        ? data
+        : data.name.toLowerCase().includes(search);
+    });
+    setTeams(data);
+  };
+
   useEffect(() => {
     dispatch(getTeams()).then((res) => {
       setTeams(res.payload);
@@ -120,6 +131,7 @@ const TeamTable = () => {
     { bg: "secondaryGray.300" },
     { bg: "whiteAlpha.100" }
   );
+  let menuBg = useColorModeValue("white", "navy.800");
 
   return (
     <div>
@@ -134,7 +146,14 @@ const TeamTable = () => {
         projectData={projects}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Teams</h1>
+        <Box
+          w={{ sm: "100%", md: "auto" }}
+          bg={menuBg}
+          p="8px"
+          borderRadius="30px"
+        >
+          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+        </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Team
         </Button>

@@ -25,6 +25,7 @@ import { addProject } from "store/reducer/projects.reducer";
 import { deleteProject } from "store/reducer/projects.reducer";
 import { editProject } from "store/reducer/projects.reducer";
 import ProjectModal from "./ProjectModal";
+import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const ProjectTable = () => {
   const dispatch = useDispatch();
@@ -35,10 +36,6 @@ const ProjectTable = () => {
   const [projectEditData, setProjectEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
-  const departmentData = useSelector(
-    (state) => state.department?.data?.departments
-  );
-  const [departments, setDepartments] = useState(departmentData);
   const projectData = useSelector((state) => state.projects?.data);
   const [projects, setProjects] = useState(projectData);
 
@@ -105,10 +102,17 @@ const ProjectTable = () => {
     dispatch(getTeams()).then((res) => {
       setTeams(res.payload);
     });
-    dispatch(getDepartments()).then((res) => {
-      setDepartments(res.payload);
-    });
   }, []);
+
+  //Search
+  const filterSearch = (search) => {
+    const data = projectData?.filter((data) => {
+      return search.toLowerCase() === ""
+        ? data
+        : data.name.toLowerCase().includes(search);
+    });
+    setProjects(data);
+  };
 
   //Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
@@ -120,6 +124,7 @@ const ProjectTable = () => {
     { bg: "secondaryGray.300" },
     { bg: "whiteAlpha.100" }
   );
+  let menuBg = useColorModeValue("white", "navy.800");
 
   return (
     <div>
@@ -130,11 +135,17 @@ const ProjectTable = () => {
         editData={projectEditData}
         edit={handleEditProject}
         memberData={members}
-        departmentData={departments}
-        teamsData={teams}
+        teamData={teams}
       />
       <Box display="flex" justifyContent="space-between">
-        <h1>Projects</h1>
+        <Box
+          w={{ sm: "100%", md: "auto" }}
+          bg={menuBg}
+          p="8px"
+          borderRadius="30px"
+        >
+          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+        </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Project
         </Button>
