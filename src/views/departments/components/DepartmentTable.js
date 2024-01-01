@@ -10,15 +10,15 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/reducer/member.reducer";
+import { toast } from "react-toastify";
 import {
   deleteDepartments,
   getDepartments,
 } from "store/thunk/department.thunk";
+import { getMembers } from "store/thunk/member.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
-import { toast } from "react-toastify";
 
-const DepartmentTable = () => {
+const DepartmentTable = ({ isOpen }) => {
   const { departments } = useSelector((state) => state.department.data);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

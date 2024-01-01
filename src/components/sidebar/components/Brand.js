@@ -13,10 +13,15 @@ export function SidebarBrand() {
 
   return (
     <Flex align="center" direction="column">
-      <HorizonLogo h="26px" w="175px" my="32px" color={logoColor} />
-      {/* <Box my="32px" h="26px" w="175px">
-        <h1 color={logoColor}>TDC | TheDevCorporate</h1>
-      </Box> */}
+      {/* <HorizonLogo h="26px" w="175px" my="32px" color={logoColor} /> */}
+      <Box mt="5px" mb="50px" h="26px" w="175px">
+        <h1
+          color={logoColor}
+          style={{ fontWeight: "bolder", fontSize: "18px" }}
+        >
+          Rapid Organizational Intelligence
+        </h1>
+      </Box>
       <HSeparator mb="20px" />
     </Flex>
   );

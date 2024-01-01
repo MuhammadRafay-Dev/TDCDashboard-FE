@@ -17,11 +17,10 @@ import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { addMember, deleteMember, editMember, getMembers } from "store/reducer/member.reducer";
 import { getTeams } from "store/reducer/teams.reducer";
 import { getDepartments } from "store/thunk/department.thunk";
+import { addMember, deleteMember, editMember, getMembers } from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
-
 const MembersTable = () => {
   //States
   const dispatch = useDispatch();

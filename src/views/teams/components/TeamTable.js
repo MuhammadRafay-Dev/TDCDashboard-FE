@@ -14,7 +14,7 @@ import {
   Td,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/reducer/member.reducer";
+import { getMembers } from "store/thunk/member.thunk";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { getTeams } from "store/reducer/teams.reducer";
