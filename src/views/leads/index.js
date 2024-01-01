@@ -1,11 +1,10 @@
-import React from "react";
 import { Box, Button, ChakraProvider } from "@chakra-ui/react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { getClients } from "store/thunk/client.thunk";
+import { getMembers } from "store/thunk/member.thunk";
 import LeadModal from "./components/LeadModal";
 import LeadTable from "./components/LeadTable";
-import { getMembers } from "store/reducer/member.reducer";
-import { getClients } from "store/thunk/client.thunk";
 
 export default function Leads() {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -14,10 +14,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getMembers } from "store/reducer/member.reducer";
 import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
-import LeadModal from "./LeadModal";
+import { getMembers } from "store/thunk/member.thunk";
 import { formatDateString, formatDateWithAMPM } from "../../../utils/index";
+import LeadModal from "./LeadModal";
 
 const LeadTable = () => {
   const { leads } = useSelector((state) => state.lead.data);
