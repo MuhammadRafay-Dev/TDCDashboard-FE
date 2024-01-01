@@ -14,7 +14,7 @@ import {
   Td,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/reducer/member.reducer";
+import { getMembers } from "store/thunk/member.thunk";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { getTeams } from "store/reducer/teams.reducer";
@@ -167,12 +167,12 @@ const ProjectTable = () => {
           <Tbody>
             {projects?.map((row) => (
               <Tr key={row._id}>
-                <Td>{row.name}</Td>
-                <Td>{row.team_lead.name}</Td>
-                <Td>{row.sales_coordinator.name}</Td>
+                <Td>{row?.name}</Td>
+                <Td>{row?.team_lead?.name ?? "N/A"}</Td>
+                <Td>{row?.sales_coordinator?.name ?? "N/A"}</Td>
                 <Td>
                   {row.teams_assigned && row.teams_assigned.length > 0
-                    ? row.teams_assigned?.map((team) => team.name).join(", ")
+                    ? row.teams_assigned?.map((team) => team?.name).join(", ")
                     : "N/A"}
                 </Td>
                 {/* <Td>
@@ -180,8 +180,8 @@ const ProjectTable = () => {
                     ? teams?.find((team) => team._id === row.team._id)?.name
                     : "N/A"}
                 </Td> */}
-                <Td>{row.contract_type}</Td>
-                <Td>{row.status}</Td>
+                <Td>{row?.contract_type}</Td>
+                <Td>{row?.status}</Td>
                 <Td>{new Date(row.start_date).toLocaleDateString()}</Td>
                 <Td>{new Date(row.end_date).toLocaleDateString()}</Td>
                 <Td>

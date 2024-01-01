@@ -21,6 +21,7 @@ import {
   getDepartments,
   updateDepartments,
 } from "../../../store/thunk/department.thunk";
+import { toast } from "react-toastify";
 
 const EmployeeFormModal = ({
   isOpen,
@@ -48,18 +49,31 @@ const EmployeeFormModal = ({
       [name]: value,
     }));
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (departmentId) {
-      dispatch(updateDepartments({formData, departmentId}));
-    } else {
-      dispatch(addDepartments(formData));
+  
+    try {
+      if (departmentId) {
+        // Update existing department
+        await dispatch(updateDepartments({ formData, departmentId }));
+      } else {
+        // Add new department
+        await dispatch(addDepartments(formData));
+      }
+      // Display success toast
+      toast.success("Department Update successfully!");
+  
+      // Refresh departments after the update
+       dispatch(getDepartments());
+  
+      // Close the modal after submitting
+      onClose();
+    } catch (error) {
+      // Display error toast
+      toast.error("An error occurred. Please try again.");
     }
-    dispatch(getDepartments());
-    onClose(); // Close the modal after submitting
-    dispatch(getDepartments());
   };
+  
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">

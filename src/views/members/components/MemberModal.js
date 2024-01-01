@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Collapse,
@@ -209,13 +210,15 @@ const MemberModal = ({
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Team</FormLabel>
-              <IconButton
-                icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                onClick={() => setIsExpanded(!isExpanded)}
-                aria-label={isExpanded ? "Collapse" : "Expand"}
-                mb={2}
-              />
+              <Box display="flex">
+                <FormLabel mt={2}>Team</FormLabel>
+                <IconButton
+                  icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  aria-label={isExpanded ? "Collapse" : "Expand"}
+                  mb={2}
+                />
+              </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
                   {teamData?.map((option) => (
