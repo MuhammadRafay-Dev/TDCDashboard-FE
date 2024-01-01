@@ -4,6 +4,7 @@ import departmentReducer from "./reducer/department.reducer";
 import memberReducer from "./reducer/member.reducer";
 import teamsReducer from "./reducer/teams.reducer";
 import projectsReducer from "./reducer/projects.reducer";
+import leadReducer from "./reducer/lead.reducer";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     members: memberReducer,
     team: teamsReducer,
     projects: projectsReducer,
+    lead:leadReducer,
   },
 });
 
