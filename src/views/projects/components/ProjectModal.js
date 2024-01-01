@@ -38,7 +38,7 @@ const ProjectModal = ({
 }) => {
   const initialData = {
     name: "",
-    stack: "",
+    tech_stack: "",
     team_lead: "",
     sales_coordinator: "",
     teams_assigned: [],
@@ -49,8 +49,8 @@ const ProjectModal = ({
     status: "",
     duration: 0,
     duration_unit: "",
-    start_date: "2023-01-07",
-    end_date: "2023-01-10",
+    start_date: "",
+    end_date: "",
     cost: "",
   };
   const [projectData, setProjectData] = useState(initialData);
@@ -73,12 +73,12 @@ const ProjectModal = ({
       toast.error("Name is required!");
       return;
     }
-    if (!projectData.stack) {
-      toast.error("Technology is required!");
+    if (!projectData.tech_stack) {
+      toast.error("Stack is required!");
       return;
     }
     if (!projectData.team_lead) {
-      toast.error("Technology is required!");
+      toast.error("Team Lead is required!");
       return;
     }
     if (!projectData.sales_coordinator) {
@@ -175,9 +175,9 @@ const ProjectModal = ({
               <FormLabel>Stack</FormLabel>
               <Input
                 placeholder="Stack"
-                value={projectData.stack}
+                value={projectData.tech_stack}
                 onChange={(e) => {
-                  handleInputChange("stack", e.target.value);
+                  handleInputChange("tech_stack", e.target.value);
                 }}
                 required
               />
@@ -364,6 +364,29 @@ const ProjectModal = ({
                   handleInputChange("cost", e.target.value);
                 }}
                 required
+              />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Start Date</FormLabel>
+              <Input
+                type="date"
+                value={projectData.start_date}
+                onChange={(e) => {
+                  handleInputChange("start_date", e.target.value);
+                }}
+              />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>End Date</FormLabel>
+              <Input
+                type="date"
+                min={projectData.start_date}
+                value={projectData.end_date}
+                onChange={(e) => {
+                  handleInputChange("end_date", e.target.value);
+                }}
               />
             </FormControl>
 
