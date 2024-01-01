@@ -1,23 +1,23 @@
 import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import {
+  Box,
+  Collapse,
   Table,
   TableContainer,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
-  Collapse,
-  Box,
-  Text,
-  Button,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getLeads, deleteLeads } from "store/thunk/lead.thunk";
-import LeadModal from "./LeadModal";
 import { toast } from "react-toastify";
 import { getMembers } from "store/reducer/member.reducer";
+import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
+import LeadModal from "./LeadModal";
+import { formatDateString, formatDateWithAMPM } from "../../../utils/index";
 
 const LeadTable = () => {
   const { leads } = useSelector((state) => state.lead.data);
@@ -108,9 +108,9 @@ const LeadTable = () => {
                 <React.Fragment key={row._id}>
                   <Tr>
                     <Td>{row?.name}</Td>
-                    <Td>{row?.date}</Td>
-                    <Td>{row?.salesTeamMember}</Td>
-                    <Td>{row?.client}</Td>
+                    <Td>{formatDateString(row?.date)}</Td>
+                    <Td>{row?.salesTeamMember?.name ?? "N/A"}</Td>
+                    <Td>{row?.client?.name ?? "N/A"}</Td>
                     <Td>
                       {row?.linkJobApplied}
                       {row.error && row.error.linkJobApplied && (
@@ -121,8 +121,8 @@ const LeadTable = () => {
                     </Td>
                     <Td>{row?.jobDescription}</Td>
                     <Td>{row?.sentDescription}</Td>
-                    <Td>{row?.appointment}</Td>
-                    <Td>{row?.call}</Td>
+                    <Td>{formatDateWithAMPM(row?.appointment)}</Td>
+                    <Td>{formatDateWithAMPM(row?.call)}</Td>
                     <Td>{row?.createdBy.name}</Td>
                     <Td>
                       <ViewIcon
