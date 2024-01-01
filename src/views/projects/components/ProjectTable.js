@@ -9,7 +9,6 @@ import {
   Flex,
   Button,
   useDisclosure,
-  IconButton,
   useColorModeValue,
   Icon,
   Td,
@@ -17,97 +16,102 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { getMembers } from "store/reducer/member.reducer";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import MemberModal from "./MemberModal";
-import { deleteMember } from "store/reducer/member.reducer";
 import { toast } from "react-toastify";
-import { addMember } from "store/reducer/member.reducer";
-import { editMember } from "store/reducer/member.reducer";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import { getDepartments } from "store/thunk/department.thunk";
+import { getProjects } from "store/reducer/projects.reducer";
+import { addProject } from "store/reducer/projects.reducer";
+import { deleteProject } from "store/reducer/projects.reducer";
+import { editProject } from "store/reducer/projects.reducer";
+import ProjectModal from "./ProjectModal";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
-const MembersTable = () => {
-  //States
+const ProjectTable = () => {
   const dispatch = useDispatch();
+  //States
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const memberData = useSelector((state) => state.members?.data);
-  const [members, setMembers] = useState(memberData);
-  const [memberEditData, setMemberEditData] = useState(null);
+  const data = useSelector((state) => state.members?.data);
+  const [members, setMembers] = useState(data);
+  const [projectEditData, setProjectEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
-  const departmentData = useSelector(
-    (state) => state.department?.data?.departments
-  );
-  const [departments, setDepartments] = useState(departmentData);
+  const projectData = useSelector((state) => state.projects?.data);
+  const [projects, setProjects] = useState(projectData);
 
   //API Calls
   const triggerSave = () => {
-    setMemberEditData(null);
+    setProjectEditData(null);
     onOpen();
   };
 
-  const handleSaveMember = (memberData) => {
+  const handleSaveProject = (projectData) => {
     try {
-      dispatch(addMember({ memberData })).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Added Succesfully");
+      dispatch(addProject({ projectData })).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Added Succesfully");
         });
       });
     } catch (error) {
-      console.error("Error adding member", error);
+      console.error("Error adding project", error);
+      toast.error("Error adding project");
     }
   };
 
   const handleDelete = (id) => {
     try {
-      dispatch(deleteMember(id)).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Deleted Succesfully");
+      dispatch(deleteProject(id)).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Deleted Succesfully");
         });
       });
     } catch (error) {
-      console.log("Error Deleting Member");
+      console.log("Error Deleting Project");
+      toast.error("Error Deleting Project");
     }
   };
 
-  const triggerEditMember = (rowData) => {
-    setMemberEditData(rowData);
+  const triggerEdit = (rowData) => {
+    setProjectEditData(rowData);
     onOpen();
   };
 
-  const handleEditMember = (memberData) => {
-    console.log("Edit Data function", memberData);
-    dispatch(editMember(memberData)).then((res) => {
-      dispatch(getMembers()).then((res) => {
-        setMembers(res.payload);
-        toast.success("Member Edited Succesfully");
+  const handleEditProject = (projectData) => {
+    try {
+      dispatch(editProject(projectData)).then((res) => {
+        dispatch(getProjects()).then((res) => {
+          setProjects(res.payload);
+          toast.success("Project Edited Succesfully");
+        });
       });
-    });
+    } catch (error) {
+      console.log("Error Editing Project");
+      toast.error("Error Editing Project");
+    }
   };
 
   useEffect(() => {
+    dispatch(getProjects()).then((res) => {
+      setProjects(res.payload);
+    });
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
     dispatch(getTeams()).then((res) => {
       setTeams(res.payload);
     });
-    dispatch(getDepartments()).then((res) => {
-      setDepartments(res.payload);
-    });
   }, []);
 
   //Search
   const filterSearch = (search) => {
-    const data = memberData?.filter((data) => {
+    const data = projectData?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
         : data.name.toLowerCase().includes(search);
     });
-    setMembers(data);
+    setProjects(data);
   };
 
   //Colors
@@ -124,14 +128,14 @@ const MembersTable = () => {
 
   return (
     <div>
-      <MemberModal
+      <ProjectModal
         open={isOpen}
         close={onClose}
-        onSave={handleSaveMember}
-        editData={memberEditData}
-        edit={handleEditMember}
+        onSave={handleSaveProject}
+        editData={projectEditData}
+        edit={handleEditProject}
+        memberData={members}
         teamData={teams}
-        departmentData={departments}
       />
       <Box display="flex" justifyContent="space-between">
         <Box
@@ -143,7 +147,7 @@ const MembersTable = () => {
           <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
         </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
-          Add Member
+          Add Project
         </Button>
       </Box>
       <TableContainer>
@@ -151,26 +155,35 @@ const MembersTable = () => {
           <Thead>
             <Tr>
               <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Role</Th>
-              <Th>Department</Th>
-              <Th>Teams</Th>
-              <Th>Contact Number</Th>
+              <Th>Team Lead</Th>
+              <Th>Sales Coordinator</Th>
+              <Th>Teams Assigned</Th>
+              <Th>Contract Type</Th>
+              <Th>Status</Th>
+              <Th>Start Date</Th>
+              <Th>End Date</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {members?.map((row, index) => (
+            {projects?.map((row) => (
               <Tr key={row._id}>
                 <Td>{row.name}</Td>
-                <Td>{row.email}</Td>
-                <Td>{row.role}</Td>
-                <Td>{row.department ? row.department.name : "N/A"}</Td>
+                <Td>{row.team_lead.name}</Td>
+                <Td>{row.sales_coordinator.name}</Td>
                 <Td>
-                  {row.teams && row.teams.length > 0
-                    ? row.teams?.map((team) => team.name).join(", ")
+                  {row.teams_assigned && row.teams_assigned.length > 0
+                    ? row.teams_assigned?.map((team) => team.name).join(", ")
                     : "N/A"}
                 </Td>
-                <Td>{row.contactNumber ? row.contactNumber : "N/A"}</Td>
+                {/* <Td>
+                  {row.teams_assigned
+                    ? teams?.find((team) => team._id === row.team._id)?.name
+                    : "N/A"}
+                </Td> */}
+                <Td>{row.contract_type}</Td>
+                <Td>{row.status}</Td>
+                <Td>{new Date(row.start_date).toLocaleDateString()}</Td>
+                <Td>{new Date(row.end_date).toLocaleDateString()}</Td>
                 <Td>
                   <Button
                     align="center"
@@ -183,7 +196,7 @@ const MembersTable = () => {
                     h="37px"
                     lineHeight="100%"
                     borderRadius="10px"
-                    onClick={() => triggerEditMember(row)}
+                    onClick={() => triggerEdit(row)}
                   >
                     <Icon
                       as={EditIcon}
@@ -229,4 +242,4 @@ const MembersTable = () => {
   );
 };
 
-export default MembersTable;
+export default ProjectTable;

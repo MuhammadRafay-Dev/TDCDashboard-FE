@@ -1,7 +1,9 @@
 // authReducer.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { MembersUrl } from "API/Urls";
-import { Add_MemberUrl } from "API/Urls";
+import { Add_TeamsUrl } from "API/Urls";
+import { Add_ProjectUrl } from "API/Urls";
+import { ProjectsUrl } from "API/Urls";
+import { TeamsUrl } from "API/Urls";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -15,10 +17,10 @@ const notifyLogout = () => {
   toast.error("You Have been Logout");
 };
 
-export const getMembers = createAsyncThunk("data/getMembers", async () => {
+export const getProjects = createAsyncThunk("data/getProjects", async () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   try {
-    const response = await axios.get(MembersUrl, {
+    const response = await axios.get(ProjectsUrl, {
       headers: {
         Authorization: `Bearer ${userData.accesstoken}`,
       },
@@ -35,12 +37,12 @@ export const getMembers = createAsyncThunk("data/getMembers", async () => {
   }
 });
 
-export const addMember = createAsyncThunk(
-  "data/addMembers",
-  async ({ memberData }) => {
+export const addProject = createAsyncThunk(
+  "data/addProjects",
+  async ({ projectData }) => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
-      const response = await axios.post(Add_MemberUrl, memberData, {
+      const response = await axios.post(Add_ProjectUrl, projectData, {
         headers: {
           Authorization: `Bearer ${userData.accesstoken}`,
         },
@@ -52,14 +54,14 @@ export const addMember = createAsyncThunk(
   }
 );
 
-export const editMember = createAsyncThunk(
-  "data/editMembers",
-  async (memberData) => {
+export const editProject = createAsyncThunk(
+  "data/editProjects",
+  async (projectData) => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
       const response = await axios.patch(
-        `${MembersUrl}/${memberData._id}`,
-        memberData,
+        `${ProjectsUrl}/${projectData._id}`,
+        projectData,
         {
           headers: {
             Authorization: `Bearer ${userData.accesstoken}`,
@@ -73,12 +75,12 @@ export const editMember = createAsyncThunk(
   }
 );
 
-export const deleteMember = createAsyncThunk(
-  "data/deleteMember",
+export const deleteProject = createAsyncThunk(
+  "data/deleteProjects",
   async (id) => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
-      await axios.delete(`${MembersUrl}/${id}`, {
+      await axios.delete(`${ProjectsUrl}/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accesstoken}`,
         },
@@ -89,21 +91,21 @@ export const deleteMember = createAsyncThunk(
   }
 );
 
-const memberSlice = createSlice({
-  name: "members",
+const projectSlice = createSlice({
+  name: "projects",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getMembers.pending, (state) => {
+      .addCase(getProjects.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getMembers.fulfilled, (state, action) => {
+      .addCase(getProjects.fulfilled, (state, action) => {
         state.data = action.payload;
         state.loading = false;
       })
-      .addCase(getMembers.rejected, (state, action) => {
+      .addCase(getProjects.rejected, (state, action) => {
         state.error = action.error.message;
         state.loading = false;
       });
@@ -142,4 +144,4 @@ const memberSlice = createSlice({
   },
 });
 
-export default memberSlice.reducer;
+export default projectSlice.reducer;

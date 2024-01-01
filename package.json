@@ -1,5 +1,5 @@
 {
-  "name": "horizon-ui-chakra",
+  "name": "tdc-dashoard",
   "version": "1.0.1",
   "private": true,
   "dependencies": {
@@ -22,6 +22,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0",
+    "chakra-multiselect": "^0.4.6",
     "framer-motion": "^4.1.17",
     "react": "17.0.2",
     "react-apexcharts": "1.4.0",

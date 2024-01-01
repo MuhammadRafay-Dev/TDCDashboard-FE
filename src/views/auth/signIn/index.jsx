@@ -1,5 +1,4 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
 // Chakra imports
 import {
   Box,
@@ -17,23 +16,46 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 // Custom components
-import { HSeparator } from "components/separator/Separator";
 import DefaultAuth from "layouts/auth/Default";
 // Assets
 import illustration from "assets/img/auth/auth.png";
-import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
-import {useDispatch} from 'react-redux'
-import login from "store/thunk/auth.thunk";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
+import login from "store/thunk/auth.thunk";
 
-import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import EmailModal from "./EmailModal";
+import axios from "axios";
+import { ForgetPasswordUrl } from "API/Urls";
 
 function SignIn() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = (email) => {
+    axios
+      .post(ForgetPasswordUrl, email)
+      .then((res) => {
+        console.log("res", res);
+        toast.success("Kindly check your Email");
+      })
+      .catch((err) => {
+        console.log("Error", err);
+        toast.error(err.response.data.message);
+      });
+  };
+
   // Chakra color mode
-  const navigate = useHistory()
+  const navigate = useHistory();
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
@@ -55,10 +77,10 @@ function SignIn() {
   //added by R
   const dispatch = useDispatch();
   const handleSignIn = () => {
-  dispatch(login({ email, password, navigate })).then((res)=>{
-    localStorage.setItem("userData",JSON.stringify(res.payload))
-  });
-};
+    dispatch(login({ email, password, navigate })).then((res) => {
+      localStorage.setItem("userData", JSON.stringify(res.payload));
+    });
+  };
 
   const handleClick = () => setShow(!show);
   return (
@@ -90,11 +112,6 @@ function SignIn() {
             Enter your email and password to sign in!
           </Text>
         </Box>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-        />
         <Flex
           zIndex="2"
           direction="column"
@@ -167,7 +184,7 @@ function SignIn() {
               <Input
                 isRequired={true}
                 fontSize="sm"
-                placeholder="Min. 8 characters"
+                placeholder="Min. 5 characters"
                 mb="24px"
                 size="lg"
                 type={show ? "text" : "password"}
@@ -201,16 +218,23 @@ function SignIn() {
                   Keep me logged in
                 </FormLabel>
               </FormControl>
-              <NavLink to="/auth/forgot-password">
-                <Text
-                  color={textColorBrand}
-                  fontSize="sm"
-                  w="124px"
-                  fontWeight="500"
-                >
+              {/* <NavLink to="/auth/forgot-password"> */}
+              <Text
+                color={textColorBrand}
+                fontSize="sm"
+                w="124px"
+                fontWeight="500"
+              >
+                <Button onClick={() => setIsModalOpen(true)}>
                   Forgot password?
-                </Text>
-              </NavLink>
+                </Button>
+                <EmailModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  onSubmit={handleSubmit}
+                />
+              </Text>
+              {/* </NavLink> */}
             </Flex>
             <Button
               fontSize="sm"

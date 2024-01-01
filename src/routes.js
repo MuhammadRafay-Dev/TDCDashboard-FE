@@ -24,13 +24,14 @@ import Clients from "views/clients";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
+import PasswordReset from "views/forget_password/components/PasswordReset";
 
 const routes = [
   {
     name: "Main Dashboard",
     layout: "/admin",
     path: "/default",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: MainDashboard,
   },
 
@@ -38,7 +39,7 @@ const routes = [
     name: "Members",
     layout: "/admin",
     path: "/members",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Members,
   },
 
@@ -46,7 +47,7 @@ const routes = [
     name: "Departments",
     layout: "/admin",
     path: "/departments",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Departments,
   },
 
@@ -54,7 +55,7 @@ const routes = [
     name: "Teams",
     layout: "/admin",
     path: "/teams",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Teams,
   },
 
@@ -62,7 +63,7 @@ const routes = [
     name: "Projects",
     layout: "/admin",
     path: "/projects",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Projects,
   },
 
@@ -70,7 +71,7 @@ const routes = [
     name: "Leads",
     layout: "/admin",
     path: "/leads",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Leads,
   },
 
@@ -78,7 +79,7 @@ const routes = [
     name: "Clients",
     layout: "/admin",
     path: "/clients",
-    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Clients,
   },
 
@@ -98,28 +99,35 @@ const routes = [
   //   secondary: true,
   // },
 
-  {
-    name: "Data Tables",
-    layout: "/admin",
-    icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
-    path: "/data-tables",
-    component: DataTables,
-  },
+  // {
+  //   name: "Data Tables",
+  //   layout: "/admin",
+  //   icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+  //   path: "/data-tables",
+  //   component: DataTables,
+  // },
 
-  {
-    name: "Profile",
-    layout: "/admin",
-    path: "/profile",
-    icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
-    component: Profile,
-  },
+  // {
+  //   name: "Profile",
+  //   layout: "/admin",
+  //   path: "/profile",
+  //   icon: <Icon as={MdPerson} width="20px" height="20px" color="inherit" />,
+  //   component: Profile,
+  // },
 
   {
     name: "Sign In",
     layout: "/auth",
     path: "/sign-in",
-    icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: SignInCentered,
+  },
+
+  {
+    name: "Password Reset",
+    layout: "/auth",
+    path: "/forget-password/verify",
+    component: PasswordReset,
   },
 
   // {
