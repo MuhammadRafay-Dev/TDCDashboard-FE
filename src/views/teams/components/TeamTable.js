@@ -31,17 +31,9 @@ const TeamTable = () => {
   const dispatch = useDispatch();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const data = useSelector((state) => state.members?.data);
-  const [members, setMembers] = useState(data);
   const [teamEditData, setTeamEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
-  const departmentData = useSelector(
-    (state) => state.department?.data?.departments
-  );
-  const [departments, setDepartments] = useState(departmentData);
-  const projectData = useSelector((state) => state.projects?.data);
-  const [projects, setProjects] = useState(projectData);
 
   //API Calls
   const triggerSave = () => {
@@ -110,15 +102,6 @@ const TeamTable = () => {
     dispatch(getTeams()).then((res) => {
       setTeams(res.payload);
     });
-    dispatch(getMembers()).then((res) => {
-      setMembers(res.payload);
-    });
-    dispatch(getDepartments()).then((res) => {
-      setDepartments(res.payload);
-    });
-    dispatch(getProjects()).then((res) => {
-      setProjects(res.payload);
-    });
   }, []);
 
   //Colors
@@ -141,9 +124,6 @@ const TeamTable = () => {
         onSave={handleSaveTeam}
         editData={teamEditData}
         edit={handleEditTeam}
-        memberData={members}
-        departmentData={departments}
-        projectData={projects}
       />
       <Box display="flex" justifyContent="space-between">
         <Box
@@ -173,8 +153,8 @@ const TeamTable = () => {
           <Tbody>
             {teams?.map((row) => (
               <Tr key={row._id}>
-                <Td>{row.name}</Td>
-                <Td>{row.technology}</Td>
+                <Td>{row?.name}</Td>
+                <Td>{row?.technology}</Td>
                 <Td>{row.department ? row.department.name : "N/A"}</Td>
                 <Td>{row.team_head ? row.team_head.name : "N/A"}</Td>
                 <Td>
@@ -182,18 +162,12 @@ const TeamTable = () => {
                     ? row.members?.map((member) => member.name).join(", ")
                     : "N/A"}
                 </Td>
+                {/* <Td>{row?.project?.name}</Td> */}
                 <Td>
-                  {row.project
-                    ? projects?.find(
-                        (project) => project._id === row.project._id
-                      )?.name
-                    : "N/A"}
-                </Td>
-                {/* <Td>
                   {row.projects && row.projects.length > 0
                     ? row.projects?.map((project) => project.name).join(", ")
                     : "N/A"}
-                </Td> */}
+                </Td>
                 <Td>
                   <Button
                     align="center"

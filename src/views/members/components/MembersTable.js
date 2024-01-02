@@ -11,15 +11,18 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
-import { getDepartments } from "store/thunk/department.thunk";
-import { addMember, deleteMember, editMember, getMembers } from "store/thunk/member.thunk";
+import {
+  addMember,
+  deleteMember,
+  editMember,
+  getMembers,
+} from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
 const MembersTable = () => {
   //States
@@ -28,12 +31,6 @@ const MembersTable = () => {
   const memberData = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
-  const teamData = useSelector((state) => state.teams?.data);
-  const [teams, setTeams] = useState(teamData);
-  const departmentData = useSelector(
-    (state) => state.department?.data?.departments
-  );
-  const [departments, setDepartments] = useState(departmentData);
 
   //API Calls
   const triggerSave = () => {
@@ -86,12 +83,6 @@ const MembersTable = () => {
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
-    dispatch(getTeams()).then((res) => {
-      setTeams(res.payload);
-    });
-    dispatch(getDepartments()).then((res) => {
-      setDepartments(res.payload);
-    });
   }, []);
 
   //Search
@@ -124,8 +115,6 @@ const MembersTable = () => {
         onSave={handleSaveMember}
         editData={memberEditData}
         edit={handleEditMember}
-        teamData={teams}
-        departmentData={departments}
       />
       <Box display="flex" justifyContent="space-between">
         <Box

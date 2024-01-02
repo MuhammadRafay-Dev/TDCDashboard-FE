@@ -30,7 +30,8 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
   const navigate = useHistory();
-
+  const path = navigate?.location?.pathname;
+  console.log("history", navigate);
   const handleLogout = () => {
     localStorage.clear();
     navigate.push("/auth");
@@ -62,11 +63,13 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
-      <SearchBar
-        mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-        me="10px"
-        borderRadius="30px"
-      />
+      {path === "/admin/default" && (
+        <SearchBar
+          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
+          me="10px"
+          borderRadius="30px"
+        />
+      )}
       <Flex
         bg={ethBg}
         display={secondary ? "flex" : "none"}
@@ -163,7 +166,6 @@ export default function HeaderLinks(props) {
           </Flex>
         </MenuList>
       </Menu>
-
       <Menu>
         <MenuButton p="0px">
           <Icon
@@ -228,9 +230,7 @@ export default function HeaderLinks(props) {
           </Flex>
         </MenuList>
       </Menu>
-
       <ThemeEditor navbarIcon={navbarIcon} />
-
       <Menu>
         <MenuButton p="0px">
           <Avatar

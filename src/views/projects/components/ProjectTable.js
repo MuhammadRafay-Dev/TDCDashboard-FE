@@ -6,7 +6,6 @@ import {
   Thead,
   Tr,
   Box,
-  Flex,
   Button,
   useDisclosure,
   useColorModeValue,
@@ -14,12 +13,9 @@ import {
   Td,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/thunk/member.thunk";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
-import { getDepartments } from "store/thunk/department.thunk";
 import { getProjects } from "store/reducer/projects.reducer";
 import { addProject } from "store/reducer/projects.reducer";
 import { deleteProject } from "store/reducer/projects.reducer";
@@ -31,11 +27,7 @@ const ProjectTable = () => {
   const dispatch = useDispatch();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const data = useSelector((state) => state.members?.data);
-  const [members, setMembers] = useState(data);
   const [projectEditData, setProjectEditData] = useState(null);
-  const teamData = useSelector((state) => state.teams?.data);
-  const [teams, setTeams] = useState(teamData);
   const projectData = useSelector((state) => state.projects?.data);
   const [projects, setProjects] = useState(projectData);
 
@@ -96,12 +88,6 @@ const ProjectTable = () => {
     dispatch(getProjects()).then((res) => {
       setProjects(res.payload);
     });
-    dispatch(getMembers()).then((res) => {
-      setMembers(res.payload);
-    });
-    dispatch(getTeams()).then((res) => {
-      setTeams(res.payload);
-    });
   }, []);
 
   //Search
@@ -134,8 +120,6 @@ const ProjectTable = () => {
         onSave={handleSaveProject}
         editData={projectEditData}
         edit={handleEditProject}
-        memberData={members}
-        teamData={teams}
       />
       <Box display="flex" justifyContent="space-between">
         <Box

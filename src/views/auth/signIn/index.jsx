@@ -14,6 +14,7 @@ import {
   InputRightElement,
   Text,
   useColorModeValue,
+  CircularProgress,
 } from "@chakra-ui/react";
 // Custom components
 import DefaultAuth from "layouts/auth/Default";
@@ -50,6 +51,7 @@ function SignIn() {
       })
       .catch((err) => {
         console.log("Error", err);
+
         toast.error(err.response.data.message);
       });
   };
@@ -72,14 +74,50 @@ function SignIn() {
     { bg: "whiteAlpha.200" }
   );
   const [show, setShow] = React.useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = React.useState(""); // initial value of email and its state. use setstate fucntion to change that
   const [password, setPassword] = React.useState("");
+
+  //Validations
+  const isValidEmailPattern =
+    /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email);
+  const emailError =
+    email && !isValidEmailPattern ? "Please enter a valid email address." : "";
   //added by R
   const dispatch = useDispatch();
+
   const handleSignIn = () => {
-    dispatch(login({ email, password, navigate })).then((res) => {
-      localStorage.setItem("userData", JSON.stringify(res.payload));
-    });
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (emailError) {
+      toast.error(emailError);
+      return;
+    }
+    if (!password) {
+      toast.error("Please enter your password");
+      return;
+    }
+    if (password.length < 5) {
+      toast.error("Minimum length of password is 5");
+      return;
+    }
+
+    setLoading(true);
+    dispatch(login({ email, password }))
+      .then((res) => {
+        console.log("Res", res);
+        navigate.push("/admin");
+        toast.success(res?.payload?.message);
+        localStorage.setItem("userData", JSON.stringify(res.payload));
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error", error);
+        toast.error(error?.response?.data?.message || "An error occurred");
+        setLoading(false);
+      });
   };
 
   const handleClick = () => setShow(!show);
@@ -244,8 +282,13 @@ function SignIn() {
               h="50"
               mb="24px"
               onClick={handleSignIn}
+              isDisabled={loading}
             >
-              Sign In
+              {loading ? (
+                <CircularProgress size="20px" color="white" />
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </FormControl>
           {/* <Flex
