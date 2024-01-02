@@ -9,7 +9,7 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { toast } from "react-toastify";
 import {
   deleteDepartments,
@@ -18,8 +18,8 @@ import {
 import { getMembers } from "store/thunk/member.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
 
-const DepartmentTable = ({ isOpen }) => {
-  const { departments } = useSelector((state) => state.department.data);
+const DepartmentTable = ({ filteredData }) => {
+  // const { departments } = useSelector((state) => state.department.data);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -83,8 +83,8 @@ const DepartmentTable = ({ isOpen }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {departments &&
-              departments?.map((row, index) => {
+            {filteredData &&
+              filteredData?.map((row, index) => {
                 // console.log(row.departmentHead)
                 return (
                   <Tr key={row._id}>

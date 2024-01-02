@@ -12,15 +12,18 @@ import {
   Tr,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 import { formatDateString, formatDateWithAMPM } from "../../../utils/index";
 import LeadModal from "./LeadModal";
 
-const LeadTable = () => {
-  const { leads } = useSelector((state) => state.lead.data);
+const LeadTable = ({filteredData}) => {
+  // console.log(search, "Search test")
+  // const { leads } = useSelector((state) => state.lead.data);
+  // console.log("leared", filteredData);
+  
   // console.log(leads, "LeadTable");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +46,8 @@ const LeadTable = () => {
   const toggleAccordion = (rowId) => {
     setExpandedRow((prevRow) => (prevRow === rowId ? null : rowId));
   };
+
+
 
   const handleClickDelete = async (id) => {
     try {
@@ -103,8 +108,8 @@ const LeadTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {leads &&
-              leads?.map((row, index) => (
+            {filteredData &&
+              filteredData?.map((row, index) => (
                 <React.Fragment key={row._id}>
                   <Tr>
                     <Td>{row?.name}</Td>
