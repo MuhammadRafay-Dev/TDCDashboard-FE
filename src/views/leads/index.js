@@ -24,7 +24,7 @@ export default function Leads() {
       setClients(res.payload);
     });
   };
-
+  //Search
   useEffect(() => {
     setFilteredData(leads);
   }, [leads]);
@@ -47,11 +47,7 @@ export default function Leads() {
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
       <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
-          <Box
-            padding={"8px"}
-            backgroundColor={"lightgray"}
-            borderRadius={"30px"}
-          >
+          <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
             <SearchBar
               Filter={filterSearch}
               placeholder={"search by name..."}

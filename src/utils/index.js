@@ -1,10 +1,11 @@
 function formatDateString(dateString) {
   const date = new Date(dateString);
 
-  // Format the date into a standard date format (e.g., "MM/DD/YYYY")
-  const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/
-                          ${date.getDate().toString().padStart(2, "0")}/
-                          ${date.getFullYear()}`;
+// Format the date into a standard date format (e.g., "YYYY/MM/DD")
+const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/
+                      ${date.getDate().toString().padStart(2, "0")}/
+                      ${date.getFullYear()}`;
+
 
   return formattedDate;
 }

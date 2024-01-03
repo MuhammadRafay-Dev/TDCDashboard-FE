@@ -79,7 +79,7 @@ const LeadModal = ({
       } else {
         // Add new lead
         await dispatch(addLeads(leadData));
-        console.log(leadData, "if check")
+        // console.log(leadData, "if check")
       }
       // Display success toast
       toast.success("Lead Update successfully!");

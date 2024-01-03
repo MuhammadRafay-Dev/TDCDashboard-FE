@@ -30,8 +30,7 @@ const getLeads = createAsyncThunk("leads/getLeads", async () => {
 const addLeads = createAsyncThunk("leads/addLeads", async (leadData) => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   try {
-    const response = await axios.post(ADD_LEADS,
-      leadData,  {
+    const response = await axios.post(ADD_LEADS, leadData, {
       headers: { Authorization: `Bearer ${userData.accesstoken}` },
     });
     return response?.data;
@@ -40,24 +39,20 @@ const addLeads = createAsyncThunk("leads/addLeads", async (leadData) => {
   }
 });
 
-
 // Delete Leads:
-const deleteLeads = createAsyncThunk(
-  "leads/deleteLeads",
-  async (id) => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    try {
-      const response = await axios.delete(DELETE_LEADS + `/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userData.accesstoken}`,
-        },
-      });
-      return response?.data;
-    } catch (err) {
-      return err;
-    }
+const deleteLeads = createAsyncThunk("leads/deleteLeads", async (id) => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  try {
+    const response = await axios.delete(DELETE_LEADS + `/${id}`, {
+      headers: {
+        Authorization: `Bearer ${userData.accesstoken}`,
+      },
+    });
+    return response?.data;
+  } catch (err) {
+    return err;
   }
-);
+});
 
 // Update Leads:
 const updateLeads = createAsyncThunk(
@@ -83,4 +78,3 @@ const updateLeads = createAsyncThunk(
 );
 
 export { addLeads, deleteLeads, getLeads, updateLeads };
-
