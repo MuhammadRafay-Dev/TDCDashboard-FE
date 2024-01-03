@@ -1,4 +1,4 @@
-export const BaseUrl = "https://tdc-dashboard-5ec92093d7de.herokuapp.com/";
+export const BaseUrl = process.env.REACT_APP_BASE_URL + "/";//"https://tdc-dashboard-live-f85386482a00.herokuapp.com/";
 export const MembersUrl = BaseUrl + "members";
 export const Add_MemberUrl = MembersUrl + "/create";
 export const TeamsUrl = BaseUrl + "teams";
