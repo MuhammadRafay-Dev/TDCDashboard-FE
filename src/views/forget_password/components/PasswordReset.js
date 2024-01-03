@@ -36,16 +36,6 @@ const PasswordReset = () => {
   // console.log(token, "Token test")
 
   const handleSubmit = () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-
-    // Check if userData or accesstoken is missing
-    if (!userData || !userData.accesstoken) {
-      console.error("Invalid or missing access token in localStorage");
-      // Handle the error appropriately (e.g., redirect the user or display an error message)
-      return;
-    }
-
-    // setLoading(true);
 
     // Check if token is present in the URL
     if (token) {
@@ -68,6 +58,14 @@ const PasswordReset = () => {
           setLoading(false);
         });
     } else {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+
+      // Check if userData or accesstoken is missing
+      if (!userData || !userData.accesstoken) {
+        console.error("Invalid or missing access token in localStorage");
+        // Handle the error appropriately (e.g., redirect the user or display an error message)
+        return;
+      }
       // Reset password using the regular flow
       axios
         .post(ResetPassword, passwords, {
