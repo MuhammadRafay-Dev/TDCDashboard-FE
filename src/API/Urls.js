@@ -27,3 +27,6 @@ export const UPDATE_CLIENTS = BaseUrl + "clients";
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
 export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";
+
+//Rest Password:
+export const ResetPassword = MembersUrl + "/reset_password";
