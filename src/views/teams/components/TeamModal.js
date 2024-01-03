@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   Collapse,
-  Flex,
   FormControl,
   FormLabel,
   IconButton,
@@ -27,7 +26,7 @@ import { getProjects } from "store/reducer/projects.reducer";
 import { getDepartments } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 
-const TeamModal = ({ open, close, onSave, editData, edit }) => {
+const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
     name: "",
     technology: "",
@@ -82,9 +81,9 @@ const TeamModal = ({ open, close, onSave, editData, edit }) => {
     if (editData) {
       if (!teamData.members) {
         const { members, ...newMemData } = teamData;
-        edit(newMemData);
+        edit(newMemData, index);
       } else {
-        edit(teamData);
+        edit(teamData, index);
       }
     } else {
       onSave(teamData);

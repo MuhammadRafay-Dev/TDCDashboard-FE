@@ -105,17 +105,13 @@ function SignIn() {
     }
 
     setLoading(true);
-    dispatch(login({ email, password }))
+    dispatch(login({ email, password, navigate }))
       .then((res) => {
-        console.log("Res", res);
-        navigate.push("/admin");
-        toast.success(res?.payload?.message);
-        localStorage.setItem("userData", JSON.stringify(res.payload));
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error", error);
-        toast.error(error?.response?.data?.message || "An error occurred");
+        // toast.error(error?.response?.data?.message || "An error occurred");
         setLoading(false);
       });
   };

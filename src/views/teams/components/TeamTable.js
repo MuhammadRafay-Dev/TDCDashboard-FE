@@ -6,25 +6,22 @@ import {
   Thead,
   Tr,
   Box,
-  Flex,
   Button,
   useDisclosure,
   useColorModeValue,
   Icon,
   Td,
+  Spinner,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/thunk/member.thunk";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
-import { getDepartments } from "store/thunk/department.thunk";
 import TeamModal from "./TeamModal";
 import { addTeam } from "store/reducer/teams.reducer";
 import { deleteTeam } from "store/reducer/teams.reducer";
 import { editTeam } from "store/reducer/teams.reducer";
-import { getProjects } from "store/reducer/projects.reducer";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const TeamTable = () => {
@@ -34,6 +31,10 @@ const TeamTable = () => {
   const [teamEditData, setTeamEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
+  const [indexOfRow, setIndexOfRow] = useState(null);
+  const [rowLoadingStates, setRowLoadingStates] = useState(
+    teams?.map(() => false) || []
+  );
 
   //API Calls
   const triggerSave = () => {
@@ -55,36 +56,67 @@ const TeamTable = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
+    });
     try {
       dispatch(deleteTeam(id)).then((res) => {
         dispatch(getTeams()).then((res) => {
           setTeams(res.payload);
           toast.success("Team Deleted Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
         });
       });
     } catch (error) {
       console.log("Error Deleting Team");
       toast.error("Error Deleting Team");
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
     }
   };
 
-  const triggerEdit = (rowData) => {
+  const triggerEdit = (rowData, index) => {
     setTeamEditData(rowData);
+    setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditTeam = (teamData) => {
+  const handleEditTeam = (teamData, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
+    });
     try {
       dispatch(editTeam(teamData)).then((res) => {
         dispatch(getTeams()).then((res) => {
           setTeams(res.payload);
           toast.success("Team Edited Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
         });
       });
     } catch (error) {
       console.log("Error Editing Team");
       toast.error("Error Editing Team");
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
     }
   };
 
@@ -124,6 +156,7 @@ const TeamTable = () => {
         onSave={handleSaveTeam}
         editData={teamEditData}
         edit={handleEditTeam}
+        index={indexOfRow}
       />
       <Box display="flex" justifyContent="space-between">
         <Box
@@ -151,8 +184,8 @@ const TeamTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {teams?.map((row) => (
-              <Tr key={row._id}>
+            {teams?.map((row, index) => (
+              <Tr key={index}>
                 <Td>{row?.name}</Td>
                 <Td>{row?.technology}</Td>
                 <Td>{row.department ? row.department.name : "N/A"}</Td>
@@ -168,54 +201,46 @@ const TeamTable = () => {
                     ? row.projects?.map((project) => project.name).join(", ")
                     : "N/A"}
                 </Td>
-                <Td>
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => triggerEdit(row)}
-                  >
-                    <Icon
-                      as={EditIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                <Td textAlign="center">
+                  {rowLoadingStates[index] ? (
+                    <Spinner size="sm" color="blue.500" />
+                  ) : (
+                    <>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => triggerEdit(row, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={EditIcon} color={"blue"} boxSize={5} />
+                      </Button>
 
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => handleDelete(row._id)}
-                  >
-                    <Icon
-                      as={DeleteIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => handleDelete(row._id, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={DeleteIcon} color={"blue"} boxSize={5} />
+                      </Button>
+                    </>
+                  )}
                 </Td>
               </Tr>
             ))}

@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   Collapse,
-  Flex,
   FormControl,
   FormLabel,
   IconButton,
@@ -26,7 +25,7 @@ import { toast } from "react-toastify";
 import { getTeams } from "store/reducer/teams.reducer";
 import { getDepartments } from "store/thunk/department.thunk";
 
-const MemberModal = ({ open, close, onSave, editData, edit }) => {
+const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
     name: "",
     email: "",
@@ -115,9 +114,9 @@ const MemberModal = ({ open, close, onSave, editData, edit }) => {
       if (editData) {
         if (!memberData.teams) {
           const { teams, ...newMemData } = memberData;
-          edit(newMemData);
+          edit(newMemData, index);
         } else {
-          edit(newMemberData);
+          edit(newMemberData, index);
         }
       } else {
         onSave(newMemberData);
@@ -127,9 +126,9 @@ const MemberModal = ({ open, close, onSave, editData, edit }) => {
       if (editData) {
         if (!memberData.teams) {
           const { teams, ...newMemberData } = memberData;
-          edit(newMemberData);
+          edit(newMemberData, index);
         } else {
-          edit(memberData);
+          edit(memberData, index);
         }
       } else {
         onSave(memberData);
@@ -181,7 +180,7 @@ const MemberModal = ({ open, close, onSave, editData, edit }) => {
       <Modal isOpen={open} onClose={close}>
         <ModalOverlay />
         <ModalContent overflowY="auto" maxHeight={500}>
-          <ModalHeader>{editData?"Edit Member":"Add Member"}</ModalHeader>
+          <ModalHeader>{editData ? "Edit Member" : "Add Member"}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}

@@ -31,7 +31,7 @@ import { getTeams } from "store/reducer/teams.reducer";
 import { getClients } from "store/thunk/client.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 
-const ProjectModal = ({ open, close, onSave, editData, edit }) => {
+const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
     name: "",
     tech_stack: "",
@@ -123,9 +123,9 @@ const ProjectModal = ({ open, close, onSave, editData, edit }) => {
     if (editData) {
       if (!projectData.teams_assigned) {
         const { teams_assigned, ...newMemData } = teamData;
-        edit(newMemData);
+        edit(newMemData, index);
       } else {
-        edit(projectData);
+        edit(projectData, index);
       }
     } else {
       onSave(projectData);

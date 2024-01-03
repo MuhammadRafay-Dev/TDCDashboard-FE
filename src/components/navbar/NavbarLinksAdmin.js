@@ -31,7 +31,6 @@ export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
   const navigate = useHistory();
   const path = navigate?.location?.pathname;
-  console.log("history", navigate);
   const handleLogout = () => {
     localStorage.clear();
     navigate.push("/auth");

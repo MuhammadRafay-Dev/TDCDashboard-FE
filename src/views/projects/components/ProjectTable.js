@@ -11,6 +11,7 @@ import {
   useColorModeValue,
   Icon,
   Td,
+  Spinner,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
@@ -30,6 +31,10 @@ const ProjectTable = () => {
   const [projectEditData, setProjectEditData] = useState(null);
   const projectData = useSelector((state) => state.projects?.data);
   const [projects, setProjects] = useState(projectData);
+  const [indexOfRow, setIndexOfRow] = useState(null);
+  const [rowLoadingStates, setRowLoadingStates] = useState(
+    projects?.map(() => false) || []
+  );
 
   //API Calls
   const triggerSave = () => {
@@ -51,36 +56,67 @@ const ProjectTable = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
+    });
     try {
       dispatch(deleteProject(id)).then((res) => {
         dispatch(getProjects()).then((res) => {
           setProjects(res.payload);
           toast.success("Project Deleted Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
         });
       });
     } catch (error) {
       console.log("Error Deleting Project");
       toast.error("Error Deleting Project");
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
     }
   };
 
-  const triggerEdit = (rowData) => {
+  const triggerEdit = (rowData, index) => {
     setProjectEditData(rowData);
+    setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditProject = (projectData) => {
+  const handleEditProject = (projectData, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
+    });
     try {
       dispatch(editProject(projectData)).then((res) => {
         dispatch(getProjects()).then((res) => {
           setProjects(res.payload);
           toast.success("Project Edited Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
         });
       });
     } catch (error) {
       console.log("Error Editing Project");
       toast.error("Error Editing Project");
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
     }
   };
 
@@ -120,6 +156,7 @@ const ProjectTable = () => {
         onSave={handleSaveProject}
         editData={projectEditData}
         edit={handleEditProject}
+        index={indexOfRow}
       />
       <Box display="flex" justifyContent="space-between">
         <Box
@@ -149,8 +186,8 @@ const ProjectTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {projects?.map((row) => (
-              <Tr key={row._id}>
+            {projects?.map((row, index) => (
+              <Tr key={index}>
                 <Td>{row?.name}</Td>
                 <Td>{row?.team_lead?.name ?? "N/A"}</Td>
                 <Td>{row?.sales_coordinator?.name ?? "N/A"}</Td>
@@ -168,54 +205,46 @@ const ProjectTable = () => {
                 <Td>{row?.status}</Td>
                 <Td>{new Date(row.start_date).toLocaleDateString()}</Td>
                 <Td>{new Date(row.end_date).toLocaleDateString()}</Td>
-                <Td>
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => triggerEdit(row)}
-                  >
-                    <Icon
-                      as={EditIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                <Td textAlign="center">
+                  {rowLoadingStates[index] ? (
+                    <Spinner size="sm" color="blue.500" />
+                  ) : (
+                    <>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => triggerEdit(row, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={EditIcon} color={"blue"} boxSize={5} />
+                      </Button>
 
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => handleDelete(row._id)}
-                  >
-                    <Icon
-                      as={DeleteIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => handleDelete(row._id, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={DeleteIcon} color={"blue"} boxSize={5} />
+                      </Button>
+                    </>
+                  )}
                 </Td>
               </Tr>
             ))}
