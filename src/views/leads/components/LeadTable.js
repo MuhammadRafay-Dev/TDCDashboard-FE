@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
 import { getMembers } from "store/thunk/member.thunk";
-import { formatDateString, formatDateWithAMPM } from "../../../utils/index";
+import { formatDateString} from "../../../utils/index";
 import LeadModal from "./LeadModal";
 
 const LeadTable = ({filteredData}) => {
@@ -126,8 +126,8 @@ const LeadTable = ({filteredData}) => {
                     </Td>
                     <Td>{row?.jobDescription}</Td>
                     <Td>{row?.sentDescription}</Td>
-                    <Td>{formatDateWithAMPM(row?.appointment)}</Td>
-                    <Td>{formatDateWithAMPM(row?.call)}</Td>
+                    <Td>{formatDateString(row?.appointment)}</Td>
+                    <Td>{formatDateString(row?.call)}</Td>
                     <Td>{row?.createdBy.name}</Td>
                     <Td>
                       <ViewIcon
