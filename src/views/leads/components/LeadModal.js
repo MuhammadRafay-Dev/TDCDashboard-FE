@@ -42,6 +42,7 @@ const LeadModal = ({
     leadStatus: "",
   });
 
+  const isUpdateMode = !!leadId;
   useEffect(() => {
     // Update the state when formProp changes
     setLeadData({ ...leadProp });
@@ -71,7 +72,7 @@ const LeadModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (leadId) {
         // Update existing lead
@@ -79,14 +80,27 @@ const LeadModal = ({
       } else {
         // Add new lead
         await dispatch(addLeads(leadData));
-        console.log(leadData, "if check")
+        // console.log(leadData, "if check")
       }
+
+      setLeadData({
+        name: "",
+        date: "",
+        salesTeamMember: "",
+        client: "",
+        linkJobApplied: "",
+        jobDescription: "",
+        sentDescription: "",
+        appointment: "",
+        call: "",
+        leadStatus: "",
+      });
       // Display success toast
       toast.success("Lead Update successfully!");
-  
+
       // Refresh leads after the update
-       dispatch(getLeads());
-  
+      dispatch(getLeads());
+
       // Close the modal after submitting
       onClose();
     } catch (error) {
@@ -95,13 +109,11 @@ const LeadModal = ({
     }
   };
 
-
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update Lead</ModalHeader>
+        <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
@@ -194,7 +206,7 @@ const LeadModal = ({
             <FormControl>
               <FormLabel>Appointment</FormLabel>
               <Input
-                type="datetime-local"
+                type="date"
                 name="appointment"
                 value={leadData.appointment}
                 onChange={handleChange}
@@ -204,7 +216,7 @@ const LeadModal = ({
             <FormControl>
               <FormLabel>Call</FormLabel>
               <Input
-                type="datetime-local"
+                type="date"
                 name="call"
                 value={leadData.call}
                 onChange={handleChange}

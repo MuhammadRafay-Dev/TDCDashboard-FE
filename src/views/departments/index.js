@@ -42,7 +42,7 @@ export default function Departments() {
         <Box display="flex" justifyContent="space-between">
         <Box
             padding={"8px"}
-            backgroundColor={"lightgray"}
+            backgroundColor={"white"}
             borderRadius={"30px"}
           >
             <SearchBar

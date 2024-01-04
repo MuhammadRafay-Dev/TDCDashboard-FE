@@ -14,14 +14,19 @@ export const UPDATE_DEPARTMENTS = BaseUrl + "department";
 
 //Leads:
 export const GET_LEADS = BaseUrl + "leads";
-export const ADD_LEADS = GET_LEADS  + "/create";
+export const ADD_LEADS = GET_LEADS + "/create";
 export const DELETE_LEADS = BaseUrl + "leads";
 export const UPDATE_LEADS = BaseUrl + "leads";
 
 //Clients
 export const GET_CLIENTS = BaseUrl + "clients";
-
+export const ADD_CLIENTS = GET_CLIENTS + "/create";
+export const DELETE_CLIENTS = BaseUrl + "clients";
+export const UPDATE_CLIENTS = BaseUrl + "clients";
 
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
 export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";
+
+//Rest Password:
+export const ResetPassword = MembersUrl + "/reset_password";

@@ -1,35 +1,28 @@
 // PasswordResetPage.js
-import React, { useState, useEffect } from "react";
 import {
   Box,
-  Heading,
-  Input,
   Button,
-  Spinner,
   FormControl,
   FormLabel,
+  Heading,
+  Input,
+  Spinner,
 } from "@chakra-ui/react";
-import {
-  useHistory,
-  useLocation,
-} from "react-router-dom/cjs/react-router-dom.min";
-import { toast } from "react-toastify";
+import { ResetForgotPasswordUrl, ResetPassword, VerifyUrl } from "API/Urls";
 import axios from "axios";
-import { ResetForgotPasswordUrl } from "API/Urls";
-import { VerifyUrl } from "API/Urls";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { toast } from "react-toastify";
 
 const PasswordReset = () => {
-  const [loading, setLoading] = useState(true);
-  const initialData = {
+  const history = useHistory();
+  const [loading, setLoading] = useState(false);
+  const [passwords, setPasswords] = useState({
+    old_password: "",
     new_password: "",
     confirm_password: "",
-  };
-  const [passwords, setPasswords] = useState(initialData);
-  const history = useHistory();
-
-  const { search } = useLocation();
-  const queryParams = new URLSearchParams(search);
-  const token = queryParams.get("token");
+  });
 
   const handleInputChange = (field, values) => {
     setPasswords((prevData) => ({
@@ -37,55 +30,77 @@ const PasswordReset = () => {
       [field]: values,
     }));
   };
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const token = queryParams.get("token");
+  // console.log(token, "Token test")
 
   const handleSubmit = () => {
-    if (!passwords.new_password) {
-      toast.error("please Enter New Password");
-      return;
-    }
-    if (passwords.new_password.length < 5) {
-      toast.error("Min Password length is 5");
-      return;
-    }
-    if (!passwords.confirm_password) {
-      toast.error("please Enter Confirm Password");
-      return;
-    }
-    if (passwords.new_password !== passwords.confirm_password) {
-      toast.error("Confirm Password is not same as New Password");
-      return;
-    }
 
-    axios
-      .post(ResetForgotPasswordUrl, passwords, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        toast.success(res.data.message);
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+    // Check if token is present in the URL
+    if (token) {
+      // console.log("JJK", token);
+      // Reset password using token
+      axios
+        .post(ResetForgotPasswordUrl, passwords, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          toast.success(res.data.message);
+          history.push("/login"); // Redirect to login after successful password reset
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+
+      // Check if userData or accesstoken is missing
+      if (!userData || !userData.accesstoken) {
+        console.error("Invalid or missing access token in localStorage");
+        // Handle the error appropriately (e.g., redirect the user or display an error message)
+        return;
+      }
+      // Reset password using the regular flow
+      axios
+        .post(ResetPassword, passwords, {
+          headers: {
+            Authorization: `Bearer ${userData.accesstoken || ""}`, // Use an empty string if accesstoken is missing
+          },
+        })
+        .then((res) => {
+          toast.success(res.data.message);
+          history.push("/login");
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   };
 
-  let count = 1;
   useEffect(() => {
-    if (count === 1) {
+    if (token) {
       axios
         .post(VerifyUrl + token)
         .then((res) => {
-          setLoading(false);
+          // console.log(res, "hello");
+          // setLoading(false);
         })
         .catch((err) => {
           console.log("err", err);
           toast.error(err.response.data.message);
           history.push("/auth");
         });
-      count++;
     }
-  }, []);
+  }, [token]);
 
   return (
     <Box
@@ -117,29 +132,73 @@ const PasswordReset = () => {
           </Box>
         ) : (
           <Box>
-            <FormControl mb={4}>
-              <FormLabel>New Password</FormLabel>
-              <Input
-                type="password"
-                placeholder="Enter new password"
-                value={passwords.new_password}
-                onChange={(e) =>
-                  handleInputChange("new_password", e.target.value)
-                }
-              />
-            </FormControl>
+            {token ? ( // Assuming 'token' is a variable that indicates whether it's a forgot password scenario
+              <>
+                {/* Fields for Forget password */}
+                <FormControl mb={4}>
+                  <FormLabel>New Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Enter new password"
+                    value={passwords.new_password}
+                    onChange={(e) =>
+                      handleInputChange("new_password", e.target.value)
+                    }
+                  />
+                </FormControl>
 
-            <FormControl mb={4}>
-              <FormLabel>Confirm New Password</FormLabel>
-              <Input
-                type="password"
-                placeholder="Confirm new password"
-                value={passwords.confirm_password}
-                onChange={(e) =>
-                  handleInputChange("confirm_password", e.target.value)
-                }
-              />
-            </FormControl>
+                <FormControl mb={4}>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={passwords.confirm_password}
+                    onChange={(e) =>
+                      handleInputChange("confirm_password", e.target.value)
+                    }
+                  />
+                </FormControl>
+              </>
+            ) : (
+              <>
+                {/* Fields for Rest Passowrd */}
+
+                <FormControl mb={4}>
+                  <FormLabel>Old Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Enter old password"
+                    value={passwords.old_password}
+                    onChange={(e) =>
+                      handleInputChange("old_password", e.target.value)
+                    }
+                  />
+                </FormControl>
+                <FormControl mb={4}>
+                  <FormLabel>New Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Enter new password"
+                    value={passwords.new_password}
+                    onChange={(e) =>
+                      handleInputChange("new_password", e.target.value)
+                    }
+                  />
+                </FormControl>
+
+                <FormControl mb={4}>
+                  <FormLabel>Confirm New Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={passwords.confirm_password}
+                    onChange={(e) =>
+                      handleInputChange("confirm_password", e.target.value)
+                    }
+                  />
+                </FormControl>
+              </>
+            )}
 
             <Button colorScheme="blue" onClick={handleSubmit}>
               Submit

@@ -32,8 +32,11 @@ const EmployeeFormModal = ({
   departmentId,
 }) => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name: "",
+  });
 
+  const isUpdateMode = !!departmentId;
   useEffect(() => {
     // Update the state when formProp changes
     setFormData({ ...formProp });
@@ -51,7 +54,7 @@ const EmployeeFormModal = ({
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (departmentId) {
         // Update existing department
@@ -60,12 +63,14 @@ const EmployeeFormModal = ({
         // Add new department
         await dispatch(addDepartments(formData));
       }
+
+      setFormData({ name: "" });
       // Display success toast
       toast.success("Department Update successfully!");
-  
+
       // Refresh departments after the update
-       dispatch(getDepartments());
-  
+      dispatch(getDepartments());
+
       // Close the modal after submitting
       onClose();
     } catch (error) {
@@ -73,13 +78,13 @@ const EmployeeFormModal = ({
       toast.error("An error occurred. Please try again.");
     }
   };
-  
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update Department</ModalHeader>
+        <ModalHeader>
+          {isUpdateMode ? "Edit Department" : "Add Department"}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
