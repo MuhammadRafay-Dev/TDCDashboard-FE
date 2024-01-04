@@ -25,14 +25,18 @@ import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
 import routes from "routes.js";
 import { ThemeEditor } from "./ThemeEditor";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { clearUser } from "store/reducer/auth.reducer";
 export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
+
+  const dispatch = useDispatch();
   const navigate = useHistory();
   const path = navigate?.location?.pathname;
   const handleLogout = () => {
     localStorage.clear();
+    dispatch(clearUser());
     navigate.push("/auth");
   };
 

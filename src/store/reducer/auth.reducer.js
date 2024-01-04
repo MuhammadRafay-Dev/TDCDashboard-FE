@@ -17,7 +17,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      state.user = action.payload;
+      // state.user = action.payload;
       state.isAuthenticated = true;
     },
     clearUser: (state) => {
@@ -31,11 +31,13 @@ const authSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, action) => {
       state.isAuthenticated = true;
-      state.user.accesstoken = action.payload?.accesstoken;
-      state.user.name = action?.payload?.name;
-      state.user.role = action?.payload?.role;
+      // state.user.accesstoken = action.payload?.accesstoken;
+      // state.user.name = action?.payload?.name;
+      // state.user.role = action?.payload?.role;
     });
   },
 });
 
 export default authSlice.reducer;
+
+export const { setUser, clearUser } = authSlice.actions;
