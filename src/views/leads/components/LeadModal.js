@@ -42,6 +42,7 @@ const LeadModal = ({
     leadStatus: "",
   });
 
+  const isUpdateMode = !!leadId;
   useEffect(() => {
     // Update the state when formProp changes
     setLeadData({ ...leadProp });
@@ -79,7 +80,7 @@ const LeadModal = ({
       } else {
         // Add new lead
         await dispatch(addLeads(leadData));
-        console.log(leadData, "if check")
+        // console.log(leadData, "if check")
       }
       // Display success toast
       toast.success("Lead Update successfully!");
@@ -101,7 +102,7 @@ const LeadModal = ({
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update Lead</ModalHeader>
+      <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">
@@ -194,7 +195,7 @@ const LeadModal = ({
             <FormControl>
               <FormLabel>Appointment</FormLabel>
               <Input
-                type="datetime-local"
+                type="date"
                 name="appointment"
                 value={leadData.appointment}
                 onChange={handleChange}
@@ -204,7 +205,7 @@ const LeadModal = ({
             <FormControl>
               <FormLabel>Call</FormLabel>
               <Input
-                type="datetime-local"
+                type="date"
                 name="call"
                 value={leadData.call}
                 onChange={handleChange}
