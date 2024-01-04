@@ -12,7 +12,7 @@ export default function Leads() {
   const [clients, setClients] = useState([]);
   const dispatch = useDispatch();
   const { leads } = useSelector((state) => state.lead.data);
-  const [filteredData, setFilteredData] = useState(null);
+  const [filteredData, setFilteredData] = useState("");
 
   const handleClick = () => {
     setIsModalOpen(true);

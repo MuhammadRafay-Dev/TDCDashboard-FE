@@ -72,7 +72,7 @@ const LeadModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (leadId) {
         // Update existing lead
@@ -82,12 +82,25 @@ const LeadModal = ({
         await dispatch(addLeads(leadData));
         // console.log(leadData, "if check")
       }
+
+      setLeadData({
+        name: "",
+        date: "",
+        salesTeamMember: "",
+        client: "",
+        linkJobApplied: "",
+        jobDescription: "",
+        sentDescription: "",
+        appointment: "",
+        call: "",
+        leadStatus: "",
+      });
       // Display success toast
       toast.success("Lead Update successfully!");
-  
+
       // Refresh leads after the update
-       dispatch(getLeads());
-  
+      dispatch(getLeads());
+
       // Close the modal after submitting
       onClose();
     } catch (error) {
@@ -96,13 +109,11 @@ const LeadModal = ({
     }
   };
 
-
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-      <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
+        <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">

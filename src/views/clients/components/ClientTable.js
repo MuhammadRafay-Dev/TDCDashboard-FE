@@ -8,17 +8,15 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-// import { toast } from "react-toastify";
-import { getClients } from "store/thunk/client.thunk";
-import ClientModal from "./ClientModal";
-import { deleteClients } from "store/thunk/client.thunk";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import { deleteClients, getClients } from "store/thunk/client.thunk";
+import ClientModal from "./ClientModal";
 
-const ClientTable = () => {
+const ClientTable = ({filteredData}) => {
   const dispatch = useDispatch();
-  const { clients } = useSelector((state) => state.client.data);
+  // const { clients } = useSelector((state) => state.client.data);
   //   console.log(clients, "Clients Data");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,9 +81,9 @@ const ClientTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {clients &&
-              clients?.map((row, index) => {
-                // console.log(row, "for Clientss");
+            {filteredData &&
+              filteredData?.map((row, index) => {
+                console.log(row, "for Clients");
 
                 return (
                   <Tr key={row._id}>
@@ -94,6 +92,7 @@ const ClientTable = () => {
                     <Td>{row?.emailSecondary}</Td>
                     <Td>{row?.contactNumber}</Td>
                     <Td>{row?.platform}</Td>
+                    <Td>{row?.dateContacted}</Td>
                     <Td>{row?.regionLocated}</Td>
                     <Td>{row?.contactPlatformLink1}</Td>
                     <Td>{row?.contactPlatformLink2}</Td>
@@ -116,6 +115,7 @@ const ClientTable = () => {
                             emailSecondary: row.emailSecondary,
                             contactNumber: row.contactNumber,
                             platform: row.platform,
+                            dateContacted: row.dateContacted,
                             regionLocated: row.regionLocated,
                             contactPlatformLink1: row.contactPlatformLink1,
                             contactPlatformLink2: row.contactPlatformLink2,

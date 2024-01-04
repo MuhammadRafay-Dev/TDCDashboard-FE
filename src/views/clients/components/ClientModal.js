@@ -1,17 +1,17 @@
 import {
-    Button,
-    FormControl,
-    FormLabel,
-    HStack,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    VStack,
+  Button,
+  FormControl,
+  FormLabel,
+  HStack,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,8 +19,7 @@ import { toast } from "react-toastify";
 import { updateClients } from "store/thunk/client.thunk";
 import { addClients, getClients } from "store/thunk/client.thunk";
 
-const ClientModal = ({ isOpen, onClose, onBack,clientProp,
-    clientId, }) => {
+const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
   const dispatch = useDispatch();
   const [clientData, setClientData] = useState({
     name: "",
@@ -34,6 +33,7 @@ const ClientModal = ({ isOpen, onClose, onBack,clientProp,
     contactPlatformLink2: "",
   });
 
+  const isUpdateMode = !!clientId;
   useEffect(() => {
     // Update the state when formProp changes
     setClientData({ ...clientProp });
@@ -50,83 +50,91 @@ const ClientModal = ({ isOpen, onClose, onBack,clientProp,
       [name]: value,
     }));
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate form fields before submitting
-    if (!validateForm()) {
-      return;
+    // if (!validateForm()) {
+    //   return;
+    // }
+
+    try {
+      if (clientId) {
+        // Update existing Client
+        await dispatch(updateClients({ clientData, clientId }));
+        toast.success("Client Edit successfully!");
+      } else {
+        // Add new Client
+        await dispatch(addClients(clientData));
+        toast.success("Client Add successfully!");
+      }
+      
+      setClientData({name: "",
+      email: "",
+      emailSecondary: "",
+      contactNumber: "",
+      platform: "",
+      dateContacted: "",
+      regionLocated: "",
+      contactPlatformLink1: "",
+      contactPlatformLink2: "",})
+
+      // Refresh Clients after the update
+      dispatch(getClients());
+
+      // Close the modal after submitting
+      onClose();
+    } catch (error) {
+      // Display error toast
+      toast.error("An error occurred. Please try again.");
     }
-
-   try {
-  if (clientId) {
-    // Update existing Client
-    await dispatch(updateClients({ clientData, clientId }));
-    toast.success("Client Edit successfully!");
-  } else {
-    // Add new Client
-    await dispatch(addClients(clientData));
-    toast.success("Client Add successfully!");
-  }
-
-  // Refresh Clients after the update
-  dispatch(getClients());
-
-  // Close the modal after submitting
-  onClose();
-} catch (error) {
-  // Display error toast
-  toast.error("An error occurred. Please try again.");
-}
-
   };
 
-  const validateForm = () => {
-    // Validation logic for each field
-    if (clientData.name.trim() === "") {
-      toast.error("Name should not be empty.");
-      return false;
-    }
+  // const validateForm = () => {
+  //   // Validation logic for each field
+  //   if (clientData.name.trim() === "") {
+  //     toast.error("Name should not be empty.");
+  //     return false;
+  //   }
 
-    if (clientData.name.length < 3) {
-      toast.error("Name must be longer than or equal to 3 characters.");
-      return false;
-    }
+  //   if (clientData.name.length < 3) {
+  //     toast.error("Name must be longer than or equal to 3 characters.");
+  //     return false;
+  //   }
 
-    if (typeof clientData.name !== "string") {
-      toast.error("Name must be a string.");
-      return false;
-    }
+  //   if (typeof clientData.name !== "string") {
+  //     toast.error("Name must be a string.");
+  //     return false;
+  //   }
 
-    if (clientData.email.trim() === "") {
-      toast.error("Email should not be empty.");
-      return false;
-    }
-    if (clientData.platform.trim() === "") {
-      toast.error("Platform should not be empty.");
-      return false;
-    }
-    if (clientData.contactPlatformLink1.trim() === "") {
-      toast.error("ContactPlatformLink1 must be a URL address.");
-      return false;
-    }
-    if (clientData.contactPlatformLink2.trim() === "") {
-      toast.error("ContactPlatformLink2 must be a URL address.");
-      return false;
-    }
+  //   if (clientData.email.trim() === "") {
+  //     toast.error("Email should not be empty.");
+  //     return false;
+  //   }
+  //   if (clientData.platform.trim() === "") {
+  //     toast.error("Platform should not be empty.");
+  //     return false;
+  //   }
+  //   if (clientData.contactPlatformLink1.trim() === "") {
+  //     toast.error("ContactPlatformLink1 must be a URL address.");
+  //     return false;
+  //   }
+  //   if (clientData.contactPlatformLink2.trim() === "") {
+  //     toast.error("ContactPlatformLink2 must be a URL address.");
+  //     return false;
+  //   }
 
-    // Add more validations for other fields if needed
+  //   // Add more validations for other fields if needed
 
-    return true;
-  };
+  //   return true;
+  // };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Client</ModalHeader>
+        <ModalHeader>{isUpdateMode ? "Edit Client" : "Add Client"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4} align="stretch">

@@ -32,7 +32,9 @@ const EmployeeFormModal = ({
   departmentId,
 }) => {
   const dispatch = useDispatch();
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name: "",
+  });
 
   const isUpdateMode = !!departmentId;
   useEffect(() => {
@@ -61,6 +63,8 @@ const EmployeeFormModal = ({
         // Add new department
         await dispatch(addDepartments(formData));
       }
+
+      setFormData({ name: "" });
       // Display success toast
       toast.success("Department Update successfully!");
 
