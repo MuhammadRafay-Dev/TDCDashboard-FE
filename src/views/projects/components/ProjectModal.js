@@ -27,7 +27,7 @@ import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
+import { getTeams } from "store/thunk/team.thunk";
 import { getClients } from "store/thunk/client.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 

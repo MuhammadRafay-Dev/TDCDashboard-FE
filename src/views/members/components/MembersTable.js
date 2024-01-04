@@ -129,7 +129,15 @@ const MembersTable = () => {
     const data = memberData?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.email.toLowerCase().includes(search) ||
+            data?.role.toLowerCase().includes(search) ||
+            data?.department?.name.toLowerCase().includes(search) ||
+            data?.teams
+              .map((team) => team?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(search);
     });
     setMembers(data);
   };
@@ -163,7 +171,7 @@ const MembersTable = () => {
           p="8px"
           borderRadius="30px"
         >
-          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+          <SearchBar Filter={filterSearch} />
         </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Member

@@ -16,12 +16,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
 import { useEffect, useState } from "react";
 import TeamModal from "./TeamModal";
-import { addTeam } from "store/reducer/teams.reducer";
-import { deleteTeam } from "store/reducer/teams.reducer";
-import { editTeam } from "store/reducer/teams.reducer";
+import { getTeams } from "store/thunk/team.thunk";
+import { addTeam } from "store/thunk/team.thunk";
+import { deleteTeam } from "store/thunk/team.thunk";
+import { editTeam } from "store/thunk/team.thunk";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
 const TeamTable = () => {
@@ -125,7 +125,20 @@ const TeamTable = () => {
     const data = teamData?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.technology.toLowerCase().includes(search) ||
+            data?.department?.name.toLowerCase().includes(search) ||
+            data?.team_head?.name.toLowerCase().includes(search) ||
+            data?.members
+              .map((member) => member?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(search) ||
+            data?.projects
+              .map((project) => project?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(search);
     });
     setTeams(data);
   };
@@ -165,7 +178,7 @@ const TeamTable = () => {
           p="8px"
           borderRadius="30px"
         >
-          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+          <SearchBar Filter={filterSearch} />
         </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Team

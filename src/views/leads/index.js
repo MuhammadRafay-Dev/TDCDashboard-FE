@@ -38,7 +38,9 @@ export default function Leads() {
     const data = leads?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.salesTeamMember?.name.toLowerCase().includes(search) ||
+            data?.client?.toLowerCase().includes(search);
     });
     setFilteredData(data);
   };
@@ -48,10 +50,7 @@ export default function Leads() {
       <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
           <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
-            <SearchBar
-              Filter={filterSearch}
-              placeholder={"search by name..."}
-            />
+            <SearchBar Filter={filterSearch} />
           </Box>
           <Button colorScheme="blue" onClick={handleClick}>
             Add Lead

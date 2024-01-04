@@ -17,10 +17,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { getProjects } from "store/reducer/projects.reducer";
-import { addProject } from "store/reducer/projects.reducer";
-import { deleteProject } from "store/reducer/projects.reducer";
-import { editProject } from "store/reducer/projects.reducer";
+import { getProjects } from "store/thunk/project.thunk";
+import { addProject } from "store/thunk/project.thunk";
+import { deleteProject } from "store/thunk/project.thunk";
+import { editProject } from "store/thunk/project.thunk";
 import ProjectModal from "./ProjectModal";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 
@@ -131,7 +131,16 @@ const ProjectTable = () => {
     const data = projectData?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.team_lead?.name.toLowerCase().includes(search) ||
+            data?.sales_coordinator?.name.toLowerCase().includes(search) ||
+            data?.teams_assigned
+              .map((team) => team?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(search) ||
+            data.contract_type.toLowerCase().includes(search) ||
+            data.status.toLowerCase().includes(search);
     });
     setProjects(data);
   };
@@ -165,7 +174,7 @@ const ProjectTable = () => {
           p="8px"
           borderRadius="30px"
         >
-          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+          <SearchBar Filter={filterSearch} />
         </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Project

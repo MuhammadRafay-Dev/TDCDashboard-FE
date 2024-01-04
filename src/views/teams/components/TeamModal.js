@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getProjects } from "store/reducer/projects.reducer";
+import { getProjects } from "store/thunk/project.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 

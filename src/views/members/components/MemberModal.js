@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Collapse,
+  Flex,
   FormControl,
   FormLabel,
   IconButton,
@@ -22,10 +23,10 @@ import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
+import { getTeams } from "store/thunk/team.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
 
-const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
+const MemberModal = ({ open, close, onSave, editData, edit }) => {
   const initialData = {
     name: "",
     email: "",
@@ -114,9 +115,9 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
       if (editData) {
         if (!memberData.teams) {
           const { teams, ...newMemData } = memberData;
-          edit(newMemData, index);
+          edit(newMemData);
         } else {
-          edit(newMemberData, index);
+          edit(newMemberData);
         }
       } else {
         onSave(newMemberData);
@@ -126,9 +127,9 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
       if (editData) {
         if (!memberData.teams) {
           const { teams, ...newMemberData } = memberData;
-          edit(newMemberData, index);
+          edit(newMemberData);
         } else {
-          edit(memberData, index);
+          edit(memberData);
         }
       } else {
         onSave(memberData);
