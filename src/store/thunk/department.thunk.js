@@ -82,13 +82,13 @@ const deleteDepartments = createAsyncThunk(
 // Update departments:
 const updateDepartments = createAsyncThunk(
   "departments/updateDepartments",
-  async ({ formData, departmentId }) => {
+  async ({ value, departmentId }) => {
     // console.log("Id", id);
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
       const response = await axios.patch(
         UPDATE_DEPARTMENTS + `/${departmentId}`,
-        formData,
+        value,
         {
           headers: {
             Authorization: `Bearer ${userData.accesstoken}`,

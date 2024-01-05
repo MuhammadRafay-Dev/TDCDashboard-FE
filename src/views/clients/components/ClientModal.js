@@ -3,7 +3,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,72 +12,62 @@ import {
   ModalOverlay,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { updateClients } from "store/thunk/client.thunk";
-import { addClients, getClients } from "store/thunk/client.thunk";
+import { clientValidationSchema } from "schema";
+import {
+  addClients,
+  getClients,
+  updateClients,
+} from "store/thunk/client.thunk";
 
 const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
   const dispatch = useDispatch();
-  const [clientData, setClientData] = useState({
-    name: "",
-    email: "",
-    emailSecondary: "",
-    contactNumber: "",
-    platform: "",
-    dateContacted: "",
-    regionLocated: "",
-    contactPlatformLink1: "",
-    contactPlatformLink2: "",
-  });
+  // const initialData = {
+  //   name: "",
+  //   email: "",
+  //   emailSecondary: "",
+  //   contactNumber: "",
+  //   platform: "",
+  //   dateContacted: "",
+  //   regionLocated: "",
+  //   contactPlatformLink1: "",
+  //   contactPlatformLink2: "",
+  // };
+  // const [clientData, setClientData] = useState(initialData);
 
   const isUpdateMode = !!clientId;
-  useEffect(() => {
-    // Update the state when formProp changes
-    setClientData({ ...clientProp });
-  }, [clientProp]);
+  // useEffect(() => {
+  //   // Update the state when formProp changes
+  //   setClientData({ ...clientProp });
+  // }, [clientProp]);
 
   // console.log(
   //   "leadProp", leadProp,leadData
   // );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setClientData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setClientData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value,
+  //   }));
+  // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validate form fields before submitting
-    // if (!validateForm()) {
-    //   return;
-    // }
-
+  const handleSubmit = async (value) => {
     try {
       if (clientId) {
         // Update existing Client
-        await dispatch(updateClients({ clientData, clientId }));
+        await dispatch(updateClients({ value, clientId }));
         toast.success("Client Edit successfully!");
       } else {
         // Add new Client
-        await dispatch(addClients(clientData));
+        await dispatch(addClients(value));
         toast.success("Client Add successfully!");
       }
-      
-      setClientData({name: "",
-      email: "",
-      emailSecondary: "",
-      contactNumber: "",
-      platform: "",
-      dateContacted: "",
-      regionLocated: "",
-      contactPlatformLink1: "",
-      contactPlatformLink2: "",})
+
+      // setClientData(initialData);
 
       // Refresh Clients after the update
       dispatch(getClients());
@@ -91,45 +80,17 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
     }
   };
 
-  // const validateForm = () => {
-  //   // Validation logic for each field
-  //   if (clientData.name.trim() === "") {
-  //     toast.error("Name should not be empty.");
-  //     return false;
-  //   }
+  const inputStyle = {
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    width: "100%",
+    padding: "10px",
+  };
 
-  //   if (clientData.name.length < 3) {
-  //     toast.error("Name must be longer than or equal to 3 characters.");
-  //     return false;
-  //   }
-
-  //   if (typeof clientData.name !== "string") {
-  //     toast.error("Name must be a string.");
-  //     return false;
-  //   }
-
-  //   if (clientData.email.trim() === "") {
-  //     toast.error("Email should not be empty.");
-  //     return false;
-  //   }
-  //   if (clientData.platform.trim() === "") {
-  //     toast.error("Platform should not be empty.");
-  //     return false;
-  //   }
-  //   if (clientData.contactPlatformLink1.trim() === "") {
-  //     toast.error("ContactPlatformLink1 must be a URL address.");
-  //     return false;
-  //   }
-  //   if (clientData.contactPlatformLink2.trim() === "") {
-  //     toast.error("ContactPlatformLink2 must be a URL address.");
-  //     return false;
-  //   }
-
-  //   // Add more validations for other fields if needed
-
-  //   return true;
-  // };
-
+  const errorStyle = {
+    color: "red",
+    marginTop: "5px",
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
@@ -137,105 +98,164 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
         <ModalHeader>{isUpdateMode ? "Edit Client" : "Add Client"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4} align="stretch">
-            <FormControl>
-              <FormLabel>Name</FormLabel>
-              <Input
-                type="text"
-                name="name"
-                value={clientData.name}
-                onChange={handleChange}
-              />
-            </FormControl>
+          <Formik
+            initialValues={{
+              name: clientProp?.name || "",
+              email: clientProp?.email || "",
+              emailSecondary: clientProp?.emailSecondary || "",
+              contactNumber: clientProp?.contactNumber || "",
+              platform: clientProp?.platform || "",
+              dateContacted: clientProp?.dateContacted
+              ? new Date(clientProp.dateContacted).toLocaleDateString("en-CA")
+              : "",
+              regionLocated: clientProp?.regionLocated || "",
+              contactPlatformLink1: clientProp?.contactPlatformLink1 || "",
+              contactPlatformLink2: clientProp?.contactPlatformLink2 || "",
+            }}
+            validationSchema={clientValidationSchema}
+            onSubmit={handleSubmit}
+          >
+            <Form>
+              <VStack spacing={4} align="stretch">
+                <FormControl>
+                  <FormLabel>Name</FormLabel>
+                  <Field
+                    type="text"
+                    name="name"
+                    id="name"
+                    placeholder="Name"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage name="name" component="p" style={errorStyle} />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Email</FormLabel>
-              <Input
-                type="email"
-                name="email"
-                value={clientData.email}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Email</FormLabel>
+                  <Field
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage name="email" component="p" style={errorStyle} />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Email Secondary</FormLabel>
-              <Input
-                type="emailSecondary"
-                name="emailSecondary"
-                value={clientData.emailSecondary}
-                onChange={handleChange}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Contact Number</FormLabel>
-              <Input
-                type="contactNumber"
-                name="contactNumber"
-                value={clientData.contactNumber}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Email Secondary</FormLabel>
+                  <Field
+                    type="email"
+                    name="emailSecondary"
+                    placeholder="Email Secondary"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="emailSecondary"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Platform</FormLabel>
-              <Input
-                type="text"
-                name="platform"
-                value={clientData.platform}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Contact Number</FormLabel>
+                  <Field
+                    type="text"
+                    name="contactNumber"
+                    placeholder="Contact Number"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="contactNumber"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Date Contacted</FormLabel>
-              <Input
-                type="date"
-                name="dateContacted"
-                value={clientData.dateContacted}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Platform</FormLabel>
+                  <Field
+                    type="text"
+                    name="platform"
+                    placeholder="Platform"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="platform"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Region Located</FormLabel>
-              <Input
-                type="text"
-                name="regionLocated"
-                value={clientData.regionLocated}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Date Contacted</FormLabel>
+                  <Field
+                    type="date"
+                    name="dateContacted"
+                    placeholder="Date Contacted"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="dateContacted"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Contact Platform Link1</FormLabel>
-              <Input
-                type="text"
-                name="contactPlatformLink1"
-                value={clientData.contactPlatformLink1}
-                onChange={handleChange}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Contact Platform Link2</FormLabel>
-              <Input
-                type="text"
-                name="contactPlatformLink2"
-                value={clientData.contactPlatformLink2}
-                onChange={handleChange}
-              />
-            </FormControl>
-          </VStack>
+                <FormControl>
+                  <FormLabel>Region Located</FormLabel>
+                  <Field
+                    type="text"
+                    name="regionLocated"
+                    placeholder="Region Located"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="regionLocated"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Contact Platform Link1</FormLabel>
+                  <Field
+                    type="text"
+                    name="contactPlatformLink1"
+                    placeholder="Contact Platform Link1"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="contactPlatformLink1"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Contact Platform Link2</FormLabel>
+                  <Field
+                    type="text"
+                    name="contactPlatformLink2"
+                    placeholder="Contact Platform Link2"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="contactPlatformLink2"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
+              </VStack>
+              <ModalFooter>
+                <HStack spacing={4}>
+                  <Button colorScheme="blue" type="submit">
+                    Submit
+                  </Button>
+                  <Button onClick={onBack}>Back</Button>
+                </HStack>
+              </ModalFooter>
+            </Form>
+          </Formik>
         </ModalBody>
-
-        <ModalFooter>
-          <HStack spacing={4}>
-            <Button colorScheme="blue" onClick={handleSubmit}>
-              Submit
-            </Button>
-            <Button onClick={onBack}>Back</Button>
-          </HStack>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

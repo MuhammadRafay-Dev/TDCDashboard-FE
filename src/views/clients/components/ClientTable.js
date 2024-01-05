@@ -72,6 +72,7 @@ const ClientTable = ({filteredData}) => {
               <Th>EmailSecondary</Th>
               <Th>ContactNumber</Th>
               <Th>Platform</Th>
+              <Th>Date Contacted</Th>
               <Th>RegionLocated</Th>
               <Th>ContactPlatformLink1</Th>
               <Th>ContactPlatformLink2</Th>
@@ -83,7 +84,6 @@ const ClientTable = ({filteredData}) => {
           <Tbody>
             {filteredData &&
               filteredData?.map((row, index) => {
-                console.log(row, "for Clients");
 
                 return (
                   <Tr key={row._id}>
