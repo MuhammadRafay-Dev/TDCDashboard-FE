@@ -84,7 +84,6 @@ const ClientTable = ({ filteredData }) => {
           <Tbody>
             {filteredData &&
               filteredData?.map((row, index) => {
-                console.log(row, "for Clients");
 
                 return (
                   <Tr key={row._id}>

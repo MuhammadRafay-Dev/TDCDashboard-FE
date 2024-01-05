@@ -16,8 +16,9 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
 import { getMembers } from "store/thunk/member.thunk";
-import { formatDateString} from "../../../utils/index";
+import { formatDateString } from "../../../utils/index";
 import LeadModal from "./LeadModal";
+import { getClients } from "store/thunk/client.thunk";
 
 const LeadTable = ({filteredData}) => {
   // console.log(search, "Search test")
@@ -74,11 +75,11 @@ const LeadTable = ({filteredData}) => {
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
-    dispatch(getLeads()).then((res) => {
+    dispatch(getClients()).then((res) => {
       setClients(res.payload);
     });
   };
-
+  // console.log("memmber", members);
   return (
     <div>
       <LeadModal
@@ -103,6 +104,7 @@ const LeadTable = ({filteredData}) => {
               <Th>SentDescription</Th>
               <Th>Appointment</Th>
               <Th>Call</Th>
+              <Th>Lead Status</Th>
               <Th>CreatedBy</Th>
               <Th>Actions</Th>
             </Tr>
@@ -128,6 +130,7 @@ const LeadTable = ({filteredData}) => {
                     <Td>{row?.sentDescription}</Td>
                     <Td>{formatDateString(row?.appointment)}</Td>
                     <Td>{formatDateString(row?.call)}</Td>
+                    <Td>{row?.leadStatus}</Td>
                     <Td>{row?.createdBy.name}</Td>
                     <Td>
                       <ViewIcon
@@ -150,15 +153,16 @@ const LeadTable = ({filteredData}) => {
                         cursor={"pointer"}
                         onClick={() =>
                           handleClickUpdate(row._id, {
-                            name: row.name,
-                            date: row.date,
-                            salesTeamMember: row.salesTeamMember,
-                            client: row.client,
-                            linkJobApplied: row.linkJobApplied,
-                            jobDescription: row.jobDescription,
-                            sentDescription: row.sentDescription,
-                            appointment: row.appointment,
-                            call: row.call,
+                            name: row?.name,
+                            date: row?.date,
+                            salesTeamMember: row?.salesTeamMember?._id,
+                            client: row?.client?._id,
+                            linkJobApplied: row?.linkJobApplied,
+                            jobDescription: row?.jobDescription,
+                            sentDescription: row?.sentDescription,
+                            appointment: row?.appointment,
+                            call: row?.call,
+                            leadStatus:row?.leadStatus
                           })
                         }
                       />
