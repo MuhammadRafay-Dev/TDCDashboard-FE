@@ -192,16 +192,16 @@ const MembersTable = () => {
           <Tbody>
             {members?.map((row, index) => (
               <Tr key={index}>
-                <Td>{row.name}</Td>
-                <Td>{row.email}</Td>
-                <Td>{row.role}</Td>
-                <Td>{row.department ? row.department.name : "N/A"}</Td>
+                <Td>{row?.name}</Td>
+                <Td>{row?.email}</Td>
+                <Td>{row?.role}</Td>
+                <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
                 <Td>
-                  {row.teams && row.teams.length > 0
-                    ? row.teams?.map((team) => team.name).join(", ")
+                  {row?.teams && row?.teams.length > 0
+                    ? row?.teams?.map((team) => team?.name).join(", ")
                     : "N/A"}
                 </Td>
-                <Td>{row.contactNumber ? row.contactNumber : "N/A"}</Td>
+                <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
                 <Td textAlign="center">
                   {rowLoadingStates[index] ? (
                     <Spinner size="sm" color="blue.500" />

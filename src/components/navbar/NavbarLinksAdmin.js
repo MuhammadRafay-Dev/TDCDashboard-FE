@@ -35,7 +35,8 @@ export default function HeaderLinks(props) {
   const navigate = useHistory();
   const path = navigate?.location?.pathname;
   const handleLogout = () => {
-    localStorage.clear();
+    // localStorage.clear();
+    localStorage.removeItem("userData");
     dispatch(clearUser());
     navigate.push("/auth");
   };
@@ -108,7 +109,7 @@ export default function HeaderLinks(props) {
         </Text>
       </Flex>
       <SidebarResponsive routes={routes} />
-      <Menu>
+      {/* <Menu>
         <MenuButton p="0px">
           <Icon
             mt="6px"
@@ -232,7 +233,7 @@ export default function HeaderLinks(props) {
             </Link>
           </Flex>
         </MenuList>
-      </Menu>
+      </Menu> */}
       <ThemeEditor navbarIcon={navbarIcon} />
       <Menu>
         <MenuButton p="0px">

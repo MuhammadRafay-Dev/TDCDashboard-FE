@@ -9,20 +9,20 @@ import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
 
 const App = () => {
-  const navigate = useHistory();
-  const location = useLocation();
-  const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
-  useEffect(() => {
-    console.log("authenticated", isAuthenticated);
-    if (!isAuthenticated) {
-      navigate.push("/auth/sign-in");
-    } else {
-      if (location.pathname === "/auth/sign-in") {
-        navigate.goBack();
-        window.location.reload();
-      }
-    }
-  }, [location, isAuthenticated]);
+  // const navigate = useHistory();
+  // const location = useLocation();
+  // const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
+  // useEffect(() => {
+  //   console.log("authenticated", isAuthenticated);
+  //   if (!isAuthenticated) {
+  //     navigate.push("/auth/sign-in");
+  //   } else {
+  //     if (location.pathname === "/auth/sign-in") {
+  //       navigate.goBack();
+  //       window.location.reload();
+  //     }
+  //   }
+  // }, [location, isAuthenticated]);
 
   return (
     <Switch>
