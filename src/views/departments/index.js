@@ -22,12 +22,15 @@ export default function Departments() {
   useEffect(() => {
     setFilteredData(departments);
   }, [departments]);
-   //Search
-   const filterSearch = (search) => {
+
+  //Search
+  const filterSearch = (search) => {
     const data = departments?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.departmentHead?.name.toLowerCase().includes(search) ||
+            data?.departmentHead?.email.toLowerCase().includes(search);
     });
     setFilteredData(data);
   };
@@ -40,15 +43,8 @@ export default function Departments() {
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
       <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
-        <Box
-            padding={"8px"}
-            backgroundColor={"white"}
-            borderRadius={"30px"}
-          >
-            <SearchBar
-              Filter={filterSearch}
-              placeholder={"search by name..."}
-            />
+          <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
+            <SearchBar Filter={filterSearch} />
           </Box>
           <Button colorScheme="blue" onClick={handleClick}>
             Add Department
@@ -62,7 +58,7 @@ export default function Departments() {
         />
       </ChakraProvider>
       <Box>
-        <DepartmentTable filteredData={filteredData}/>
+        <DepartmentTable filteredData={filteredData} />
       </Box>
     </Box>
   );

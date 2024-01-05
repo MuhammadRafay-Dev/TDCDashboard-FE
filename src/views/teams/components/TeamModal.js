@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   Collapse,
-  Flex,
   FormControl,
   FormLabel,
   IconButton,
@@ -21,18 +20,13 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { getProjects } from "store/thunk/project.thunk";
+import { getDepartments } from "store/thunk/department.thunk";
+import { getMembers } from "store/thunk/member.thunk";
 
-const TeamModal = ({
-  open,
-  close,
-  onSave,
-  editData,
-  edit,
-  memberData,
-  departmentData,
-  projectData,
-}) => {
+const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
     name: "",
     technology: "",
@@ -42,6 +36,14 @@ const TeamModal = ({
     projects: [],
   };
   const [teamData, setTeamData] = useState(initialData);
+  const memberData = useSelector((state) => state.members?.data);
+  const [members, setMembers] = useState(memberData);
+  const departmentData = useSelector(
+    (state) => state.department?.data?.departments
+  );
+  const [departments, setDepartments] = useState(departmentData);
+  const projectData = useSelector((state) => state.projects?.data);
+  const [projects, setProjects] = useState(projectData);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExpanded2, setIsExpanded2] = useState(false);
 
@@ -79,9 +81,9 @@ const TeamModal = ({
     if (editData) {
       if (!teamData.members) {
         const { members, ...newMemData } = teamData;
-        edit(newMemData);
+        edit(newMemData, index);
       } else {
-        edit(teamData);
+        edit(teamData, index);
       }
     } else {
       onSave(teamData);
@@ -94,6 +96,21 @@ const TeamModal = ({
     close();
   };
 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (open) {
+      dispatch(getMembers()).then((res) => {
+        setMembers(res.payload);
+      });
+      dispatch(getDepartments()).then((res) => {
+        setDepartments(res.payload);
+      });
+      dispatch(getProjects()).then((res) => {
+        setProjects(res.payload);
+      });
+    }
+  }, [open]);
+
   useEffect(() => {
     if (editData) {
       setTeamData(editData);
@@ -102,6 +119,7 @@ const TeamModal = ({
         department: editData?.department?._id || "",
         team_head: editData?.team_head?._id || "",
         members: editData?.members?.map((member) => member._id) || "",
+        projects: editData?.projects?.map((project) => project._id) || "",
       }));
     } else {
       setTeamData(initialData);
@@ -113,7 +131,7 @@ const TeamModal = ({
       <Modal isOpen={open} onClose={close}>
         <ModalOverlay />
         <ModalContent overflowY="auto" maxHeight={500}>
-          <ModalHeader>Create your account</ModalHeader>
+          <ModalHeader>{editData ? "Edit Team" : "Add Team"}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}
@@ -150,7 +168,7 @@ const TeamModal = ({
                   handleInputChange("department", e.target.value);
                 }}
               >
-                {departmentData?.map((option) => (
+                {departments?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>
@@ -167,7 +185,7 @@ const TeamModal = ({
                   handleInputChange("team_head", e.target.value);
                 }}
               >
-                {memberData?.map((option) => (
+                {members?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>
@@ -187,7 +205,7 @@ const TeamModal = ({
               </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
-                  {memberData?.map((option) => (
+                  {members?.map((option) => (
                     <WrapItem key={option._id}>
                       <Checkbox
                         value={option._id}
@@ -221,7 +239,7 @@ const TeamModal = ({
               </Box>
               <Collapse in={isExpanded2}>
                 <Wrap spacing={4}>
-                  {projectData?.map((option) => (
+                  {projects?.map((option) => (
                     <WrapItem key={option._id}>
                       <Checkbox
                         value={option._id}

@@ -25,14 +25,18 @@ import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
 import routes from "routes.js";
 import { ThemeEditor } from "./ThemeEditor";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { clearUser } from "store/reducer/auth.reducer";
 export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
-  const navigate = useHistory();
 
+  const dispatch = useDispatch();
+  const navigate = useHistory();
+  const path = navigate?.location?.pathname;
   const handleLogout = () => {
     localStorage.clear();
+    dispatch(clearUser());
     navigate.push("/auth");
   };
 
@@ -62,11 +66,13 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
-      <SearchBar
-        mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-        me="10px"
-        borderRadius="30px"
-      />
+      {path === "/admin/default" && (
+        <SearchBar
+          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
+          me="10px"
+          borderRadius="30px"
+        />
+      )}
       <Flex
         bg={ethBg}
         display={secondary ? "flex" : "none"}
@@ -163,7 +169,6 @@ export default function HeaderLinks(props) {
           </Flex>
         </MenuList>
       </Menu>
-
       <Menu>
         <MenuButton p="0px">
           <Icon
@@ -228,9 +233,7 @@ export default function HeaderLinks(props) {
           </Flex>
         </MenuList>
       </Menu>
-
       <ThemeEditor navbarIcon={navbarIcon} />
-
       <Menu>
         <MenuButton p="0px">
           <Avatar

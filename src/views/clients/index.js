@@ -9,17 +9,22 @@ export default function Clients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { clients } = useSelector((state) => state.client.data);
   const [filteredData, setFilteredData] = useState("");
-    //Search
-    useEffect(() => {
-      setFilteredData(clients);
-    }, [clients]);
+  //Search
+  useEffect(() => {
+    setFilteredData(clients);
+  }, [clients]);
 
-     //Search
+  //Search
   const filterSearch = (search) => {
     const data = clients?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.email.toLowerCase().includes(search) ||
+            data?.emailSecondary.toLowerCase().includes(search) ||
+            data?.platform.toLowerCase().includes(search) ||
+            data?.emailSecondary.toLowerCase().includes(search) ||
+            data?.regionLocated.toLowerCase().includes(search);
     });
     setFilteredData(data);
   };
@@ -36,10 +41,7 @@ export default function Clients() {
       <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
           <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
-            <SearchBar
-              Filter={filterSearch}
-              placeholder={"search by name..."}
-            />
+            <SearchBar Filter={filterSearch} />
           </Box>
           <Button colorScheme="blue" onClick={handleClick}>
             Add Clients

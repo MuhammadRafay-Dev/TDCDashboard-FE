@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Icon,
+  Spinner,
   Table,
   TableContainer,
   Tbody,
@@ -11,15 +12,18 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getTeams } from "store/reducer/teams.reducer";
-import { getDepartments } from "store/thunk/department.thunk";
-import { addMember, deleteMember, editMember, getMembers } from "store/thunk/member.thunk";
+import {
+  addMember,
+  deleteMember,
+  editMember,
+  getMembers,
+} from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
 const MembersTable = () => {
   //States
@@ -28,12 +32,10 @@ const MembersTable = () => {
   const memberData = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
-  const teamData = useSelector((state) => state.teams?.data);
-  const [teams, setTeams] = useState(teamData);
-  const departmentData = useSelector(
-    (state) => state.department?.data?.departments
+  const [indexOfRow, setIndexOfRow] = useState(null);
+  const [rowLoadingStates, setRowLoadingStates] = useState(
+    members?.map(() => false) || []
   );
-  const [departments, setDepartments] = useState(departmentData);
 
   //API Calls
   const triggerSave = () => {
@@ -54,43 +56,71 @@ const MembersTable = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
+    });
     try {
       dispatch(deleteMember(id)).then((res) => {
         dispatch(getMembers()).then((res) => {
           setMembers(res.payload);
           toast.success("Member Deleted Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
         });
       });
     } catch (error) {
       console.log("Error Deleting Member");
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
     }
   };
 
-  const triggerEditMember = (rowData) => {
+  const triggerEditMember = (rowData, index) => {
     setMemberEditData(rowData);
+    setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditMember = (memberData) => {
-    console.log("Edit Data function", memberData);
-    dispatch(editMember(memberData)).then((res) => {
-      dispatch(getMembers()).then((res) => {
-        setMembers(res.payload);
-        toast.success("Member Edited Succesfully");
-      });
+  const handleEditMember = (memberData, index) => {
+    setRowLoadingStates((prevStates) => {
+      const newState = [...prevStates];
+      newState[index] = true;
+      return newState;
     });
+    try {
+      dispatch(editMember(memberData)).then((res) => {
+        dispatch(getMembers()).then((res) => {
+          setMembers(res.payload);
+          toast.success("Member Edited Succesfully");
+          setRowLoadingStates((prevStates) => {
+            const newState = [...prevStates];
+            newState[index] = false;
+            return newState;
+          });
+        });
+      });
+    } catch (error) {
+      console.error("Error in Editing Project", error);
+      setRowLoadingStates((prevStates) => {
+        const newState = [...prevStates];
+        newState[index] = false;
+        return newState;
+      });
+    }
   };
 
   useEffect(() => {
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
-    });
-    dispatch(getTeams()).then((res) => {
-      setTeams(res.payload);
-    });
-    dispatch(getDepartments()).then((res) => {
-      setDepartments(res.payload);
     });
   }, []);
 
@@ -99,7 +129,15 @@ const MembersTable = () => {
     const data = memberData?.filter((data) => {
       return search.toLowerCase() === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(search) ||
+            data?.email.toLowerCase().includes(search) ||
+            data?.role.toLowerCase().includes(search) ||
+            data?.department?.name.toLowerCase().includes(search) ||
+            data?.teams
+              .map((team) => team?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(search);
     });
     setMembers(data);
   };
@@ -124,8 +162,7 @@ const MembersTable = () => {
         onSave={handleSaveMember}
         editData={memberEditData}
         edit={handleEditMember}
-        teamData={teams}
-        departmentData={departments}
+        index={indexOfRow}
       />
       <Box display="flex" justifyContent="space-between">
         <Box
@@ -134,7 +171,7 @@ const MembersTable = () => {
           p="8px"
           borderRadius="30px"
         >
-          <SearchBar Filter={filterSearch} placeholder={"search by name..."} />
+          <SearchBar Filter={filterSearch} />
         </Box>
         <Button colorScheme="blue" onClick={() => triggerSave()}>
           Add Member
@@ -154,7 +191,7 @@ const MembersTable = () => {
           </Thead>
           <Tbody>
             {members?.map((row, index) => (
-              <Tr key={row._id}>
+              <Tr key={index}>
                 <Td>{row.name}</Td>
                 <Td>{row.email}</Td>
                 <Td>{row.role}</Td>
@@ -165,54 +202,46 @@ const MembersTable = () => {
                     : "N/A"}
                 </Td>
                 <Td>{row.contactNumber ? row.contactNumber : "N/A"}</Td>
-                <Td>
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => triggerEditMember(row)}
-                  >
-                    <Icon
-                      as={EditIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                <Td textAlign="center">
+                  {rowLoadingStates[index] ? (
+                    <Spinner size="sm" color="blue.500" />
+                  ) : (
+                    <>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => triggerEditMember(row, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={EditIcon} color={"blue"} boxSize={5} />
+                      </Button>
 
-                  <Button
-                    align="center"
-                    justifyContent="center"
-                    bg={bgButton}
-                    _hover={bgHover}
-                    _focus={bgFocus}
-                    _active={bgFocus}
-                    w="37px"
-                    h="37px"
-                    lineHeight="100%"
-                    borderRadius="10px"
-                    onClick={() => handleDelete(row._id)}
-                  >
-                    <Icon
-                      as={DeleteIcon}
-                      color={"blue"}
-                      boxSize={5}
-                      borderRadius={5}
-                      border={"2px solid blue"}
-                      marginLeft={"5px"}
-                      padding={"2px"}
-                    />
-                  </Button>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
+                        onClick={() => handleDelete(row._id, index)}
+                        isDisabled={rowLoadingStates[index]}
+                      >
+                        <Icon as={DeleteIcon} color={"blue"} boxSize={5} />
+                      </Button>
+                    </>
+                  )}
                 </Td>
               </Tr>
             ))}

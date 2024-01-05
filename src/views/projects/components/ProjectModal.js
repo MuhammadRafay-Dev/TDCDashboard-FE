@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   Collapse,
-  Flex,
   FormControl,
   FormLabel,
   IconButton,
@@ -26,17 +25,13 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { getTeams } from "store/thunk/team.thunk";
+import { getClients } from "store/thunk/client.thunk";
+import { getMembers } from "store/thunk/member.thunk";
 
-const ProjectModal = ({
-  open,
-  close,
-  onSave,
-  editData,
-  edit,
-  memberData,
-  teamData,
-}) => {
+const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
     name: "",
     tech_stack: "",
@@ -55,6 +50,12 @@ const ProjectModal = ({
     cost: "",
   };
   const [projectData, setProjectData] = useState(initialData);
+  const memberData = useSelector((state) => state.members?.data);
+  const [members, setMembers] = useState(memberData);
+  const teamData = useSelector((state) => state.teams?.data);
+  const [teams, setTeams] = useState(teamData);
+  const clientData = useSelector((state) => state.client?.data?.leads);
+  const [clients, setClients] = useState(clientData);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleInputChange = (field, values) => {
@@ -99,7 +100,7 @@ const ProjectModal = ({
       return;
     }
     if (!projectData.client) {
-      toast.error("CLient is required!");
+      toast.error("Client is required!");
       return;
     }
     if (!projectData.consultant) {
@@ -122,9 +123,9 @@ const ProjectModal = ({
     if (editData) {
       if (!projectData.teams_assigned) {
         const { teams_assigned, ...newMemData } = teamData;
-        edit(newMemData);
+        edit(newMemData, index);
       } else {
-        edit(projectData);
+        edit(projectData, index);
       }
     } else {
       onSave(projectData);
@@ -135,6 +136,21 @@ const ProjectModal = ({
 
     close();
   };
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (open) {
+      dispatch(getTeams()).then((res) => {
+        setTeams(res.payload);
+      });
+      dispatch(getMembers()).then((res) => {
+        setMembers(res.payload);
+      });
+      dispatch(getClients()).then((res) => {
+        setClients(res.payload);
+      });
+    }
+  }, [open]);
 
   useEffect(() => {
     if (editData) {
@@ -158,7 +174,9 @@ const ProjectModal = ({
       <Modal isOpen={open} onClose={close}>
         <ModalOverlay />
         <ModalContent overflowY="auto" maxHeight={500}>
-          <ModalHeader>Create your account</ModalHeader>
+          <ModalHeader>
+            {editData ? "Edit Projects" : "Add Projects"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}
@@ -195,7 +213,7 @@ const ProjectModal = ({
                   handleInputChange("team_lead", e.target.value);
                 }}
               >
-                {memberData?.map((option) => (
+                {members?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>
@@ -212,7 +230,7 @@ const ProjectModal = ({
                   handleInputChange("sales_coordinator", e.target.value);
                 }}
               >
-                {memberData?.map((option) => (
+                {members?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>
@@ -232,7 +250,7 @@ const ProjectModal = ({
               </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
-                  {teamData?.map((option) => (
+                  {teams?.map((option) => (
                     <WrapItem key={option._id}>
                       <Checkbox
                         value={option._id}
@@ -294,7 +312,7 @@ const ProjectModal = ({
                   handleInputChange("client", e.target.value);
                 }}
               >
-                {memberData?.map((option) => (
+                {clients?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>

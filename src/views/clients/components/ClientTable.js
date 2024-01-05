@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { deleteClients, getClients } from "store/thunk/client.thunk";
 import ClientModal from "./ClientModal";
 
-const ClientTable = ({filteredData}) => {
+const ClientTable = ({ filteredData }) => {
   const dispatch = useDispatch();
   // const { clients } = useSelector((state) => state.client.data);
   //   console.log(clients, "Clients Data");
@@ -92,7 +92,7 @@ const ClientTable = ({filteredData}) => {
                     <Td>{row?.emailSecondary}</Td>
                     <Td>{row?.contactNumber}</Td>
                     <Td>{row?.platform}</Td>
-                    <Td>{row?.dateContacted}</Td>
+                    <Td>{new Date(row?.dateContacted).toLocaleDateString()}</Td>
                     <Td>{row?.regionLocated}</Td>
                     <Td>{row?.contactPlatformLink1}</Td>
                     <Td>{row?.contactPlatformLink2}</Td>

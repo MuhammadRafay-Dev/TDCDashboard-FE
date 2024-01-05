@@ -21,17 +21,12 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { getTeams } from "store/thunk/team.thunk";
+import { getDepartments } from "store/thunk/department.thunk";
 
-const MemberModal = ({
-  open,
-  close,
-  onSave,
-  editData,
-  edit,
-  teamData,
-  departmentData,
-}) => {
+const MemberModal = ({ open, close, onSave, editData, edit }) => {
   const initialData = {
     name: "",
     email: "",
@@ -44,6 +39,12 @@ const MemberModal = ({
     emergencyContactRelation: "",
   };
   const [memberData, setMemberData] = useState(initialData);
+  const teamData = useSelector((state) => state.teams?.data);
+  const [teams, setTeams] = useState(teamData);
+  const departmentData = useSelector(
+    (state) => state.department?.data?.departments
+  );
+  const [departments, setDepartments] = useState(departmentData);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleInputChange = (field, values) => {
@@ -58,13 +59,29 @@ const MemberModal = ({
     close();
   };
 
+  //Validations
+  const isValidEmailPattern =
+    /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(memberData.email);
+  const emailError =
+    memberData.email && !isValidEmailPattern
+      ? "Please enter a valid email address."
+      : "";
+
   const handleSubmit = () => {
     if (!memberData.name) {
       toast.error("Name is required!");
       return;
     }
+    if (memberData.name.length < 3) {
+      toast.error("Name should be of atleast 3 characters");
+      return;
+    }
     if (!memberData.email) {
       toast.error("Email is required!");
+      return;
+    }
+    if (emailError) {
+      toast.error(emailError);
       return;
     }
     if (!memberData.role) {
@@ -74,6 +91,22 @@ const MemberModal = ({
     if (!memberData.contactNumber) {
       toast.error("Contact Number is required!");
       return;
+    }
+    if (
+      memberData.contactNumber.length < 10 ||
+      memberData.contactNumber.length > 14
+    ) {
+      toast.error("Contact Number should be between 10-14 numbers");
+      return;
+    }
+    if (memberData.emergencyContactNumber) {
+      if (
+        memberData.emergencyContactNumber.length < 10 ||
+        memberData.emergencyContactNumber.length > 14
+      ) {
+        toast.error("Emergency Contact Number should be between 10-14 numbers");
+        return;
+      }
     }
 
     if (!memberData.department) {
@@ -108,6 +141,18 @@ const MemberModal = ({
     close();
   };
 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (open) {
+      dispatch(getTeams()).then((res) => {
+        setTeams(res.payload);
+      });
+      dispatch(getDepartments()).then((res) => {
+        setDepartments(res.payload);
+      });
+    }
+  }, [open]);
+
   useEffect(() => {
     if (editData) {
       setMemberData(editData);
@@ -136,7 +181,7 @@ const MemberModal = ({
       <Modal isOpen={open} onClose={close}>
         <ModalOverlay />
         <ModalContent overflowY="auto" maxHeight={500}>
-          <ModalHeader>Create your account</ModalHeader>
+          <ModalHeader>{editData ? "Edit Member" : "Add Member"}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}
@@ -183,6 +228,9 @@ const MemberModal = ({
             <FormControl mt={4}>
               <FormLabel>Contact Number</FormLabel>
               <Input
+                type="number"
+                min={10}
+                max={14}
                 placeholder="Contact Number"
                 value={memberData.contactNumber}
                 onChange={(e) => {
@@ -201,7 +249,7 @@ const MemberModal = ({
                   handleInputChange("department", e.target.value);
                 }}
               >
-                {departmentData?.map((option) => (
+                {departments?.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>
@@ -221,7 +269,7 @@ const MemberModal = ({
               </Box>
               <Collapse in={isExpanded}>
                 <Wrap spacing={4}>
-                  {teamData?.map((option) => (
+                  {teams?.map((option) => (
                     <WrapItem key={option._id}>
                       <Checkbox
                         value={option._id}
@@ -257,6 +305,7 @@ const MemberModal = ({
             <FormControl mt={4}>
               <FormLabel>Emergency Contact Number</FormLabel>
               <Input
+                type="number"
                 placeholder="Number"
                 value={memberData.emergencyContactNumber}
                 onChange={(e) => {
