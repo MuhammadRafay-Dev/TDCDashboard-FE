@@ -15,25 +15,27 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { getProjects } from "store/thunk/project.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
+import { teamValidationSchema } from "schema";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 
 const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
-    name: "",
-    technology: "",
-    department: "",
-    team_head: "",
-    members: [],
-    projects: [],
+    name: editData?.name || "",
+    technology: editData?.technology || "",
+    department: editData?.department._id || "",
+    team_head: editData?.team_head._id || "",
+    members: editData?.members || [],
+    projects: editData?.projects || [],
   };
   const [teamData, setTeamData] = useState(initialData);
   const memberData = useSelector((state) => state.members?.data);
@@ -60,33 +62,11 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
     close();
   };
 
-  const handleSubmit = () => {
-    if (!teamData.name) {
-      toast.error("Name is required!");
-      return;
-    }
-    if (!teamData.technology) {
-      toast.error("Technology is required!");
-      return;
-    }
-    if (!teamData.department) {
-      toast.error("Department is required!");
-      return;
-    }
-    if (!teamData.team_head) {
-      toast.error("Team Head is required!");
-      return;
-    }
-
+  const handleSubmit = (values) => {
     if (editData) {
-      if (!teamData.members) {
-        const { members, ...newMemData } = teamData;
-        edit(newMemData, index);
-      } else {
-        edit(teamData, index);
-      }
+      edit(values, index);
     } else {
-      onSave(teamData);
+      onSave(values);
       setTeamData(initialData);
     }
 
@@ -126,6 +106,19 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
     }
   }, [editData]);
 
+  //Form Styles
+  const inputStyle = {
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    width: "100%",
+    padding: "10px",
+  };
+
+  const errorStyle = {
+    color: "red",
+    marginTop: "5px",
+  };
+
   return (
     <>
       <Modal isOpen={open} onClose={close}>
@@ -133,143 +126,210 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
         <ModalContent overflowY="auto" maxHeight={500}>
           <ModalHeader>{editData ? "Edit Team" : "Add Team"}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
-            {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}
-            <FormControl mt={4}>
-              <FormLabel>Name</FormLabel>
-              <Input
-                placeholder="Name"
-                value={teamData.name}
-                onChange={(e) => {
-                  handleInputChange("name", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+          <ModalBody>
+            <Formik
+              initialValues={teamData}
+              validationSchema={teamValidationSchema}
+              onSubmit={handleSubmit}
+            >
+              <Form>
+                <VStack spacing={4} align="stretch">
+                  <FormControl>
+                    <FormLabel>Name</FormLabel>
+                    <Field
+                      type="text"
+                      name="name"
+                      id="name"
+                      placeholder="Name"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="name"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Technology</FormLabel>
-              <Input
-                placeholder="Technology"
-                value={teamData.technology}
-                onChange={(e) => {
-                  handleInputChange("technology", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Technology</FormLabel>
+                    <Field
+                      type="text"
+                      name="technology"
+                      placeholder="Technology"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="technology"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Department</FormLabel>
-              <Select
-                placeholder="Department"
-                value={teamData.department}
-                onChange={(e) => {
-                  handleInputChange("department", e.target.value);
-                }}
-              >
-                {departments?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Department</FormLabel>
+                    <Field
+                      as="select"
+                      name="department"
+                      placeholder="Department"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Department
+                      </option>
+                      {departments?.map((option) => (
+                        <option key={option._id} value={option._id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="department"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Team Head</FormLabel>
-              <Select
-                placeholder="Team Head"
-                value={teamData.team_head}
-                onChange={(e) => {
-                  handleInputChange("team_head", e.target.value);
-                }}
-              >
-                {members?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Team Head</FormLabel>
+                    <Field
+                      as="select"
+                      name="team_head"
+                      placeholder="Team Head"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Team Head
+                      </option>
+                      {members?.map((option) => (
+                        <option key={option._id} value={option._id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="team_head"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <Box display="flex">
-                <FormLabel mt={2}>Members</FormLabel>
-                <IconButton
-                  icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  aria-label={isExpanded ? "Collapse" : "Expand"}
-                  mb={2}
-                />
-              </Box>
-              <Collapse in={isExpanded}>
-                <Wrap spacing={4}>
-                  {members?.map((option) => (
-                    <WrapItem key={option._id}>
-                      <Checkbox
-                        value={option._id}
-                        onChange={(e) => {
-                          const selectedValues = e.target.checked
-                            ? [...teamData.members, option._id]
-                            : teamData.members.filter(
-                                (id) => id !== option._id
-                              );
-                          handleInputChange("members", selectedValues);
-                        }}
-                        isChecked={teamData.members.includes(option._id)}
-                      >
-                        {option.name}
-                      </Checkbox>
-                    </WrapItem>
-                  ))}
-                </Wrap>
-              </Collapse>
-            </FormControl>
+                  <FormControl>
+                    <Field name="members">
+                      {({ field }) => (
+                        <>
+                          <Box display="flex">
+                            <FormLabel mt={2}>Members</FormLabel>
+                            <IconButton
+                              icon={
+                                isExpanded ? <FaChevronUp /> : <FaChevronDown />
+                              }
+                              onClick={() => setIsExpanded(!isExpanded)}
+                              aria-label={isExpanded ? "Collapse" : "Expand"}
+                              mb={2}
+                            />
+                          </Box>
+                          <Collapse in={isExpanded}>
+                            <Wrap spacing={4}>
+                              {members?.map((option) => (
+                                <WrapItem key={option._id}>
+                                  <Checkbox
+                                    value={option._id}
+                                    onChange={(e) => {
+                                      const selectedValues = e.target.checked
+                                        ? [...field.value, option._id]
+                                        : field.value.filter(
+                                            (id) => id !== option._id
+                                          );
+                                      field.onChange({
+                                        target: {
+                                          name: field.name,
+                                          value: selectedValues,
+                                        },
+                                      });
+                                    }}
+                                    isChecked={field.value.includes(option._id)}
+                                  >
+                                    {option.name}
+                                  </Checkbox>
+                                </WrapItem>
+                              ))}
+                            </Wrap>
+                          </Collapse>
+                        </>
+                      )}
+                    </Field>
+                    <ErrorMessage
+                      name="members"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <Box display="flex">
-                <FormLabel mt={2}>Projects</FormLabel>
-                <IconButton
-                  icon={isExpanded2 ? <FaChevronUp /> : <FaChevronDown />}
-                  onClick={() => setIsExpanded2(!isExpanded2)}
-                  aria-label={isExpanded2 ? "Collapse" : "Expand"}
-                  mb={2}
-                />
-              </Box>
-              <Collapse in={isExpanded2}>
-                <Wrap spacing={4}>
-                  {projects?.map((option) => (
-                    <WrapItem key={option._id}>
-                      <Checkbox
-                        value={option._id}
-                        onChange={(e) => {
-                          const selectedValues = e.target.checked
-                            ? [...teamData.projects, option._id]
-                            : teamData.projects.filter(
-                                (id) => id !== option._id
-                              );
-                          handleInputChange("projects", selectedValues);
-                        }}
-                        isChecked={teamData.projects.includes(option._id)}
-                      >
-                        {option.name}
-                      </Checkbox>
-                    </WrapItem>
-                  ))}
-                </Wrap>
-              </Collapse>
-            </FormControl>
-
-            {/* </Flex> */}
+                  <FormControl>
+                    <Field name="projects">
+                      {({ field }) => (
+                        <>
+                          <Box display="flex">
+                            <FormLabel mt={2}>Projects</FormLabel>
+                            <IconButton
+                              icon={
+                                isExpanded2 ? (
+                                  <FaChevronUp />
+                                ) : (
+                                  <FaChevronDown />
+                                )
+                              }
+                              onClick={() => setIsExpanded2(!isExpanded2)}
+                              aria-label={isExpanded2 ? "Collapse" : "Expand"}
+                              mb={2}
+                            />
+                          </Box>
+                          <Collapse in={isExpanded2}>
+                            <Wrap spacing={4}>
+                              {projects?.map((option) => (
+                                <WrapItem key={option._id}>
+                                  <Checkbox
+                                    value={option._id}
+                                    onChange={(e) => {
+                                      const selectedValues = e.target.checked
+                                        ? [...field.value, option._id]
+                                        : field.value.filter(
+                                            (id) => id !== option._id
+                                          );
+                                      field.onChange({
+                                        target: {
+                                          name: field.name,
+                                          value: selectedValues,
+                                        },
+                                      });
+                                    }}
+                                    isChecked={field.value.includes(option._id)}
+                                  >
+                                    {option.name}
+                                  </Checkbox>
+                                </WrapItem>
+                              ))}
+                            </Wrap>
+                          </Collapse>
+                        </>
+                      )}
+                    </Field>
+                    <ErrorMessage
+                      name="projects"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+                </VStack>
+                <ModalFooter>
+                  <Button colorScheme="blue" mr={3} type="submit">
+                    Save
+                  </Button>
+                  <Button onClick={() => handleModalClose()}>Cancel</Button>
+                </ModalFooter>
+              </Form>
+            </Formik>
           </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => handleSubmit()}>
-              Save
-            </Button>
-            <Button onClick={() => handleModalClose()}>Cancel</Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
