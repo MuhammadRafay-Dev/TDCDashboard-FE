@@ -11,7 +11,7 @@ const login = createAsyncThunk(
         `${process.env.REACT_APP_BASE_URL}/members/login`,
         { email, password }
       );
-      dispatch(setUser());
+      dispatch(setUser(response.data));
       navigate.push("/admin");
       localStorage.setItem("userData", JSON.stringify(response.data));
       toast.success(response.data.message);
