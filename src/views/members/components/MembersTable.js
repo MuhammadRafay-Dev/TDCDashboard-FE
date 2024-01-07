@@ -1,7 +1,15 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  DeleteIcon,
+  EditIcon,
+  InfoIcon,
+  ViewIcon,
+  ViewOffIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  Collapse,
+  Flex,
   Icon,
   Spinner,
   Table,
@@ -15,7 +23,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -33,9 +41,17 @@ const MembersTable = () => {
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
   const [indexOfRow, setIndexOfRow] = useState(null);
+  const [expandedRows, setExpandedRows] = useState({});
   const [rowLoadingStates, setRowLoadingStates] = useState(
     members?.map(() => false) || []
   );
+
+  const toggleAccordion = (rowId) => {
+    setExpandedRows((prevRows) => ({
+      ...prevRows,
+      [rowId]: !prevRows[rowId],
+    }));
+  };
 
   //API Calls
   const triggerSave = () => {
@@ -153,6 +169,7 @@ const MembersTable = () => {
     { bg: "whiteAlpha.100" }
   );
   let menuBg = useColorModeValue("white", "navy.800");
+  const ethColor = useColorModeValue("blue", "white");
 
   return (
     <div>
@@ -191,59 +208,123 @@ const MembersTable = () => {
           </Thead>
           <Tbody>
             {members?.map((row, index) => (
-              <Tr key={index}>
-                <Td>{row?.name}</Td>
-                <Td>{row?.email}</Td>
-                <Td>{row?.role}</Td>
-                <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
-                <Td>
-                  {row?.teams && row?.teams.length > 0
-                    ? row?.teams?.map((team) => team?.name).join(", ")
-                    : "N/A"}
-                </Td>
-                <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
-                <Td textAlign="center">
-                  {rowLoadingStates[index] ? (
-                    <Spinner size="sm" color="blue.500" />
-                  ) : (
-                    <>
-                      <Button
-                        align="center"
-                        justifyContent="center"
-                        bg={bgButton}
-                        _hover={bgHover}
-                        _focus={bgFocus}
-                        _active={bgFocus}
-                        w="37px"
-                        h="37px"
-                        lineHeight="100%"
-                        borderRadius="10px"
-                        onClick={() => triggerEditMember(row, index)}
-                        isDisabled={rowLoadingStates[index]}
-                      >
-                        <Icon as={EditIcon} color={"blue"} boxSize={5} />
-                      </Button>
+              <React.Fragment key={index}>
+                <Tr>
+                  <Td>{row?.name}</Td>
+                  <Td>{row?.email}</Td>
+                  <Td>{row?.role}</Td>
+                  <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
+                  <Td>
+                    {row?.teams && row?.teams.length > 0
+                      ? row?.teams?.map((team) => team?.name).join(", ")
+                      : "N/A"}
+                  </Td>
+                  <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
+                  <Td textAlign="center">
+                    {rowLoadingStates[index] ? (
+                      <Spinner size="sm" color="blue.500" />
+                    ) : (
+                      <>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => toggleAccordion(row._id)}
+                        >
+                          <Icon
+                            as={expandedRows[row._id] ? ViewOffIcon : ViewIcon}
+                            color={ethColor}
+                            boxSize={5}
+                          />
+                        </Button>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => triggerEditMember(row, index)}
+                          isDisabled={rowLoadingStates[index]}
+                        >
+                          <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                        </Button>
 
-                      <Button
-                        align="center"
-                        justifyContent="center"
-                        bg={bgButton}
-                        _hover={bgHover}
-                        _focus={bgFocus}
-                        _active={bgFocus}
-                        w="37px"
-                        h="37px"
-                        lineHeight="100%"
-                        borderRadius="10px"
-                        onClick={() => handleDelete(row._id, index)}
-                        isDisabled={rowLoadingStates[index]}
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => handleDelete(row._id, index)}
+                          isDisabled={rowLoadingStates[index]}
+                        >
+                          <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
+                        </Button>
+                      </>
+                    )}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td colSpan={12}>
+                    <Collapse in={expandedRows[row._id]}>
+                      <Box
+                        p={4}
+                        bg={menuBg}
+                        style={{
+                          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                          borderRadius: "md",
+                        }}
                       >
-                        <Icon as={DeleteIcon} color={"blue"} boxSize={5} />
-                      </Button>
-                    </>
-                  )}
-                </Td>
-              </Tr>
+                        <Flex alignItems="center">
+                          <h1
+                            style={{ fontWeight: "bolder", marginRight: "5px" }}
+                          >
+                            Additional Info
+                          </h1>
+                          <Icon as={InfoIcon} color={ethColor} boxSize={5} />
+                        </Flex>
+                        <TableContainer>
+                          <Table variant="striped" size="md" colorScheme="gray">
+                            <Thead>
+                              <Tr>
+                                <Th>Emergency Contact Name</Th>
+                                <Th>Emergency Contact Contact</Th>
+                                <Th>Emergency Contact Relation</Th>
+                              </Tr>
+                            </Thead>
+                            <Tbody>
+                              <Tr>
+                                <Td>{row?.emergencyContactName ?? "N/A"}</Td>
+                                <Td>{row?.emergencyContactNumber ?? "N/A"}</Td>
+                                <Td>
+                                  {row?.emergencyContactRelation ?? "N/A"}
+                                </Td>
+                              </Tr>
+                            </Tbody>
+                          </Table>
+                        </TableContainer>
+                      </Box>
+                    </Collapse>
+                  </Td>
+                </Tr>
+              </React.Fragment>
             ))}
           </Tbody>
         </Table>
