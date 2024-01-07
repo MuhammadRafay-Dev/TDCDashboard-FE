@@ -35,12 +35,13 @@ export default function Leads() {
   };
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = leads?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.salesTeamMember?.name.toLowerCase().includes(search) ||
-            data?.client?.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.salesTeamMember?.name.toLowerCase().includes(filterSearch) ||
+            data?.client?.name.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };

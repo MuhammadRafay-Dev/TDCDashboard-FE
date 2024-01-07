@@ -16,15 +16,16 @@ export default function Clients() {
 
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = clients?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.email.toLowerCase().includes(search) ||
-            data?.emailSecondary.toLowerCase().includes(search) ||
-            data?.platform.toLowerCase().includes(search) ||
-            data?.emailSecondary.toLowerCase().includes(search) ||
-            data?.regionLocated.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.email.toLowerCase().includes(filterSearch) ||
+            data?.emailSecondary.toLowerCase().includes(filterSearch) ||
+            data?.platform.toLowerCase().includes(filterSearch) ||
+            data?.emailSecondary.toLowerCase().includes(filterSearch) ||
+            data?.regionLocated.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };

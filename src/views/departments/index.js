@@ -25,12 +25,13 @@ export default function Departments() {
 
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = departments?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.departmentHead?.name.toLowerCase().includes(search) ||
-            data?.departmentHead?.email.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.departmentHead?.name.toLowerCase().includes(filterSearch) ||
+            data?.departmentHead?.email.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };

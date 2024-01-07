@@ -142,18 +142,19 @@ const MembersTable = () => {
 
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = memberData?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.email.toLowerCase().includes(search) ||
-            data?.role.toLowerCase().includes(search) ||
-            data?.department?.name.toLowerCase().includes(search) ||
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.email.toLowerCase().includes(filterSearch) ||
+            data?.role.toLowerCase().includes(filterSearch) ||
+            data?.department?.name.toLowerCase().includes(filterSearch) ||
             data?.teams
               .map((team) => team?.name)
               .join(", ")
               .toLowerCase()
-              .includes(search);
+              .includes(filterSearch);
     });
     setMembers(data);
   };

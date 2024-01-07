@@ -138,23 +138,24 @@ const TeamTable = () => {
 
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = teamData?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.technology.toLowerCase().includes(search) ||
-            data?.department?.name.toLowerCase().includes(search) ||
-            data?.team_head?.name.toLowerCase().includes(search) ||
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.technology.toLowerCase().includes(filterSearch) ||
+            data?.department?.name.toLowerCase().includes(filterSearch) ||
+            data?.team_head?.name.toLowerCase().includes(filterSearch) ||
             data?.members
               .map((member) => member?.name)
               .join(", ")
               .toLowerCase()
-              .includes(search) ||
+              .includes(filterSearch) ||
             data?.projects
               .map((project) => project?.name)
               .join(", ")
               .toLowerCase()
-              .includes(search);
+              .includes(filterSearch);
     });
     setTeams(data);
   };

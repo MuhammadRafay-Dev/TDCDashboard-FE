@@ -144,19 +144,22 @@ const ProjectTable = () => {
 
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = projectData?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data?.name.toLowerCase().includes(search) ||
-            data?.team_lead?.name.toLowerCase().includes(search) ||
-            data?.sales_coordinator?.name.toLowerCase().includes(search) ||
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.team_lead?.name.toLowerCase().includes(filterSearch) ||
+            data?.sales_coordinator?.name
+              .toLowerCase()
+              .includes(filterSearch) ||
             data?.teams_assigned
               .map((team) => team?.name)
               .join(", ")
               .toLowerCase()
-              .includes(search) ||
-            data.contract_type.toLowerCase().includes(search) ||
-            data.status.toLowerCase().includes(search);
+              .includes(filterSearch) ||
+            data.contract_type.toLowerCase().includes(filterSearch) ||
+            data.status.toLowerCase().includes(filterSearch);
     });
     setProjects(data);
   };
