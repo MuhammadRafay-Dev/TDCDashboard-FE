@@ -1,4 +1,4 @@
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getClients } from "store/thunk/client.thunk";
@@ -48,7 +48,6 @@ export default function Leads() {
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-      <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
           <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
             <SearchBar Filter={filterSearch} />
@@ -64,7 +63,6 @@ export default function Leads() {
           members={members}
           clients={clients}
         />
-      </ChakraProvider>
       <Box>
         <LeadTable filteredData={filteredData} />
       </Box>

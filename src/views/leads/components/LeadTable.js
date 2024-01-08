@@ -1,15 +1,24 @@
-import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
+import {
+  DeleteIcon,
+  EditIcon,
+  InfoIcon,
+  ViewIcon,
+  ViewOffIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Collapse,
+  Flex,
+  Icon,
   Table,
   TableContainer,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Tr,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -20,20 +29,16 @@ import { formatDateString } from "../../../utils/index";
 import LeadModal from "./LeadModal";
 import { getClients } from "store/thunk/client.thunk";
 
-const LeadTable = ({filteredData}) => {
-  // console.log(search, "Search test")
+const LeadTable = ({ filteredData }) => {
   // const { leads } = useSelector((state) => state.lead.data);
-  // console.log("leared", filteredData);
-  
-  // console.log(leads, "LeadTable");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expandedRow, setExpandedRow] = useState(null);
   const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
   const [clients, setClients] = useState([]);
   const [leadProp, setLeadProp] = useState({});
   const [leadId, setLeadId] = useState("");
+  const [expandedRows, setExpandedRows] = useState({});
 
   const handleBack = () => {
     setIsModalOpen(false);
@@ -45,24 +50,20 @@ const LeadTable = ({filteredData}) => {
   }, []);
 
   const toggleAccordion = (rowId) => {
-    setExpandedRow((prevRow) => (prevRow === rowId ? null : rowId));
+    setExpandedRows((prevRows) => ({
+      ...prevRows,
+      [rowId]: !prevRows[rowId],
+    }));
   };
-
-
 
   const handleClickDelete = async (id) => {
     try {
-      // Dispatch the deleteDepartments action
       await dispatch(deleteLeads(id));
-
-      // After the delete operation is completed, dispatch getDepartments to update the state
       await dispatch(getLeads());
 
       // Display success toast
       toast.success("Lead Deleted Successfully");
     } catch (error) {
-      console.error("Error Deleting Lead", error);
-
       // Display error toast
       toast.error("Error Deleting Lead");
     }
@@ -79,7 +80,20 @@ const LeadTable = ({filteredData}) => {
       setClients(res.payload);
     });
   };
-  // console.log("memmber", members);
+
+  //Colors
+  const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
+  const bgHover = useColorModeValue(
+    { bg: "secondaryGray.400" },
+    { bg: "whiteAlpha.50" }
+  );
+  const bgFocus = useColorModeValue(
+    { bg: "secondaryGray.300" },
+    { bg: "whiteAlpha.100" }
+  );
+  let menuBg = useColorModeValue("white", "navy.800");
+  const ethColor = useColorModeValue("blue", "white");
+
   return (
     <div>
       <LeadModal
@@ -99,98 +113,157 @@ const LeadTable = ({filteredData}) => {
               <Th>Date</Th>
               <Th>SalesTeamMember</Th>
               <Th>Client</Th>
-              <Th>LinkJobApplied</Th>
-              <Th>JobDescription</Th>
-              <Th>SentDescription</Th>
               <Th>Appointment</Th>
-              <Th>Call</Th>
               <Th>Lead Status</Th>
-              <Th>CreatedBy</Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
             {filteredData &&
-              filteredData?.map((row, index) => (
-                <React.Fragment key={row._id}>
-                  <Tr>
-                    <Td>{row?.name}</Td>
-                    <Td>{formatDateString(row?.date)}</Td>
-                    <Td>{row?.salesTeamMember?.name ?? "N/A"}</Td>
-                    <Td>{row?.client?.name ?? "N/A"}</Td>
-                    <Td>
-                      {row?.linkJobApplied}
-                      {row.error && row.error.linkJobApplied && (
-                        <span style={{ color: "red" }}>
-                          {row.error.linkJobApplied}
-                        </span>
-                      )}
-                    </Td>
-                    <Td>{row?.jobDescription}</Td>
-                    <Td>{row?.sentDescription}</Td>
-                    <Td>{formatDateString(row?.appointment)}</Td>
-                    <Td>{formatDateString(row?.call)}</Td>
-                    <Td>{row?.leadStatus}</Td>
-                    <Td>{row?.createdBy.name}</Td>
-                    <Td>
-                      <ViewIcon
-                        color={"blue"}
-                        boxSize={5}
-                        borderRadius={5}
-                        border={"2px solid blue"}
-                        marginLeft={"5px"}
-                        padding={"2px"}
-                        cursor={"pointer"}
-                        onClick={() => toggleAccordion(row._id)}
-                      />
-                      <EditIcon
-                        color={"blue"}
-                        boxSize={5}
-                        borderRadius={5}
-                        border={"2px solid blue"}
-                        marginLeft={"5px"}
-                        padding={"2px"}
-                        cursor={"pointer"}
-                        onClick={() =>
-                          handleClickUpdate(row._id, {
-                            name: row?.name,
-                            date: row?.date,
-                            salesTeamMember: row?.salesTeamMember?._id,
-                            client: row?.client?._id,
-                            linkJobApplied: row?.linkJobApplied,
-                            jobDescription: row?.jobDescription,
-                            sentDescription: row?.sentDescription,
-                            appointment: row?.appointment,
-                            call: row?.call,
-                            leadStatus:row?.leadStatus
-                          })
-                        }
-                      />
-                      <DeleteIcon
-                        color={"blue"}
-                        boxSize={5}
-                        borderRadius={5}
-                        border={"2px solid blue"}
-                        marginLeft={"5px"}
-                        padding={"2px"}
-                        cursor={"pointer"}
-                        onClick={() => handleClickDelete(row._id)}
-                      />
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td colSpan={12}>
-                      <Collapse in={expandedRow === row._id}>
-                        <Box p={4}>
-                          {/* Accordion Content */}
-                          <Text>{row.jobDescription}</Text>
-                          {/* Add other fields here */}
-                        </Box>
-                      </Collapse>
-                    </Td>
-                  </Tr>
-                </React.Fragment>
-              ))}
+              filteredData?.map((row, index) => {
+                return (
+                  <React.Fragment key={row._id}>
+                    <Tr>
+                      <Td>{row?.name}</Td>
+                      <Td>{formatDateString(row?.date)}</Td>
+                      <Td>{row?.salesTeamMember?.name ?? "N/A"}</Td>
+                      <Td>{row?.client?.name ?? "N/A"}</Td>
+
+                      <Td>{formatDateString(row?.appointment)}</Td>
+                      <Td>{row?.leadStatus}</Td>
+                      <Td>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => toggleAccordion(row._id)}
+                        >
+                          <Icon
+                            as={expandedRows[row._id] ? ViewOffIcon : ViewIcon}
+                            color={ethColor}
+                            boxSize={5}
+                          />
+                        </Button>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() =>
+                            handleClickUpdate(row._id, {
+                              name: row?.name,
+                              date: row?.date,
+                              salesTeamMember: row?.salesTeamMember?._id,
+                              client: row?.client?._id,
+                              linkJobApplied: row?.linkJobApplied,
+                              jobDescription: row?.jobDescription,
+                              sentDescription: row?.sentDescription,
+                              appointment: row?.appointment,
+                              call: row?.call,
+                              leadStatus: row?.leadStatus,
+                            })
+                          }
+                        >
+                          <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                        </Button>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => handleClickDelete(row._id)}
+                        >
+                          <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
+                        </Button>
+                      </Td>
+                    </Tr>
+
+                    <Tr>
+                      <Td colSpan={12}>
+                        <Collapse in={expandedRows[row._id]}>
+                          <Box
+                            p={4}
+                            bg={menuBg}
+                            style={{
+                              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                              borderRadius: "md",
+                            }}
+                          >
+                            <Flex alignItems="center">
+                              <h1
+                                style={{
+                                  fontWeight: "bolder",
+                                  marginRight: "5px",
+                                }}
+                              >
+                                Additional Info
+                              </h1>
+                              <Icon
+                                as={InfoIcon}
+                                color={ethColor}
+                                boxSize={5}
+                              />
+                            </Flex>
+                            <TableContainer>
+                              <Table
+                                variant="striped"
+                                size="md"
+                                colorScheme="gray"
+                              >
+                                <Thead>
+                                  <Tr>
+                                    <Th>LinkJobApplied</Th>
+                                    <Th>JobDescription</Th>
+                                    <Th>SentDescription</Th>
+                                    <Th>Call</Th>
+                                    <Th>CreatedBy</Th>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  <Tr>
+                                    <Td>
+                                      {row?.linkJobApplied}
+                                      {row.error &&
+                                        row.error.linkJobApplied && (
+                                          <span style={{ color: "red" }}>
+                                            {row.error.linkJobApplied}
+                                          </span>
+                                        )}
+                                    </Td>
+                                    <Td>{row?.jobDescription}</Td>
+                                    <Td>{row?.sentDescription}</Td>
+                                    <Td>{formatDateString(row?.call)}</Td>
+                                    <Td>{row?.createdBy.name}</Td>
+                                  </Tr>
+                                </Tbody>
+                              </Table>
+                            </TableContainer>
+                          </Box>
+                        </Collapse>
+                      </Td>
+                    </Tr>
+                  </React.Fragment>
+                );
+              })}
           </Tbody>
         </Table>
       </TableContainer>
