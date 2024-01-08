@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { useSelector } from "react-redux";
 import ClientModal from "./components/ClientModal";
@@ -34,26 +34,23 @@ export default function Clients() {
     setIsModalOpen(true);
   };
   const handleBack = () => {
-    // Handle going back logic
-    setIsModalOpen(false); // Close the modal when going back
+    setIsModalOpen(false); 
   };
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-      <ChakraProvider>
-        <Box display="flex" justifyContent="space-between">
-          <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
-            <SearchBar Filter={filterSearch} />
-          </Box>
-          <Button colorScheme="blue" onClick={handleClick}>
-            Add Clients
-          </Button>
+      <Box display="flex" justifyContent="space-between">
+        <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
+          <SearchBar Filter={filterSearch} />
         </Box>
-        <ClientModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onBack={handleBack}
-        />
-      </ChakraProvider>
+        <Button colorScheme="blue" onClick={handleClick}>
+          Add Clients
+        </Button>
+      </Box>
+      <ClientModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onBack={handleBack}
+      />
 
       <Box>
         <ClientTable filteredData={filteredData} />

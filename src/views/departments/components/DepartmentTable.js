@@ -1,4 +1,7 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  DeleteIcon,
+  EditIcon,
+} from "@chakra-ui/icons";
 import {
   Table,
   TableContainer,
@@ -7,9 +10,12 @@ import {
   Th,
   Thead,
   Tr,
+  useColorModeValue,
+  Button,
+  Icon,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import {
   deleteDepartments,
@@ -28,8 +34,7 @@ const DepartmentTable = ({ filteredData }) => {
   const [departmentId, setDepartmentId] = useState("");
 
   const handleBack = () => {
-    // Handle going back logic
-    setIsModalOpen(false); // Close the modal when going back
+    setIsModalOpen(false); 
   };
 
   useEffect(() => {
@@ -39,18 +44,12 @@ const DepartmentTable = ({ filteredData }) => {
 
   const handleClickDelete = async (id) => {
     try {
-      // Dispatch the deleteDepartments action
       await dispatch(deleteDepartments(id));
-
-      // After the delete operation is completed, dispatch getDepartments to update the state
       await dispatch(getDepartments());
 
       // Display success toast
       toast.success("Department Deleted Successfully");
     } catch (error) {
-      console.error("Error Deleting Department", error);
-
-      // Display error toast
       toast.error("Error Deleting Department");
     }
   };
@@ -63,6 +62,18 @@ const DepartmentTable = ({ filteredData }) => {
       setMembers(res.payload);
     });
   };
+
+  //Colors
+  const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
+  const bgHover = useColorModeValue(
+    { bg: "secondaryGray.400" },
+    { bg: "whiteAlpha.50" }
+  );
+  const bgFocus = useColorModeValue(
+    { bg: "secondaryGray.300" },
+    { bg: "whiteAlpha.100" }
+  );
+  const ethColor = useColorModeValue("blue", "white");
   return (
     <div>
       <EmployeeFormModal
@@ -85,38 +96,48 @@ const DepartmentTable = ({ filteredData }) => {
           <Tbody>
             {filteredData &&
               filteredData?.map((row, index) => {
-                // console.log(row.departmentHead)
                 return (
                   <Tr key={row._id}>
                     <Td>{row.name}</Td>
                     <Td>{row?.departmentHead?.name}</Td>
                     <Td>{row?.departmentHead?.email}</Td>
                     <Td>
-                      <EditIcon
-                        color={"blue"}
-                        boxSize={5}
-                        borderRadius={5}
-                        border={"2px solid blue"}
-                        marginLeft={"5px"}
-                        padding={"2px"}
-                        cursor={"pointer"}
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
                         onClick={() =>
                           handleClickUpdate(row._id, {
                             name: row.name,
                             departmentHead: row.departmentHead._id,
                           })
                         }
-                      />
-                      <DeleteIcon
-                        color={"blue"}
-                        boxSize={5}
-                        borderRadius={5}
-                        border={"2px solid blue"}
-                        marginLeft={"5px"}
-                        padding={"2px"}
-                        cursor={"pointer"}
+                      >
+                        <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                      </Button>
+                      <Button
+                        align="center"
+                        justifyContent="center"
+                        bg={bgButton}
+                        _hover={bgHover}
+                        _focus={bgFocus}
+                        _active={bgFocus}
+                        w="37px"
+                        h="37px"
+                        lineHeight="100%"
+                        borderRadius="10px"
                         onClick={() => handleClickDelete(row._id)}
-                      />
+                        
+                      >
+                        <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
+                      </Button>
                     </Td>
                   </Tr>
                 );
