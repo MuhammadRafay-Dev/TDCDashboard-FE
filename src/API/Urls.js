@@ -24,6 +24,12 @@ export const ADD_CLIENTS = GET_CLIENTS + "/create";
 export const DELETE_CLIENTS = BaseUrl + "clients";
 export const UPDATE_CLIENTS = BaseUrl + "clients";
 
+//Task:
+export const GET_TASK = BaseUrl + "task";
+export const ADD_TASK = GET_TASK + "/create";
+export const DELETE_TASK = BaseUrl + "task";
+export const UPDATE_TASK = BaseUrl + "task";
+
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
 export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";

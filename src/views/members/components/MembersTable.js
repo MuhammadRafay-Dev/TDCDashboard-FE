@@ -11,6 +11,7 @@ import {
   Collapse,
   Flex,
   Icon,
+  Link,
   Spinner,
   Table,
   TableContainer,
@@ -33,8 +34,10 @@ import {
   getMembers,
 } from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 const MembersTable = () => {
   //States
+  const navigate = useHistory();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const memberData = useSelector((state) => state.members?.data);
@@ -51,6 +54,11 @@ const MembersTable = () => {
       ...prevRows,
       [rowId]: !prevRows[rowId],
     }));
+  };
+
+  const handleNavigate = (id) => {
+    console.log("id", id);
+    navigate.push(`/admin/member-data?id=${id}`);
   };
 
   //API Calls
@@ -211,7 +219,12 @@ const MembersTable = () => {
             {members?.map((row, index) => (
               <React.Fragment key={index}>
                 <Tr>
-                  <Td>{row?.name}</Td>
+                  <Td
+                    onClick={() => handleNavigate(row._id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {row?.name}
+                  </Td>
                   <Td>{row?.email}</Td>
                   <Td>{row?.role}</Td>
                   <Td>{row?.department ? row?.department?.name : "N/A"}</Td>

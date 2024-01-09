@@ -1,25 +1,3 @@
-/*!
-  _   _  ___  ____  ___ ________  _   _   _   _ ___   
- | | | |/ _ \|  _ \|_ _|__  / _ \| \ | | | | | |_ _| 
- | |_| | | | | |_) || |  / / | | |  \| | | | | || | 
- |  _  | |_| |  _ < | | / /| |_| | |\  | | |_| || |
- |_| |_|\___/|_| \_\___/____\___/|_| \_|  \___/|___|
-                                                                                                                                                                                                                                                                                                                                       
-=========================================================
-* Horizon UI - v1.1.0
-=========================================================
-
-* Product Page: https://www.horizon-ui.com/
-* Copyright 2023 Horizon UI (https://www.horizon-ui.com/)
-
-* Designed and Coded by Simmmple
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 // Chakra imports
 import {
   Avatar,
@@ -29,6 +7,7 @@ import {
   Icon,
   Select,
   SimpleGrid,
+  Text,
   useColorModeValue,
 } from "@chakra-ui/react";
 // Assets
@@ -37,13 +16,20 @@ import Usa from "assets/img/dashboards/usa.png";
 import MiniCalendar from "components/calendar/MiniCalendar";
 import MiniStatistics from "components/card/MiniStatistics";
 import IconBox from "components/icons/IconBox";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  MdAccessTime,
   MdAddTask,
   MdAttachMoney,
   MdBarChart,
   MdFileCopy,
+  MdSchedule,
+  MdTimer3,
+  MdTrendingUp,
 } from "react-icons/md";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { getMembers } from "store/thunk/member.thunk";
 import CheckTable from "views/admin/member_data/components/CheckTable";
 import ComplexTable from "views/admin/member_data/components/ComplexTable";
 import DailyTraffic from "views/admin/member_data/components/DailyTraffic";
@@ -59,11 +45,40 @@ import tableDataCheck from "views/admin/member_data/variables/tableDataCheck.jso
 import tableDataComplex from "views/admin/member_data/variables/tableDataComplex.json";
 
 export default function UserReports() {
+  const dispatch = useDispatch();
+
+  const [member, setMember] = useState();
+
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const id = queryParams.get("id");
+
+  useEffect(() => {
+    dispatch(getMembers()).then((res) => {
+      const filteredMembers = res.payload?.filter(
+        (member) => member._id === id
+      );
+      setMember(filteredMembers[0]);
+    });
+  }, [id]);
+
   // Chakra Color Mode
   const brandColor = useColorModeValue("brand.500", "white");
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <SimpleGrid>
+        <Box>
+          <Text fontSize="xl" fontWeight="bold">
+            {member?.name.toUpperCase()}
+            <span style={{ fontSize: "md", color: "grey" }}>
+              {" "}
+              ({member?.role})
+            </span>
+          </Text>
+        </Box>
+      </SimpleGrid>
+
       <SimpleGrid
         columns={{ base: 1, md: 2, lg: 3, "2xl": 6 }}
         gap="20px"
@@ -80,9 +95,24 @@ export default function UserReports() {
               }
             />
           }
-          name="Earnings"
-          value="$350.4"
+          name="Revenue Generated"
+          value="$300.4"
         />
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg={boxBg}
+              icon={
+                <Icon w="32px" h="32px" as={MdTrendingUp} color={brandColor} />
+              }
+            />
+          }
+          name="Profit"
+          value="$100.4"
+        />
+        {/* growth="+23%" */}
         <MiniStatistics
           startContent={
             <IconBox
@@ -94,43 +124,8 @@ export default function UserReports() {
               }
             />
           }
-          name="Spend this month"
-          value="$642.39"
-        />
-        <MiniStatistics growth="+23%" name="Sales" value="$574.34" />
-        <MiniStatistics
-          endContent={
-            <Flex me="-16px" mt="10px">
-              <FormLabel htmlFor="balance">
-                <Avatar src={Usa} />
-              </FormLabel>
-              <Select
-                id="balance"
-                variant="mini"
-                mt="5px"
-                me="0px"
-                defaultValue="usd"
-              >
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-                <option value="gba">GBA</option>
-              </Select>
-            </Flex>
-          }
-          name="Your balance"
-          value="$1,000"
-        />
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w="56px"
-              h="56px"
-              bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-              icon={<Icon w="28px" h="28px" as={MdAddTask} color="white" />}
-            />
-          }
-          name="New Tasks"
-          value="154"
+          name="Salary"
+          value="$200"
         />
         <MiniStatistics
           startContent={
@@ -144,7 +139,31 @@ export default function UserReports() {
             />
           }
           name="Total Projects"
-          value="2935"
+          value="5"
+        />
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+              icon={<Icon w="28px" h="28px" as={MdAccessTime} color="white" />}
+            />
+          }
+          name="No. of Hours locked"
+          value="120Hrs"
+        />
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w="56px"
+              h="56px"
+              bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+              icon={<Icon w="28px" h="28px" as={MdSchedule} color="white" />}
+            />
+          }
+          name="Overtime"
+          value="20Hrs"
         />
       </SimpleGrid>
 
@@ -152,13 +171,15 @@ export default function UserReports() {
         <TotalSpent />
         <WeeklyRevenue />
       </SimpleGrid>
-      <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap="20px" mb="20px">
+
+      {/* <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap="20px" mb="20px">
         <CheckTable columnsData={columnsDataCheck} tableData={tableDataCheck} />
         <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap="20px">
           <DailyTraffic />
           <PieCard />
         </SimpleGrid>
       </SimpleGrid>
+
       <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap="20px" mb="20px">
         <ComplexTable
           columnsData={columnsDataComplex}
@@ -168,7 +189,7 @@ export default function UserReports() {
           <Tasks />
           <MiniCalendar h="100%" minW="100%" selectRange={false} />
         </SimpleGrid>
-      </SimpleGrid>
+      </SimpleGrid> */}
     </Box>
   );
 }

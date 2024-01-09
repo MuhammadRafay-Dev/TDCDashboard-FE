@@ -10,10 +10,10 @@ import {
 } from "react-icons/md";
 
 // Admin Imports
-import MainDashboard from "views/admin/default";
+import MemberData from "views/admin/member_data";
 import NFTMarketplace from "views/admin/marketplace";
 import Profile from "views/admin/profile";
-import DataTables from "views/admin/dataTables";
+import Welcome from "views/admin/default";
 import RTL from "views/admin/rtl";
 import Members from "views/members";
 import Departments from "views/departments";
@@ -25,14 +25,23 @@ import Clients from "views/clients";
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
 import PasswordReset from "views/forget_password/components/PasswordReset";
+import TaskTable from "views/task";
 
 const routes = [
   {
-    name: "Main Dashboard",
+    name: "Welcome",
     layout: "/admin",
-    path: "/default",
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: MainDashboard,
+    path: "/default",
+    component: Welcome,
+  },
+
+  {
+    name: "Member Data",
+    layout: "/admin",
+    path: "/member-data",
+    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+    component: MemberData,
   },
 
   {
@@ -82,6 +91,13 @@ const routes = [
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Clients,
   },
+  {
+    name: "Task",
+    layout: "/admin",
+    path: "/task",
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    component: TaskTable,
+  },
 
   // {
   //   name: "NFT Marketplace",
@@ -97,14 +113,6 @@ const routes = [
   //   ),
   //   component: NFTMarketplace,
   //   secondary: true,
-  // },
-
-  // {
-  //   name: "Data Tables",
-  //   layout: "/admin",
-  //   icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-  //   path: "/data-tables",
-  //   component: DataTables,
   // },
 
   // {
