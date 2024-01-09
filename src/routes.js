@@ -25,6 +25,7 @@ import Clients from "views/clients";
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
 import PasswordReset from "views/forget_password/components/PasswordReset";
+import TaskTable from "views/task";
 
 const routes = [
   {
@@ -81,6 +82,13 @@ const routes = [
     path: "/clients",
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     component: Clients,
+  },
+  {
+    name: "Task",
+    layout: "/admin",
+    path: "/task",
+    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    component: TaskTable,
   },
 
   // {

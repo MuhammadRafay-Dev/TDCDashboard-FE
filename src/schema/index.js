@@ -106,3 +106,26 @@ export const clientValidationSchema = Yup.object({
     .url("Invalid URL for Contact Platform Link 2")
     .required("Contact Platform Link 2 is required"),
 });
+
+
+export const taskValidationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  lead: Yup.string().required("Lead name is required"),
+  client: Yup.string().required("Client name is required"),
+  salesMember: Yup.string().required("Sales member role is required"),
+  taskDiscription: Yup.string().required("Task description is required"),
+  taskSideNote: Yup.string().required("Task Side Note is required"),
+  taskStartDate: Yup.date().required("Task start date is required"),
+  taskEndDate: Yup.date().required("Task end date is required"),
+  taskSupervisor: Yup.string().required("Task supervisor name is required"),
+  taskTechResources: Yup.array().of(Yup.string()),
+  taskLink1: Yup.string()
+  .url("Invalid URL for Task Link1")
+  .required("Task Link1 is required"),
+  taskLink2: Yup.string()
+  .url("Invalid URL for Task Link2")
+  .required("Task Link2 is required"),
+  taskLink3: Yup.string()
+  .url("Invalid URL for Task Link3")
+  .required("Task Link3 is required"),
+});
