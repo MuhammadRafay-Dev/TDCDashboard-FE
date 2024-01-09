@@ -19,8 +19,14 @@ import {
   Collapse,
   Flex,
   Icon,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteClients, getClients } from "store/thunk/client.thunk";
@@ -28,12 +34,14 @@ import ClientModal from "./ClientModal";
 
 const ClientTable = ({ filteredData }) => {
   const dispatch = useDispatch();
-  // const { clients } = useSelector((state) => state.client.data);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clientProp, setClientProp] = useState({});
   const [clientId, setClientId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
@@ -45,22 +53,35 @@ const ClientTable = ({ filteredData }) => {
   const handleBack = () => {
     setIsModalOpen(false);
   };
+
   useEffect(() => {
     dispatch(getClients());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleClickDelete = async (id) => {
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await dispatch(deleteClients(id));
+      await dispatch(deleteClients(deleteId));
       await dispatch(getClients());
 
       // Display success toast
       toast.success("Lead Deleted Successfully");
+
+      // Close confirmation modal
+      setIsDeleteConfirmationOpen(false);
     } catch (error) {
       // Display error toast
       toast.error("Error Deleting Lead");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
   };
 
   const handleClickUpdate = (id, value) => {
@@ -69,7 +90,7 @@ const ClientTable = ({ filteredData }) => {
     setIsModalOpen(true);
   };
 
-  //Colors
+  // Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
     { bg: "secondaryGray.400" },
@@ -91,6 +112,33 @@ const ClientTable = ({ filteredData }) => {
         clientProp={clientProp}
         clientId={clientId}
       />
+
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Lead
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this lead?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
       <TableContainer>
         <Table variant="striped">
           <Thead>

@@ -65,9 +65,6 @@ const TaskModal = ({
   };
   // console.log("JJ",taskProp?.taskTechResources)
 
-  useEffect(() => {
-    console.log('selectedOptions', taskProp?.taskTechResources);
-  }, [taskProp?.taskTechResources])
   
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">

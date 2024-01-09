@@ -19,8 +19,14 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { getClients } from "store/thunk/client.thunk";
@@ -42,6 +48,10 @@ const TaskTable = ({ filteredData }) => {
   const [taskProp, setTaskProp] = useState({});
   const [taskId, setTaskId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const cancelRef = useRef();
 
   const handleBack = () => {
     setIsModalOpen(false);
@@ -59,9 +69,14 @@ const TaskTable = ({ filteredData }) => {
     }));
   };
 
-  const handleClickDelete = async (id) => {
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await dispatch(deleteTask(id));
+      await dispatch(deleteTask(deleteId));
       await dispatch(getTask());
 
       // Display success toast
@@ -72,7 +87,11 @@ const TaskTable = ({ filteredData }) => {
     }
   };
 
-  const handleClickUpdate = (id, value,record) => {
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
+  };
+
+  const handleClickUpdate = (id, value) => {
     setTaskId(id);
     setTaskProp(value);
     setIsModalOpen(true);
@@ -112,6 +131,32 @@ const TaskTable = ({ filteredData }) => {
         taskProp={taskProp}
         taskId={taskId}
       />
+
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Task
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this task?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <TableContainer>
         <Table variant="striped">
           <Thead>
@@ -129,7 +174,6 @@ const TaskTable = ({ filteredData }) => {
           <Tbody>
             {filteredData &&
               filteredData?.map((row, index) => {
-                // console.log(row, "Heloo====");
                 return (
                   <React.Fragment key={row._id}>
                     <Tr>
@@ -182,10 +226,13 @@ const TaskTable = ({ filteredData }) => {
                               taskStartDate: row?.taskStartDate,
                               taskEndDate: row?.taskEndDate,
                               taskSupervisor: row?.taskSupervisor?._id,
-                              taskTechResources: row?.taskTechResources?.map(resource => ({ label: resource?.name,
-                              value:resource?._id,
-                              // isFixed: true
-                               })),
+                              taskTechResources: row?.taskTechResources?.map(
+                                (resource) => ({
+                                  label: resource?.name,
+                                  value: resource?._id,
+                                  // isFixed: true
+                                })
+                              ),
                               taskLink1: row?.taskLink1,
                               taskLink2: row?.taskLink2,
                               taskLink3: row?.taskLink3,
@@ -264,7 +311,9 @@ const TaskTable = ({ filteredData }) => {
                                     <Td>{row?.taskLink2}</Td>
                                     <Td>{row?.taskLink3}</Td>
                                     <Td>{row?.createdBy.name}</Td>
-                                    <Td>{row?.isCompleted ? "True" : "False"}</Td>
+                                    <Td>
+                                      {row?.isCompleted ? "True" : "False"}
+                                    </Td>
                                     <Td>
                                       {row?.taskTechResources?.length
                                         ? row.taskTechResources.map(

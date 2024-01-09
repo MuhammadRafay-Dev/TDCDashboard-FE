@@ -19,26 +19,34 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { deleteLeads, getLeads } from "store/thunk/lead.thunk";
 import { getMembers } from "store/thunk/member.thunk";
+import { getClients } from "store/thunk/client.thunk";
 import { formatDateString } from "../../../utils/index";
 import LeadModal from "./LeadModal";
-import { getClients } from "store/thunk/client.thunk";
 
 const LeadTable = ({ filteredData }) => {
-  // const { leads } = useSelector((state) => state.lead.data);
+  const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
   const [clients, setClients] = useState([]);
   const [leadProp, setLeadProp] = useState({});
   const [leadId, setLeadId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const cancelRef = useRef();
 
   const handleBack = () => {
     setIsModalOpen(false);
@@ -56,17 +64,29 @@ const LeadTable = ({ filteredData }) => {
     }));
   };
 
-  const handleClickDelete = async (id) => {
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await dispatch(deleteLeads(id));
+      await dispatch(deleteLeads(deleteId));
       await dispatch(getLeads());
 
       // Display success toast
       toast.success("Lead Deleted Successfully");
+
+      // Close confirmation modal
+      setIsDeleteConfirmationOpen(false);
     } catch (error) {
       // Display error toast
       toast.error("Error Deleting Lead");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
   };
 
   const handleClickUpdate = (id, value) => {
@@ -81,7 +101,7 @@ const LeadTable = ({ filteredData }) => {
     });
   };
 
-  //Colors
+  // Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
     { bg: "secondaryGray.400" },
@@ -105,6 +125,33 @@ const LeadTable = ({ filteredData }) => {
         leadProp={leadProp}
         leadId={leadId}
       />
+
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Lead
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this lead?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
       <TableContainer>
         <Table variant="striped">
           <Thead>
