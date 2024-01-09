@@ -13,8 +13,14 @@ import {
   useColorModeValue,
   Button,
   Icon,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -25,16 +31,18 @@ import { getMembers } from "store/thunk/member.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
 
 const DepartmentTable = ({ filteredData }) => {
-  // const { departments } = useSelector((state) => state.department.data);
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
   const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
   const [formProp, setFormProp] = useState({});
   const [departmentId, setDepartmentId] = useState("");
+  const cancelRef = useRef();
 
   const handleBack = () => {
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -42,16 +50,28 @@ const DepartmentTable = ({ filteredData }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleClickDelete = async (id) => {
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await dispatch(deleteDepartments(id));
+      await dispatch(deleteDepartments(deleteId));
       await dispatch(getDepartments());
 
       // Display success toast
       toast.success("Department Deleted Successfully");
+
+      // Close confirmation modal
+      setIsDeleteConfirmationOpen(false);
     } catch (error) {
       toast.error("Error Deleting Department");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
   };
 
   const handleClickUpdate = (id, value) => {
@@ -63,7 +83,7 @@ const DepartmentTable = ({ filteredData }) => {
     });
   };
 
-  //Colors
+  // Colors
   const bgButton = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
   const bgHover = useColorModeValue(
     { bg: "secondaryGray.400" },
@@ -74,6 +94,7 @@ const DepartmentTable = ({ filteredData }) => {
     { bg: "whiteAlpha.100" }
   );
   const ethColor = useColorModeValue("blue", "white");
+
   return (
     <div>
       <EmployeeFormModal
@@ -84,6 +105,33 @@ const DepartmentTable = ({ filteredData }) => {
         formProp={formProp}
         departmentId={departmentId}
       />
+
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Department
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this department?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
       <TableContainer>
         <Table variant="striped">
           <Thead>
@@ -134,7 +182,6 @@ const DepartmentTable = ({ filteredData }) => {
                         lineHeight="100%"
                         borderRadius="10px"
                         onClick={() => handleClickDelete(row._id)}
-                        
                       >
                         <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
                       </Button>
@@ -148,4 +195,5 @@ const DepartmentTable = ({ filteredData }) => {
     </div>
   );
 };
+
 export default DepartmentTable;
