@@ -14,6 +14,12 @@ import {
   Spinner,
   Collapse,
   Flex,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,7 +30,7 @@ import {
   ViewOffIcon,
 } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getProjects } from "store/thunk/project.thunk";
 import { addProject } from "store/thunk/project.thunk";
 import { deleteProject } from "store/thunk/project.thunk";
@@ -36,6 +42,8 @@ const ProjectTable = () => {
   const dispatch = useDispatch();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [projectEditData, setProjectEditData] = useState(null);
   const projectData = useSelector((state) => state.projects?.data);
   const [projects, setProjects] = useState(projectData);
@@ -44,12 +52,22 @@ const ProjectTable = () => {
   const [rowLoadingStates, setRowLoadingStates] = useState(
     projects?.map(() => false) || []
   );
+  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
       ...prevRows,
       [rowId]: !prevRows[rowId],
     }));
+  };
+
+  const handleOpenConfirmationModal = (index) => {
+    setIndexOfRow(index);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
   };
 
   //API Calls
@@ -187,6 +205,38 @@ const ProjectTable = () => {
         edit={handleEditProject}
         index={indexOfRow}
       />
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Project
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this project?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  handleDelete(projects[indexOfRow]._id, indexOfRow);
+                  handleCancelDelete();
+                }}
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box display="flex" justifyContent="space-between">
         <Box
           w={{ sm: "100%", md: "auto" }}
@@ -282,7 +332,7 @@ const ProjectTable = () => {
                           h="37px"
                           lineHeight="100%"
                           borderRadius="10px"
-                          onClick={() => handleDelete(row._id, index)}
+                          onClick={() => handleOpenConfirmationModal(index)}
                           isDisabled={rowLoadingStates[index]}
                         >
                           <Icon as={DeleteIcon} color={ethColor} boxSize={5} />

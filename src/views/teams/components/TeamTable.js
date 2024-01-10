@@ -14,6 +14,12 @@ import {
   Spinner,
   Collapse,
   Flex,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,7 +30,7 @@ import {
   ViewOffIcon,
 } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TeamModal from "./TeamModal";
 import { getTeams } from "store/thunk/team.thunk";
 import { addTeam } from "store/thunk/team.thunk";
@@ -36,6 +42,8 @@ const TeamTable = () => {
   const dispatch = useDispatch();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [teamEditData, setTeamEditData] = useState(null);
   const teamData = useSelector((state) => state.teams?.data);
   const [teams, setTeams] = useState(teamData);
@@ -44,12 +52,22 @@ const TeamTable = () => {
   const [rowLoadingStates, setRowLoadingStates] = useState(
     teams?.map(() => false) || []
   );
+  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
       ...prevRows,
       [rowId]: !prevRows[rowId],
     }));
+  };
+
+  const handleOpenConfirmationModal = (index) => {
+    setIndexOfRow(index);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
   };
 
   //API Calls
@@ -189,6 +207,38 @@ const TeamTable = () => {
         edit={handleEditTeam}
         index={indexOfRow}
       />
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Team
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this team?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  handleDelete(teams[indexOfRow]._id, indexOfRow);
+                  handleCancelDelete();
+                }}
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box display="flex" justifyContent="space-between">
         <Box
           w={{ sm: "100%", md: "auto" }}
@@ -284,7 +334,7 @@ const TeamTable = () => {
                           h="37px"
                           lineHeight="100%"
                           borderRadius="10px"
-                          onClick={() => handleDelete(row._id, index)}
+                          onClick={() => handleOpenConfirmationModal(index)}
                           isDisabled={rowLoadingStates[index]}
                         >
                           <Icon as={DeleteIcon} color={ethColor} boxSize={5} />

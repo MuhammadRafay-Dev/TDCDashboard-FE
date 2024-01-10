@@ -6,12 +6,17 @@ import {
   ViewOffIcon,
 } from "@chakra-ui/icons";
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   Collapse,
   Flex,
   Icon,
-  Link,
   Spinner,
   Table,
   TableContainer,
@@ -24,7 +29,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
@@ -40,6 +45,8 @@ const MembersTable = () => {
   const navigate = useHistory();
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const memberData = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
@@ -48,6 +55,7 @@ const MembersTable = () => {
   const [rowLoadingStates, setRowLoadingStates] = useState(
     members?.map(() => false) || []
   );
+  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
@@ -61,6 +69,14 @@ const MembersTable = () => {
     navigate.push(`/admin/member-data?id=${id}`);
   };
 
+  const handleOpenConfirmationModal = (index) => {
+    setIndexOfRow(index);
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmationOpen(false);
+  };
   //API Calls
   const triggerSave = () => {
     setMemberEditData(null);
@@ -190,6 +206,38 @@ const MembersTable = () => {
         edit={handleEditMember}
         index={indexOfRow}
       />
+      <AlertDialog
+        isOpen={isDeleteConfirmationOpen}
+        leastDestructiveRef={cancelRef}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete Member
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this member?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={handleCancelDelete}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  handleDelete(members[indexOfRow]._id, indexOfRow);
+                  handleCancelDelete();
+                }}
+                ml={3}
+              >
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
       <Box display="flex" justifyContent="space-between">
         <Box
           w={{ sm: "100%", md: "auto" }}
@@ -286,7 +334,7 @@ const MembersTable = () => {
                           h="37px"
                           lineHeight="100%"
                           borderRadius="10px"
-                          onClick={() => handleDelete(row._id, index)}
+                          onClick={() => handleOpenConfirmationModal(index)}
                           isDisabled={rowLoadingStates[index]}
                         >
                           <Icon as={DeleteIcon} color={ethColor} boxSize={5} />

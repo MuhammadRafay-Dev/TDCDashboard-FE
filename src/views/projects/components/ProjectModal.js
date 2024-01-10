@@ -291,7 +291,7 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
                       style={inputStyle}
                     >
                       <option value="" disabled>
-                        Select Role
+                        Select Contract Type
                       </option>
                       <option value={"Hourly"}>Hourly</option>
                       <option value={"Fixed"}>Fixed</option>
