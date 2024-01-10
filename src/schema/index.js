@@ -112,7 +112,7 @@ export const taskValidationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   lead: Yup.string().required("Lead name is required"),
   client: Yup.string().required("Client name is required"),
-  salesMember: Yup.string().required("Sales member role is required"),
+  salesMember: Yup.string().required("Sales member is required"),
   taskDiscription: Yup.string().required("Task description is required"),
   taskSideNote: Yup.string().required("Task Side Note is required"),
   taskStartDate: Yup.date().required("Task start date is required"),

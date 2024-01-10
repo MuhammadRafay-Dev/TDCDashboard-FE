@@ -13,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -32,6 +32,13 @@ const TaskModal = ({
 }) => {
   const dispatch = useDispatch();
   const isUpdateMode = !!taskId;
+  const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    if (taskProp?.taskTechResources) {
+      setSelected(taskProp?.taskTechResources);
+    }
+  }, [taskProp?.taskTechResources]);
 
   const handleSubmit = async (value) => {
     try {
@@ -172,21 +179,22 @@ const TaskModal = ({
                     <option value="" disabled>
                       Select Role Member
                     </option>
+
                     {members &&
                       members
-                        .filter(
+                        ?.filter(
                           (row) =>
                             row.role === "BUSINESS_MANAGER" ||
                             row.role === "SALES_AGENT"
                         )
-                        .map((filteredMember) => (
-                          <option
-                            key={filteredMember?._id}
-                            value={filteredMember?._id}
-                          >
-                            {filteredMember?.role}
-                          </option>
-                        ))}
+                        ?.map((row, index) => {
+                          // console.log(row, "members")
+                          return (
+                            <option key={row?._id} value={row?._id}>
+                              {row?.name}
+                            </option>
+                          );
+                        })}
                   </Field>
                   <ErrorMessage
                     name="salesMember"
@@ -290,13 +298,8 @@ const TaskModal = ({
                           "taskTechResources",
                           selectedOptions.map((option) => option.value)
                         );
+                        setSelected(selectedOptions);
                       };
-                      const selectedOptions = members
-                        .filter((member) => field.value.includes(member._id))
-                        .map((row) => ({
-                          value: row._id,
-                          label: row.name,
-                        }));
 
                       return (
                         <Select
@@ -306,7 +309,7 @@ const TaskModal = ({
                           }))}
                           isMulti
                           onChange={onChange}
-                          value={selectedOptions}
+                          value={selected}
                           placeholder="Task Tech Resources"
                         />
                       );

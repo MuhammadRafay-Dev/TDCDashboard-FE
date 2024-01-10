@@ -222,7 +222,7 @@ const TaskTable = ({ filteredData }) => {
                               name: row?.name,
                               lead: row?.lead?._id,
                               client: row?.client?._id,
-                              salesMember: row?.salesMember?.role,
+                              salesMember: row?.salesMember?._id,
                               taskDiscription: row?.taskDiscription,
                               taskSideNote: row?.taskSideNote,
                               taskStartDate: row?.taskStartDate,
