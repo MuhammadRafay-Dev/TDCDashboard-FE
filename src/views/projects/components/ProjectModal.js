@@ -38,6 +38,7 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
     team_lead: editData?.team_lead?._id || "",
     sales_coordinator: editData?.sales_coordinator?._id || "",
     teams_assigned: editData?.teams_assigned || [],
+    members_assigned: editData?.members_assigned || [],
     platform: editData?.platform || "",
     contract_type: editData?.contract_type || "",
     client: editData?.client?._id || "",
@@ -57,9 +58,11 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const clientData = useSelector((state) => state.client?.data?.leads);
   const [clients, setClients] = useState(clientData);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded2, setIsExpanded2] = useState(false);
 
   const handleModalClose = () => {
     setIsExpanded(false);
+    setIsExpanded2(false);
     close();
   };
 
@@ -72,6 +75,7 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
     }
 
     setIsExpanded(false);
+    setIsExpanded2(false);
 
     close();
   };
@@ -100,6 +104,8 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
         sales_coordinator: editData?.sales_coordinator?._id || "",
         client: editData?.client?._id || "",
         teams_assigned: editData?.teams_assigned?.map((team) => team._id) || "",
+        members_assigned:
+          editData?.members_assigned?.map((member) => member._id) || "",
         start_date: new Date(editData?.start_date).toISOString().split("T")[0],
         end_date: new Date(editData?.end_date).toISOString().split("T")[0],
       }));
@@ -196,7 +202,7 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
                       {({ field }) => (
                         <>
                           <Box display="flex">
-                            <FormLabel mt={2}>Team</FormLabel>
+                            <FormLabel mt={2}>Teams Assigned</FormLabel>
                             <IconButton
                               icon={
                                 isExpanded ? <FaChevronUp /> : <FaChevronDown />
@@ -238,6 +244,62 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
                     </Field>
                     <ErrorMessage
                       name="teams_assigned"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <Field name="members_assigned">
+                      {({ field }) => (
+                        <>
+                          <Box display="flex">
+                            <FormLabel mt={2}>Members Assigned</FormLabel>
+                            <IconButton
+                              icon={
+                                isExpanded2 ? (
+                                  <FaChevronUp />
+                                ) : (
+                                  <FaChevronDown />
+                                )
+                              }
+                              onClick={() => setIsExpanded2(!isExpanded2)}
+                              aria-label={isExpanded2 ? "Collapse" : "Expand"}
+                              mb={2}
+                            />
+                          </Box>
+                          <Collapse in={isExpanded2}>
+                            <Wrap spacing={4}>
+                              {members?.map((option) => (
+                                <WrapItem key={option._id}>
+                                  <Checkbox
+                                    value={option._id}
+                                    onChange={(e) => {
+                                      const selectedValues = e.target.checked
+                                        ? [...field.value, option._id]
+                                        : field.value.filter(
+                                            (id) => id !== option._id
+                                          );
+                                      field.onChange({
+                                        target: {
+                                          name: field.name,
+                                          value: selectedValues,
+                                        },
+                                      });
+                                    }}
+                                    isChecked={field.value.includes(option._id)}
+                                  >
+                                    {option.name}
+                                  </Checkbox>
+                                </WrapItem>
+                              ))}
+                            </Wrap>
+                          </Collapse>
+                        </>
+                      )}
+                    </Field>
+                    <ErrorMessage
+                      name="members_assigned"
                       component="p"
                       style={errorStyle}
                     />

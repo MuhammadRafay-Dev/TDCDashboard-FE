@@ -54,9 +54,10 @@ export const projectValidationSchema = Yup.object({
     .required("Name is required")
     .min(3, "Name should be at least 3 characters"),
   tech_stack: Yup.string().required("Tech Stack is required"),
-  team_lead: Yup.string().required("Team Lead is required"),
+  team_lead: Yup.string(),
   sales_coordinator: Yup.string().required("Sales Coordinator is required"),
   teams_assigned: Yup.array().of(Yup.string()),
+  members_assigned: Yup.array().of(Yup.string()),
   platform: Yup.string().required("Platform is required"),
   contract_type: Yup.string().required("Contract Type is required"),
   client: Yup.string().required("Client is required"),
@@ -108,7 +109,6 @@ export const clientValidationSchema = Yup.object({
     .required("Contact Platform Link 2 is required"),
 });
 
-
 export const taskValidationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   lead: Yup.string().required("Lead name is required"),
@@ -121,12 +121,12 @@ export const taskValidationSchema = Yup.object().shape({
   taskSupervisor: Yup.string().required("Task supervisor name is required"),
   taskTechResources: Yup.array().of(Yup.string()),
   taskLink1: Yup.string()
-  .url("Invalid URL for Task Link1")
-  .required("Task Link1 is required"),
+    .url("Invalid URL for Task Link1")
+    .required("Task Link1 is required"),
   taskLink2: Yup.string()
-  .url("Invalid URL for Task Link2")
-  .required("Task Link2 is required"),
+    .url("Invalid URL for Task Link2")
+    .required("Task Link2 is required"),
   taskLink3: Yup.string()
-  .url("Invalid URL for Task Link3")
-  .required("Task Link3 is required"),
+    .url("Invalid URL for Task Link3")
+    .required("Task Link3 is required"),
 });

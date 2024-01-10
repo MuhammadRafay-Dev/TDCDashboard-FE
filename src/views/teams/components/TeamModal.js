@@ -46,6 +46,8 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const [projects, setProjects] = useState(projectData);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExpanded2, setIsExpanded2] = useState(false);
+  const [selectedMember, setSelectedMember] = useState([]);
+  const [selectedProject, setSelectedProject] = useState([]);
 
   const handleInputChange = (field, values) => {
     setTeamData((prevData) => ({
@@ -103,6 +105,28 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
       setTeamData(initialData);
     }
   }, [editData]);
+
+  // useEffect(() => {
+  //   if (editData?.members) {
+  //     setSelectedMember(
+  //       editData?.members?.map((member) => ({
+  //         label: member.name,
+  //         value: member._id,
+  //       }))
+  //     );
+  //   }
+  // }, [editData?.members]);
+
+  // useEffect(() => {
+  //   if (editData?.projects) {
+  //     setSelectedProject(
+  //       editData?.projects?.map((project) => ({
+  //         label: project.name,
+  //         value: project._id,
+  //       }))
+  //     );
+  //   }
+  // }, [editData?.project]);
 
   //Form Styles
   const inputStyle = {

@@ -24,6 +24,7 @@ import { getTeams } from "store/thunk/team.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
 import { memberValidationSchema } from "schema";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import Select from "react-select";
 
 const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
@@ -31,7 +32,7 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
     email: editData?.email || "",
     contactNumber: editData?.contactNumber || "",
     role: editData?.role || "",
-    currentSalary:editData?.currentSalary || "",
+    currentSalary: editData?.currentSalary || "",
     department: editData?.department?._id || "",
     teams: editData?.teams || [],
     emergencyContactName: editData?.emergencyContactName || "",
@@ -46,9 +47,11 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
   );
   const [departments, setDepartments] = useState(departmentData);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [selected, setSelected] = useState([]);
 
   const handleModalClose = () => {
     setIsExpanded(false);
+    setSelected([]);
     close();
   };
 
@@ -88,6 +91,17 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
       setMemberData(initialData);
     }
   }, [editData]);
+
+  useEffect(() => {
+    if (editData?.teams) {
+      setSelected(
+        editData?.teams?.map((team) => ({
+          label: team.name,
+          value: team._id,
+        }))
+      );
+    }
+  }, [editData?.teams]);
 
   const RoleOptions = [
     "",
@@ -238,6 +252,40 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
                   </FormControl>
 
                   <FormControl>
+                    <FormLabel>Teams</FormLabel>
+                    <Field
+                      name="teams"
+                      component={({ field, form }) => {
+                        const onChange = (selectedOptions) => {
+                          form.setFieldValue(
+                            "teams",
+                            selectedOptions.map((option) => option.value)
+                          );
+                          setSelected(selectedOptions);
+                        };
+
+                        return (
+                          <Select
+                            options={teams?.map((row) => ({
+                              value: row._id,
+                              label: row.name,
+                            }))}
+                            isMulti
+                            onChange={onChange}
+                            value={selected}
+                            placeholder="Teams"
+                          />
+                        );
+                      }}
+                    />
+                    <ErrorMessage
+                      name="teams"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  {/* <FormControl>
                     <Field name="teams">
                       {({ field }) => (
                         <>
@@ -287,7 +335,7 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
                       component="p"
                       style={errorStyle}
                     />
-                  </FormControl>
+                  </FormControl> */}
 
                   <FormControl>
                     <FormLabel>Emergency Contact Name</FormLabel>

@@ -176,6 +176,11 @@ const ProjectTable = () => {
               .join(", ")
               .toLowerCase()
               .includes(filterSearch) ||
+            data?.members_assigned
+              .map((member) => member?.name)
+              .join(", ")
+              .toLowerCase()
+              .includes(filterSearch) ||
             data.contract_type.toLowerCase().includes(filterSearch) ||
             data.status.toLowerCase().includes(filterSearch);
     });
@@ -256,8 +261,8 @@ const ProjectTable = () => {
             <Tr>
               <Th>Name</Th>
               <Th>Team Lead</Th>
-              <Th>Sales Coordinator</Th>
               <Th>Teams Assigned</Th>
+              <Th>Members Assigned</Th>
               <Th>Client</Th>
               <Th>Status</Th>
               <Th>Start Date</Th>
@@ -270,10 +275,16 @@ const ProjectTable = () => {
                 <Tr>
                   <Td>{row?.name}</Td>
                   <Td>{row?.team_lead?.name ?? "N/A"}</Td>
-                  <Td>{row?.sales_coordinator?.name ?? "N/A"}</Td>
                   <Td>
                     {row.teams_assigned && row.teams_assigned.length > 0
                       ? row.teams_assigned?.map((team) => team?.name).join(", ")
+                      : "N/A"}
+                  </Td>
+                  <Td>
+                    {row.members_assigned && row.members_assigned.length > 0
+                      ? row.members_assigned
+                          ?.map((member) => member?.name)
+                          .join(", ")
                       : "N/A"}
                   </Td>
                   <Td>{row?.client?.name ?? "N/A"}</Td>
@@ -364,6 +375,7 @@ const ProjectTable = () => {
                           <Table variant="striped" size="md" colorScheme="gray">
                             <Thead>
                               <Tr>
+                                <Th>Sales Coordinator</Th>
                                 <Th>Tech Stack</Th>
                                 <Th>Platform</Th>
                                 <Th>Contract Type</Th>
@@ -375,6 +387,7 @@ const ProjectTable = () => {
                             </Thead>
                             <Tbody>
                               <Tr>
+                                <Td>{row?.sales_coordinator?.name ?? "N/A"}</Td>
                                 <Td>{row?.tech_stack ?? "N/A"}</Td>
                                 <Td>{row?.platform ?? "N/A"}</Td>
                                 <Td>{row?.contract_type ?? "N/A"}</Td>

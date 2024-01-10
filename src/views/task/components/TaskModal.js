@@ -303,7 +303,7 @@ const TaskModal = ({
 
                       return (
                         <Select
-                          options={members.map((row) => ({
+                          options={members?.map((row) => ({
                             value: row._id,
                             label: row.name,
                           }))}
