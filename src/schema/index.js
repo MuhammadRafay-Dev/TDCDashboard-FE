@@ -13,6 +13,7 @@ export const memberValidationSchema = Yup.object().shape({
     .min(10, "Contact Number must be between 10-14 numbers")
     .max(14, "Contact Number must be between 10-14 numbers"),
   role: Yup.string().required("Role is required"),
+  currentSalary: Yup.number().required("Salary must be Reuired"),
   department: Yup.string().required("Department is required"),
   teams: Yup.array(),
   emergencyContactName: Yup.string().required(

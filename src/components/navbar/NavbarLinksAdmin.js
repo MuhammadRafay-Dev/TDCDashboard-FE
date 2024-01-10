@@ -1,33 +1,25 @@
 // Chakra Imports
 import {
   Avatar,
-  Button,
   Flex,
   Icon,
-  Image,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react";
 // Custom Components
-import { ItemContent } from "components/menu/ItemContent";
-import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import PropTypes from "prop-types";
-import React from "react";
 // Assets
-import navImage from "assets/img/layout/Navbar.png";
-import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
-import routes from "routes.js";
-import { ThemeEditor } from "./ThemeEditor";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import routes from "routes.js";
 import { clearUser } from "store/reducer/auth.reducer";
+import { ThemeEditor } from "./ThemeEditor";
 export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
 
@@ -38,7 +30,7 @@ export default function HeaderLinks(props) {
     // localStorage.clear();
     localStorage.removeItem("userData");
     dispatch(clearUser());
-    navigate.push("/auth");
+    navigate.push("/sign-in");
   };
 
   const { secondary } = props;
@@ -278,15 +270,18 @@ export default function HeaderLinks(props) {
               px="14px"
             >
               <Text fontSize="sm">Profile Settings</Text>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
               _hover={{ bg: "none" }}
               _focus={{ bg: "none" }}
               borderRadius="8px"
               px="14px"
+              onClick={()=>{
+                navigate.push("/forget-password/verify")
+              }}
             >
-              <Text fontSize="sm">Newsletter Settings</Text>
-            </MenuItem> */}
+              <Text fontSize="sm" fontWeight={"700"}>Reset Password</Text>
+            </MenuItem>
             <MenuItem
               _hover={{ bg: "none" }}
               _focus={{ bg: "none" }}
@@ -296,6 +291,7 @@ export default function HeaderLinks(props) {
               onClick={() => handleLogout()}
             >
               <Text fontSize="sm">Log out</Text>
+
             </MenuItem>
           </Flex>
         </MenuList>

@@ -49,7 +49,7 @@ const PasswordReset = () => {
         })
         .then((res) => {
           toast.success(res.data.message);
-          history.push("/login"); // Redirect to login after successful password reset
+          history.push("/sign-in"); // Redirect to login after successful password reset
         })
         .catch((error) => {
           toast.error(error.response.data.message);
@@ -75,7 +75,7 @@ const PasswordReset = () => {
         })
         .then((res) => {
           toast.success(res.data.message);
-          history.push("/login");
+          history.push("/sign-in");
         })
         .catch((error) => {
           toast.error(error.response.data.message);
@@ -97,7 +97,7 @@ const PasswordReset = () => {
         .catch((err) => {
           console.log("err", err);
           toast.error(err.response.data.message);
-          history.push("/auth");
+          history.push("/sign-in");
         });
     }
   }, [token]);

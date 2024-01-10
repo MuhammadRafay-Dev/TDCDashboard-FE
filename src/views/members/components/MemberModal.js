@@ -31,6 +31,7 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
     email: editData?.email || "",
     contactNumber: editData?.contactNumber || "",
     role: editData?.role || "",
+    currentSalary:editData?.currentSalary || "",
     department: editData?.department?._id || "",
     teams: editData?.teams || [],
     emergencyContactName: editData?.emergencyContactName || "",
@@ -192,6 +193,21 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
                     </Field>
                     <ErrorMessage
                       name="role"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Current Salary</FormLabel>
+                    <Field
+                      type="number"
+                      name="currentSalary"
+                      placeholder="Current Salary"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="currentSalary"
                       component="p"
                       style={errorStyle}
                     />

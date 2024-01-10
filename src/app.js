@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
 import "assets/css/App.css";
-import { Route, Switch, Redirect } from "react-router-dom";
-import AuthLayout from "layouts/auth";
-import AdminLayout from "layouts/admin";
-import RtlLayout from "layouts/rtl";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { setUser } from "store/reducer/auth.reducer";
-import { clearUser } from "store/reducer/auth.reducer";
 import { jwtDecode } from "jwt-decode";
+import AdminLayout from "layouts/admin";
+import AuthLayout from "layouts/auth";
+import RtlLayout from "layouts/rtl";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect, Route, Switch, useHistory } from "react-router-dom";
+import { clearUser, setUser } from "store/reducer/auth.reducer";
+import SignIn from "views/auth/signIn";
+import PasswordReset from "views/forget_password/components/PasswordReset";
+
 
 const App = () => {
   function isTokenExpired(token) {
@@ -35,7 +36,9 @@ const App = () => {
         dispatch(setUser(userData));
       }
     }
+
     let isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
+    // console.log("isAuth", isAuthenticated)
 
     return (
       <Route
@@ -44,7 +47,7 @@ const App = () => {
           isAuthenticated ? (
             <Component {...props} />
           ) : (
-            <Redirect to="/auth/login" />
+            <Redirect to="/sign-in" />
           )
         }
       />
@@ -72,7 +75,8 @@ const App = () => {
     <Switch>
       <ProtectedLogin path={`/auth`} component={AuthLayout} />
       <ProtectedRoute path={"/admin"} component={AdminLayout} />
-      {/* <Route path={`/admin`} component={AdminLayout} /> */}
+      <ProtectedRoute path={`/forget-password/verify`} component={PasswordReset} />
+      <Route path={`/sign-in`} component={SignIn} />
       <Route path={`/rtl`} component={RtlLayout} />
       <Redirect from="/" to="/admin" />
     </Switch>

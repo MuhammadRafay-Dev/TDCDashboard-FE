@@ -31,6 +31,7 @@ import {
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { toast } from "react-toastify";
 import {
   addMember,
@@ -39,7 +40,6 @@ import {
   getMembers,
 } from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 const MembersTable = () => {
   //States
   const navigate = useHistory();
@@ -258,9 +258,9 @@ const MembersTable = () => {
               <Th>Name</Th>
               <Th>Email</Th>
               <Th>Role</Th>
+              <Th>Current Salary</Th>
               <Th>Department</Th>
               <Th>Teams</Th>
-              <Th>Contact Number</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -275,13 +275,14 @@ const MembersTable = () => {
                   </Td>
                   <Td>{row?.email}</Td>
                   <Td>{row?.role}</Td>
+                  <Td>{row?.currentSalary ? `${row?.currentSalary} $ ` : "N/A"}</Td>
                   <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
                   <Td>
                     {row?.teams && row?.teams.length > 0
                       ? row?.teams?.map((team) => team?.name).join(", ")
                       : "N/A"}
                   </Td>
-                  <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
+                  
                   <Td textAlign="center">
                     {rowLoadingStates[index] ? (
                       <Spinner size="sm" color="blue.500" />
@@ -366,6 +367,7 @@ const MembersTable = () => {
                           <Table variant="striped" size="md" colorScheme="gray">
                             <Thead>
                               <Tr>
+                                <Th>Contact Number</Th>
                                 <Th>Emergency Contact Name</Th>
                                 <Th>Emergency Contact Contact</Th>
                                 <Th>Emergency Contact Relation</Th>
@@ -373,6 +375,7 @@ const MembersTable = () => {
                             </Thead>
                             <Tbody>
                               <Tr>
+                                <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
                                 <Td>{row?.emergencyContactName ?? "N/A"}</Td>
                                 <Td>{row?.emergencyContactNumber ?? "N/A"}</Td>
                                 <Td>
