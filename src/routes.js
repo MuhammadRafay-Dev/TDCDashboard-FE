@@ -8,6 +8,14 @@ import {
   MdLock,
   MdOutlineShoppingCart,
 } from "react-icons/md";
+import { FaPeopleGroup } from "react-icons/fa6";
+import { FaBuilding } from "react-icons/fa";
+import { BsMicrosoftTeams } from "react-icons/bs";
+import { GoProjectSymlink } from "react-icons/go";
+import { MdLeaderboard } from "react-icons/md";
+import { LiaHandshakeSolid } from "react-icons/lia";
+import { BiTask } from "react-icons/bi";
+import { MdOutlineLockReset } from "react-icons/md";
 
 // Admin Imports
 import MemberData from "views/admin/member_data";
@@ -48,7 +56,7 @@ const routes = [
     name: "Members",
     layout: "/admin",
     path: "/members",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={FaPeopleGroup} width="20px" height="20px" color="inherit" />,
     component: Members,
   },
 
@@ -56,7 +64,7 @@ const routes = [
     name: "Departments",
     layout: "/admin",
     path: "/departments",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={FaBuilding} width="20px" height="20px" color="inherit" />,
     component: Departments,
   },
 
@@ -64,7 +72,7 @@ const routes = [
     name: "Teams",
     layout: "/admin",
     path: "/teams",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={BsMicrosoftTeams} width="20px" height="20px" color="inherit" />,
     component: Teams,
   },
 
@@ -72,7 +80,7 @@ const routes = [
     name: "Projects",
     layout: "/admin",
     path: "/projects",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={GoProjectSymlink} width="20px" height="20px" color="inherit" />,
     component: Projects,
   },
 
@@ -80,7 +88,7 @@ const routes = [
     name: "Leads",
     layout: "/admin",
     path: "/leads",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />,
     component: Leads,
   },
 
@@ -88,14 +96,14 @@ const routes = [
     name: "Clients",
     layout: "/admin",
     path: "/clients",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={LiaHandshakeSolid} width="20px" height="20px" color="inherit" />,
     component: Clients,
   },
   {
     name: "Task",
     layout: "/admin",
     path: "/task",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={BiTask} width="20px" height="20px" color="inherit" />,
     component: TaskTable,
   },
 
@@ -130,11 +138,12 @@ const routes = [
     icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
     component: SignInCentered,
   },
-
+  
   {
     name: "Password Reset",
     layout: "/auth",
     path: "/forget-password/verify",
+    icon: <Icon as={MdOutlineLockReset} width="20px" height="20px" color="inherit" />,
     component: PasswordReset,
   },
 

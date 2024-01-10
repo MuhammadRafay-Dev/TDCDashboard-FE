@@ -78,13 +78,14 @@ const TaskTable = ({ filteredData }) => {
     try {
       await dispatch(deleteTask(deleteId));
       await dispatch(getTask());
-
+  
       // Display success toast
       toast.success("Task Deleted Successfully");
     } catch (error) {
       // Display error toast
       toast.error("Error Deleting Task");
     }
+    setIsDeleteConfirmationOpen(false);
   };
 
   const handleCancelDelete = () => {

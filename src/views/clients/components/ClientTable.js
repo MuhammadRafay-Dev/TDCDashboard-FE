@@ -124,7 +124,7 @@ const ClientTable = ({ filteredData }) => {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to delete this lead?
+              Are you sure you want to delete this Client?
             </AlertDialogBody>
 
             <AlertDialogFooter>

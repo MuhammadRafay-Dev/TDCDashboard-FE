@@ -13,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { useDispatch } from "react-redux";
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -177,7 +177,7 @@ const TaskModal = ({
                         .filter(
                           (row) =>
                             row.role === "BUSINESS_MANAGER" ||
-                            row.role === "SALES_AGENTS"
+                            row.role === "SALES_AGENT"
                         )
                         .map((filteredMember) => (
                           <option
@@ -306,7 +306,7 @@ const TaskModal = ({
                           }))}
                           isMulti
                           onChange={onChange}
-                          value={selectedOptions?._id}
+                          value={selectedOptions}
                           placeholder="Task Tech Resources"
                         />
                       );
