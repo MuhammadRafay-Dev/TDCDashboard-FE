@@ -18,8 +18,17 @@ import { getDepartments } from "store/thunk/department.thunk";
 import { memberValidationSchema } from "schema";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Select from "react-select";
+import { toast } from "react-toastify";
 
-const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
+const MemberModal = ({
+  open,
+  close,
+  members,
+  onSave,
+  editData,
+  edit,
+  index,
+}) => {
   const initialData = {
     name: editData?.name || "",
     email: editData?.email || "",
@@ -45,7 +54,36 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
     close();
   };
 
+  // const sanitizeValues = (values) => {
+  //   const sanitizedValues = {};
+  //   Object.entries(values).forEach(([key, value]) => {
+  //     if (value !== undefined && value !== "") {
+  //       sanitizedValues[key] = value;
+  //     }
+  //   });
+  //   return sanitizedValues;
+  // };
+
+  const verifyEmail = (values) => {
+    const emailExists = members?.filter(
+      (member) => member.email === values.email
+    );
+    if (emailExists[0]?.email) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   const handleSubmit = (values) => {
+    //  const sanitizedValues = sanitizeValues(values);
+    //  console.log("Sanitized Values", sanitizedValues);
+
+    if (!verifyEmail(values)) {
+      toast.error("Email already exists");
+      return;
+    }
+
     if (editData) {
       edit(values, index);
     } else {

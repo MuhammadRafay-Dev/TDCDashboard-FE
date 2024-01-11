@@ -56,6 +56,7 @@ const TeamTable = () => {
     teams?.map(() => false) || []
   );
 
+  //functions
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
       ...prevRows,
@@ -79,17 +80,20 @@ const TeamTable = () => {
   };
 
   const handleSaveTeam = (teamData) => {
-    try {
-      dispatch(addTeam({ teamData })).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Added Succesfully");
-        });
+    dispatch(addTeam({ teamData }))
+      .then((res) => {
+        dispatch(getTeams())
+          .then((res) => {
+            setTeams(res.payload);
+            toast.success("Team Added Succesfully");
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Team");
+          });
+      })
+      .catch((err) => {
+        toast.error("Error while adding Team");
       });
-    } catch (error) {
-      console.error("Error adding team", error);
-      toast.error("Error adding team");
-    }
   };
 
   const handleDelete = (id, index) => {
@@ -98,27 +102,36 @@ const TeamTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(deleteTeam(id)).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Deleted Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(deleteTeam(id))
+      .then((res) => {
+        dispatch(getTeams())
+          .then((res) => {
+            setTeams(res.payload);
+            toast.success("Team Deleted Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch(() => {
+            toast.error("Error while getting updated Team");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch(() => {
+        toast.error("Error Deleting Team");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.log("Error Deleting Team");
-      toast.error("Error Deleting Team");
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   const triggerEdit = (rowData, index) => {
@@ -133,27 +146,36 @@ const TeamTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(editTeam(teamData)).then((res) => {
-        dispatch(getTeams()).then((res) => {
-          setTeams(res.payload);
-          toast.success("Team Edited Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(editTeam(teamData))
+      .then((res) => {
+        dispatch(getTeams())
+          .then((res) => {
+            setTeams(res.payload);
+            toast.success("Team Edited Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Team");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch((err) => {
+        toast.error("Error Editing Team");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.log("Error Editing Team");
-      toast.error("Error Editing Team");
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   //Search
