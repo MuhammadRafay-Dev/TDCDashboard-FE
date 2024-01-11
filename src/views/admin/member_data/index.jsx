@@ -152,7 +152,7 @@ export default function UserReports() {
                 />
               }
               name="Salary"
-              value="$200"
+              value={`$${member?.currentSalary}` ?? "$200"}
             />
             <MiniStatistics
               startContent={
