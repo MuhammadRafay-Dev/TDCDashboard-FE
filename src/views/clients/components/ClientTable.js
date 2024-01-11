@@ -1,3 +1,8 @@
+import React, { useEffect, useState, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { deleteClients, getClients } from "store/thunk/client.thunk";
+import ClientModal from "./ClientModal";
 import {
   DeleteIcon,
   EditIcon,
@@ -26,11 +31,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from "@chakra-ui/react";
-import React, { useEffect, useState, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
-import { deleteClients, getClients } from "store/thunk/client.thunk";
-import ClientModal from "./ClientModal";
+import Loader from "components/loader/Loader";
 
 const ClientTable = ({ filteredData }) => {
   const dispatch = useDispatch();
@@ -39,8 +40,10 @@ const ClientTable = ({ filteredData }) => {
   const [clientProp, setClientProp] = useState({});
   const [clientId, setClientId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [deleteId, setDeleteId] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
@@ -55,7 +58,18 @@ const ClientTable = ({ filteredData }) => {
   };
 
   useEffect(() => {
-    dispatch(getClients());
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch(getClients());
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        toast.error("Error fetching clients");
+      }
+    };
+
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,17 +80,15 @@ const ClientTable = ({ filteredData }) => {
 
   const handleConfirmDelete = async () => {
     try {
+      setIsLoading(true);
       await dispatch(deleteClients(deleteId));
       await dispatch(getClients());
-
-      // Display success toast
-      toast.success("Lead Deleted Successfully");
-
-      // Close confirmation modal
+      toast.success("Client Deleted Successfully");
       setIsDeleteConfirmationOpen(false);
+      setIsLoading(false);
     } catch (error) {
-      // Display error toast
-      toast.error("Error Deleting Lead");
+      toast.error("Error Deleting Client");
+      setIsLoading(false);
     }
   };
 
@@ -105,6 +117,11 @@ const ClientTable = ({ filteredData }) => {
 
   return (
     <div>
+       {/* Loader */}
+       {isLoading && (
+        <Loader/>
+      )}
+
       <ClientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -139,6 +156,7 @@ const ClientTable = ({ filteredData }) => {
         </AlertDialogOverlay>
       </AlertDialog>
 
+      {!isLoading && (
       <TableContainer>
         <Table variant="striped">
           <Thead>
@@ -296,6 +314,7 @@ const ClientTable = ({ filteredData }) => {
           </Tbody>
         </Table>
       </TableContainer>
+      )}
     </div>
   );
 };

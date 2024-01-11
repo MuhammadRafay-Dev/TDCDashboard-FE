@@ -1,7 +1,4 @@
-import {
-  DeleteIcon,
-  EditIcon,
-} from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Table,
   TableContainer,
@@ -29,16 +26,18 @@ import {
 } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
+import Loader from "components/loader/Loader";
 
 const DepartmentTable = ({ filteredData }) => {
-  
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [deleteId, setDeleteId] = useState("");
   const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
   const [formProp, setFormProp] = useState({});
   const [departmentId, setDepartmentId] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const cancelRef = useRef();
 
   const handleBack = () => {
@@ -46,7 +45,18 @@ const DepartmentTable = ({ filteredData }) => {
   };
 
   useEffect(() => {
-    dispatch(getDepartments());
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch(getDepartments());
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        toast.error("Error fetching clients");
+      }
+    };
+
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -57,16 +67,17 @@ const DepartmentTable = ({ filteredData }) => {
 
   const handleConfirmDelete = async () => {
     try {
+      setIsLoading(true);
       await dispatch(deleteDepartments(deleteId));
       await dispatch(getDepartments());
 
       // Display success toast
       toast.success("Department Deleted Successfully");
-
-      // Close confirmation modal
       setIsDeleteConfirmationOpen(false);
+      setIsLoading(false);
     } catch (error) {
       toast.error("Error Deleting Department");
+      setIsLoading(false);
     }
   };
 
@@ -97,6 +108,9 @@ const DepartmentTable = ({ filteredData }) => {
 
   return (
     <div>
+      {/* Loader */}
+      {isLoading && <Loader />}
+
       <EmployeeFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -131,67 +145,68 @@ const DepartmentTable = ({ filteredData }) => {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
-
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            <Tr>
-              <Th>Department Name</Th>
-              <Th>Department Head Name</Th>
-              <Th>Department Head Email</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {filteredData &&
-              filteredData?.map((row, index) => {
-                return (
-                  <Tr key={row._id}>
-                    <Td>{row.name}</Td>
-                    <Td>{row?.departmentHead?.name}</Td>
-                    <Td>{row?.departmentHead?.email}</Td>
-                    <Td>
-                      <Button
-                        align="center"
-                        justifyContent="center"
-                        bg={bgButton}
-                        _hover={bgHover}
-                        _focus={bgFocus}
-                        _active={bgFocus}
-                        w="37px"
-                        h="37px"
-                        lineHeight="100%"
-                        borderRadius="10px"
-                        onClick={() =>
-                          handleClickUpdate(row._id, {
-                            name: row.name,
-                            departmentHead: row.departmentHead._id,
-                          })
-                        }
-                      >
-                        <Icon as={EditIcon} color={ethColor} boxSize={5} />
-                      </Button>
-                      <Button
-                        align="center"
-                        justifyContent="center"
-                        bg={bgButton}
-                        _hover={bgHover}
-                        _focus={bgFocus}
-                        _active={bgFocus}
-                        w="37px"
-                        h="37px"
-                        lineHeight="100%"
-                        borderRadius="10px"
-                        onClick={() => handleClickDelete(row._id)}
-                      >
-                        <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
-                      </Button>
-                    </Td>
-                  </Tr>
-                );
-              })}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      {!isLoading && (
+        <TableContainer>
+          <Table variant="striped">
+            <Thead>
+              <Tr>
+                <Th>Department Name</Th>
+                <Th>Department Head Name</Th>
+                <Th>Department Head Email</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {filteredData &&
+                filteredData?.map((row, index) => {
+                  return (
+                    <Tr key={row._id}>
+                      <Td>{row.name}</Td>
+                      <Td>{row?.departmentHead?.name}</Td>
+                      <Td>{row?.departmentHead?.email}</Td>
+                      <Td>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() =>
+                            handleClickUpdate(row._id, {
+                              name: row.name,
+                              departmentHead: row.departmentHead._id,
+                            })
+                          }
+                        >
+                          <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                        </Button>
+                        <Button
+                          align="center"
+                          justifyContent="center"
+                          bg={bgButton}
+                          _hover={bgHover}
+                          _focus={bgFocus}
+                          _active={bgFocus}
+                          w="37px"
+                          h="37px"
+                          lineHeight="100%"
+                          borderRadius="10px"
+                          onClick={() => handleClickDelete(row._id)}
+                        >
+                          <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
+                        </Button>
+                      </Td>
+                    </Tr>
+                  );
+                })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 };
