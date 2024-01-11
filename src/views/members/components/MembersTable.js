@@ -59,6 +59,7 @@ const MembersTable = () => {
     members?.map(() => false) || []
   );
 
+  //functions
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
       ...prevRows,
@@ -67,7 +68,6 @@ const MembersTable = () => {
   };
 
   const handleNavigate = (id) => {
-    console.log("id", id);
     navigate.push(`/admin/member-data?id=${id}`);
   };
 
@@ -79,6 +79,7 @@ const MembersTable = () => {
   const handleCancelDelete = () => {
     setIsDeleteConfirmationOpen(false);
   };
+
   //API Calls
   const triggerSave = () => {
     setMemberEditData(null);
@@ -86,16 +87,22 @@ const MembersTable = () => {
   };
 
   const handleSaveMember = (memberData) => {
-    try {
-      dispatch(addMember({ memberData })).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Added Succesfully");
-        });
+    dispatch(addMember({ memberData }))
+      .then((res) => {
+        dispatch(getMembers())
+          .then((res) => {
+            setMembers(res.payload);
+            toast.success("Member Added Succesfully");
+          })
+          .catch((err) => {
+            toast.success("Member Added Succesfully");
+            toast.error("Error while getting updated member");
+          });
+      })
+      .catch((err) => {
+        console.log("Error", err);
+        toast.error("Error while adding member");
       });
-    } catch (error) {
-      console.error("Error adding member", error);
-    }
   };
 
   const handleDelete = (id, index) => {
@@ -104,26 +111,36 @@ const MembersTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(deleteMember(id)).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Deleted Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(deleteMember(id))
+      .then((res) => {
+        dispatch(getMembers())
+          .then((res) => {
+            setMembers(res.payload);
+            toast.success("Member Deleted Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Member");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch((err) => {
+        toast.error("Error while deleting Member");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.log("Error Deleting Member");
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   const triggerEditMember = (rowData, index) => {
@@ -138,26 +155,36 @@ const MembersTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(editMember(memberData)).then((res) => {
-        dispatch(getMembers()).then((res) => {
-          setMembers(res.payload);
-          toast.success("Member Edited Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(editMember(memberData))
+      .then((res) => {
+        dispatch(getMembers())
+          .then((res) => {
+            setMembers(res.payload);
+            toast.success("Member Edited Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Member");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch((err) => {
+        toast.error("Error while Editing Member");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.error("Error in Editing Project", error);
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   useEffect(() => {

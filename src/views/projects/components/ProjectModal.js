@@ -1,7 +1,11 @@
 import {
+  Box,
   Button,
+  Collapse,
   FormControl,
   FormLabel,
+  HStack,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,6 +18,8 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
+  Radio,
+  RadioGroup,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -24,6 +30,7 @@ import { getMembers } from "store/thunk/member.thunk";
 import { projectValidationSchema } from "schema";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Select from "react-select";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 
 const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
@@ -53,19 +60,44 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const [clients, setClients] = useState(clientData);
   const [selectedTeams, setSelectedTeams] = useState([]);
   const [selectedMember, setSelectedMember] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [userSelection, setUserSelection] = useState(null);
 
   const handleModalClose = () => {
     close();
+    setUserSelection(null);
+    setIsExpanded(false);
+  };
+
+  const handleUserSelection = (selection) => {
+    setUserSelection(selection);
+  };
+
+  const sanitizeValues = (values) => {
+    const sanitizedValues = {};
+    Object.entries(values).forEach(([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== "" &&
+        !(Array.isArray(value) && value.length === 0)
+      ) {
+        sanitizedValues[key] = value;
+      }
+    });
+    return sanitizedValues;
   };
 
   const handleSubmit = (values) => {
+    const sanitizedValues = sanitizeValues(values);
     if (editData) {
-      edit(values, index);
+      edit(sanitizedValues, index);
     } else {
-      onSave(values);
+      onSave(sanitizedValues);
       setProjectData(initialData);
     }
 
+    setUserSelection(null);
+    setIsExpanded(false);
     close();
   };
 
@@ -86,6 +118,19 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
 
   useEffect(() => {
     if (editData) {
+      setUserSelection(
+        editData?.teams_assigned &&
+          editData?.teams_assigned.length > 0 &&
+          editData?.members_assigned &&
+          editData?.members_assigned.length > 0
+          ? "both"
+          : editData?.teams_assigned && editData?.teams_assigned.length > 0
+          ? "teams"
+          : editData?.members_assigned && editData?.members_assigned.length > 0
+          ? "members"
+          : null
+      );
+
       setProjectData(editData);
       setProjectData((prevData) => ({
         ...prevData,
@@ -213,72 +258,172 @@ const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>Teams Assigned</FormLabel>
-                    <Field
-                      name="teams_assigned"
-                      component={({ field, form }) => {
-                        const onChange = (selectedOptions) => {
-                          form.setFieldValue(
-                            "teams_assigned",
-                            selectedOptions.map((option) => option.value)
-                          );
-                          setSelectedTeams(selectedOptions);
-                        };
-
-                        return (
-                          <Select
-                            options={teams?.map((row) => ({
-                              value: row._id,
-                              label: row.name,
-                            }))}
-                            isMulti
-                            onChange={onChange}
-                            value={selectedTeams}
-                            placeholder="Teams Assigned"
-                          />
-                        );
-                      }}
-                    />
-                    <ErrorMessage
-                      name="teams_assigned"
-                      component="p"
-                      style={errorStyle}
-                    />
+                    <Box display="flex">
+                      <FormLabel mt={2}>Resources you want to assign</FormLabel>
+                      <IconButton
+                        icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        aria-label={isExpanded ? "Collapse" : "Expand"}
+                        mb={2}
+                      />
+                    </Box>
+                    <Collapse in={isExpanded}>
+                      <RadioGroup
+                        onChange={(value) => handleUserSelection(value)}
+                        value={userSelection}
+                      >
+                        <HStack spacing={4}>
+                          <Radio value="teams">Teams</Radio>
+                          <Radio value="members">Members</Radio>
+                          <Radio value="both">Both</Radio>
+                        </HStack>
+                      </RadioGroup>
+                    </Collapse>
                   </FormControl>
 
-                  <FormControl>
-                    <FormLabel>Members Assigned</FormLabel>
-                    <Field
-                      name="members_assigned"
-                      component={({ field, form }) => {
-                        const onChange = (selectedOptions) => {
-                          form.setFieldValue(
-                            "members_assigned",
-                            selectedOptions.map((option) => option.value)
-                          );
-                          setSelectedMember(selectedOptions);
-                        };
+                  {userSelection === "teams" && (
+                    <FormControl>
+                      <FormLabel>Teams Assigned</FormLabel>
+                      <Field
+                        name="teams_assigned"
+                        component={({ field, form }) => {
+                          const onChange = (selectedOptions) => {
+                            form.setFieldValue(
+                              "teams_assigned",
+                              selectedOptions.map((option) => option.value)
+                            );
+                            setSelectedTeams(selectedOptions);
+                          };
 
-                        return (
-                          <Select
-                            options={members?.map((row) => ({
-                              value: row._id,
-                              label: row.name,
-                            }))}
-                            isMulti
-                            onChange={onChange}
-                            value={selectedMember}
-                            placeholder="Members Assigned"
-                          />
-                        );
-                      }}
-                    />
-                    <ErrorMessage
-                      name="members_assigned"
-                      component="p"
-                      style={errorStyle}
-                    />
-                  </FormControl>
+                          return (
+                            <Select
+                              options={teams?.map((row) => ({
+                                value: row._id,
+                                label: row.name,
+                              }))}
+                              isMulti
+                              onChange={onChange}
+                              value={selectedTeams}
+                              placeholder="Teams Assigned"
+                            />
+                          );
+                        }}
+                      />
+                      <ErrorMessage
+                        name="teams_assigned"
+                        component="p"
+                        style={errorStyle}
+                      />
+                    </FormControl>
+                  )}
+
+                  {userSelection === "members" && (
+                    <FormControl>
+                      <FormLabel>Members Assigned</FormLabel>
+                      <Field
+                        name="members_assigned"
+                        component={({ field, form }) => {
+                          const onChange = (selectedOptions) => {
+                            form.setFieldValue(
+                              "members_assigned",
+                              selectedOptions.map((option) => option.value)
+                            );
+                            setSelectedMember(selectedOptions);
+                          };
+
+                          return (
+                            <Select
+                              options={members?.map((row) => ({
+                                value: row._id,
+                                label: row.name,
+                              }))}
+                              isMulti
+                              onChange={onChange}
+                              value={selectedMember}
+                              placeholder="Members Assigned"
+                            />
+                          );
+                        }}
+                      />
+                      <ErrorMessage
+                        name="members_assigned"
+                        component="p"
+                        style={errorStyle}
+                      />
+                    </FormControl>
+                  )}
+
+                  {userSelection === "both" && (
+                    <>
+                      <FormControl>
+                        <FormLabel>Teams Assigned</FormLabel>
+                        <Field
+                          name="teams_assigned"
+                          component={({ field, form }) => {
+                            const onChange = (selectedOptions) => {
+                              form.setFieldValue(
+                                "teams_assigned",
+                                selectedOptions.map((option) => option.value)
+                              );
+                              setSelectedTeams(selectedOptions);
+                            };
+
+                            return (
+                              <Select
+                                options={teams?.map((row) => ({
+                                  value: row._id,
+                                  label: row.name,
+                                }))}
+                                isMulti
+                                onChange={onChange}
+                                value={selectedTeams}
+                                placeholder="Teams Assigned"
+                              />
+                            );
+                          }}
+                        />
+                        <ErrorMessage
+                          name="teams_assigned"
+                          component="p"
+                          style={errorStyle}
+                        />
+                      </FormControl>
+
+                      <FormControl>
+                        <FormLabel>Members Assigned</FormLabel>
+                        <Field
+                          name="members_assigned"
+                          component={({ field, form }) => {
+                            const onChange = (selectedOptions) => {
+                              form.setFieldValue(
+                                "members_assigned",
+                                selectedOptions.map((option) => option.value)
+                              );
+                              setSelectedMember(selectedOptions);
+                            };
+
+                            return (
+                              <Select
+                                options={members?.map((row) => ({
+                                  value: row._id,
+                                  label: row.name,
+                                }))}
+                                isMulti
+                                onChange={onChange}
+                                value={selectedMember}
+                                placeholder="Members Assigned"
+                              />
+                            );
+                          }}
+                        />
+                        <ErrorMessage
+                          name="members_assigned"
+                          component="p"
+                          style={errorStyle}
+                        />
+                      </FormControl>
+                    </>
+                  )}
 
                   <FormControl>
                     <FormLabel>Sales Coordinator</FormLabel>

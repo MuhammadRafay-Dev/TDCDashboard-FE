@@ -45,7 +45,21 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
     close();
   };
 
+  // const sanitizeValues = (values) => {
+  //   const sanitizedValues = {};
+  //   Object.entries(values).forEach(([key, value]) => {
+  //     if (value !== undefined && value !== "") {
+  //       sanitizedValues[key] = value;
+  //     }
+  //   });
+  //   return sanitizedValues;
+  // };
+
   const handleSubmit = (values) => {
+    //  const sanitizedValues = sanitizeValues(values);
+
+    //  console.log("Sanitized Values", sanitizedValues);
+
     if (editData) {
       edit(values, index);
     } else {

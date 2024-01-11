@@ -56,6 +56,7 @@ const ProjectTable = () => {
     projects?.map(() => false) || []
   );
 
+  //functions
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
       ...prevRows,
@@ -79,17 +80,20 @@ const ProjectTable = () => {
   };
 
   const handleSaveProject = (projectData) => {
-    try {
-      dispatch(addProject({ projectData })).then((res) => {
-        dispatch(getProjects()).then((res) => {
-          setProjects(res.payload);
-          toast.success("Project Added Succesfully");
-        });
+    dispatch(addProject({ projectData }))
+      .then((res) => {
+        dispatch(getProjects())
+          .then((res) => {
+            setProjects(res.payload);
+            toast.success("Project Added Succesfully");
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated project");
+          });
+      })
+      .catch((err) => {
+        toast.error("Error while adding project");
       });
-    } catch (error) {
-      console.error("Error adding project", error);
-      toast.error("Error adding project");
-    }
   };
 
   const handleDelete = (id, index) => {
@@ -98,27 +102,36 @@ const ProjectTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(deleteProject(id)).then((res) => {
-        dispatch(getProjects()).then((res) => {
-          setProjects(res.payload);
-          toast.success("Project Deleted Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(deleteProject(id))
+      .then((res) => {
+        dispatch(getProjects())
+          .then((res) => {
+            setProjects(res.payload);
+            toast.success("Project Deleted Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Project");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch((err) => {
+        toast.error("Error Deleting Project");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.log("Error Deleting Project");
-      toast.error("Error Deleting Project");
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   const triggerEdit = (rowData, index) => {
@@ -133,27 +146,36 @@ const ProjectTable = () => {
       newState[index] = true;
       return newState;
     });
-    try {
-      dispatch(editProject(projectData)).then((res) => {
-        dispatch(getProjects()).then((res) => {
-          setProjects(res.payload);
-          toast.success("Project Edited Succesfully");
-          setRowLoadingStates((prevStates) => {
-            const newState = [...prevStates];
-            newState[index] = false;
-            return newState;
+
+    dispatch(editProject(projectData))
+      .then((res) => {
+        dispatch(getProjects())
+          .then((res) => {
+            setProjects(res.payload);
+            toast.success("Project Edited Succesfully");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
+          })
+          .catch((err) => {
+            toast.error("Error while getting updated Project");
+            setRowLoadingStates((prevStates) => {
+              const newState = [...prevStates];
+              newState[index] = false;
+              return newState;
+            });
           });
+      })
+      .catch((err) => {
+        toast.error("Error Editing Project");
+        setRowLoadingStates((prevStates) => {
+          const newState = [...prevStates];
+          newState[index] = false;
+          return newState;
         });
       });
-    } catch (error) {
-      console.log("Error Editing Project");
-      toast.error("Error Editing Project");
-      setRowLoadingStates((prevStates) => {
-        const newState = [...prevStates];
-        newState[index] = false;
-        return newState;
-      });
-    }
   };
 
   useEffect(() => {

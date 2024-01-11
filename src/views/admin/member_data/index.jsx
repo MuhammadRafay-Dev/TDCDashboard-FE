@@ -43,7 +43,7 @@ import {
 } from "views/admin/member_data/variables/columnsData";
 import tableDataCheck from "views/admin/member_data/variables/tableDataCheck.json";
 import tableDataComplex from "views/admin/member_data/variables/tableDataComplex.json";
-import Loader from "components/loader/Loader";
+import Loader from "../member_data/components/loader";
 import { toast } from "react-toastify";
 
 export default function UserReports() {
