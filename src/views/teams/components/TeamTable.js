@@ -37,9 +37,11 @@ import { addTeam } from "store/thunk/team.thunk";
 import { deleteTeam } from "store/thunk/team.thunk";
 import { editTeam } from "store/thunk/team.thunk";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
+import Loader from "components/loader/Loader";
 
 const TeamTable = () => {
   const dispatch = useDispatch();
+  const cancelRef = useRef();
   //States
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
@@ -49,10 +51,10 @@ const TeamTable = () => {
   const [teams, setTeams] = useState(teamData);
   const [indexOfRow, setIndexOfRow] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [rowLoadingStates, setRowLoadingStates] = useState(
     teams?.map(() => false) || []
   );
-  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
@@ -179,9 +181,15 @@ const TeamTable = () => {
   };
 
   useEffect(() => {
-    dispatch(getTeams()).then((res) => {
-      setTeams(res.payload);
-    });
+    setIsLoading(true);
+    dispatch(getTeams())
+      .then((res) => {
+        setTeams(res.payload);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        toast.error("Error in getting Teams");
+      });
   }, []);
 
   //Colors
@@ -252,139 +260,157 @@ const TeamTable = () => {
           Add Team
         </Button>
       </Box>
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Technology</Th>
-              <Th>Department</Th>
-              <Th>Team Head</Th>
-              <Th>Members</Th>
-              <Th>Projects</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {teams?.map((row, index) => (
-              <React.Fragment key={index}>
-                <Tr>
-                  <Td>{row?.name}</Td>
-                  <Td>{row?.technology}</Td>
-                  <Td>{row.department ? row.department.name : "N/A"}</Td>
-                  <Td>{row.team_head ? row.team_head.name : "N/A"}</Td>
-                  <Td>
-                    {row.members && row.members.length > 0
-                      ? row.members?.map((member) => member.name).join(", ")
-                      : "N/A"}
-                  </Td>
-                  <Td>
-                    {row.projects && row.projects.length > 0
-                      ? row.projects?.map((project) => project.name).join(", ")
-                      : "N/A"}
-                  </Td>
-                  <Td textAlign="center">
-                    {rowLoadingStates[index] ? (
-                      <Spinner size="sm" color="blue.500" />
-                    ) : (
-                      <>
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => toggleAccordion(row._id)}
-                        >
-                          <Icon
-                            as={expandedRows[row._id] ? ViewOffIcon : ViewIcon}
-                            color={ethColor}
-                            boxSize={5}
-                          />
-                        </Button>
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => triggerEdit(row, index)}
-                          isDisabled={rowLoadingStates[index]}
-                        >
-                          <Icon as={EditIcon} color={ethColor} boxSize={5} />
-                        </Button>
-
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => handleOpenConfirmationModal(index)}
-                          isDisabled={rowLoadingStates[index]}
-                        >
-                          <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
-                        </Button>
-                      </>
-                    )}
-                  </Td>
-                </Tr>
-                <Tr>
-                  <Td colSpan={12}>
-                    <Collapse in={expandedRows[row._id]}>
-                      <Box
-                        p={4}
-                        bg={menuBg}
-                        style={{
-                          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                          borderRadius: "md",
-                        }}
-                      >
-                        <Flex alignItems="center">
-                          <h1
-                            style={{ fontWeight: "bolder", marginRight: "5px" }}
+      {isLoading && <Loader />}
+      {!isLoading && (
+        <TableContainer>
+          <Table variant="striped">
+            <Thead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Technology</Th>
+                <Th>Department</Th>
+                <Th>Team Head</Th>
+                <Th>Members</Th>
+                <Th>Projects</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {teams?.map((row, index) => (
+                <React.Fragment key={index}>
+                  <Tr>
+                    <Td>{row?.name}</Td>
+                    <Td>{row?.technology}</Td>
+                    <Td>{row.department ? row.department.name : "N/A"}</Td>
+                    <Td>{row.team_head ? row.team_head.name : "N/A"}</Td>
+                    <Td>
+                      {row.members && row.members.length > 0
+                        ? row.members?.map((member) => member.name).join(", ")
+                        : "N/A"}
+                    </Td>
+                    <Td>
+                      {row.projects && row.projects.length > 0
+                        ? row.projects
+                            ?.map((project) => project.name)
+                            .join(", ")
+                        : "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {rowLoadingStates[index] ? (
+                        <Spinner size="sm" color="blue.500" />
+                      ) : (
+                        <>
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => toggleAccordion(row._id)}
                           >
-                            Additional Info
-                          </h1>
-                          <Icon as={InfoIcon} color={ethColor} boxSize={5} />
-                        </Flex>
-                        <TableContainer>
-                          <Table variant="striped" size="md" colorScheme="gray">
-                            <Thead>
-                              <Tr>
-                                <Th>Created By</Th>
-                              </Tr>
-                            </Thead>
-                            <Tbody>
-                              <Tr>
-                                <Td>{row?.createdBy?.name ?? "N/A"}</Td>
-                              </Tr>
-                            </Tbody>
-                          </Table>
-                        </TableContainer>
-                      </Box>
-                    </Collapse>
-                  </Td>
-                </Tr>
-              </React.Fragment>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+                            <Icon
+                              as={
+                                expandedRows[row._id] ? ViewOffIcon : ViewIcon
+                              }
+                              color={ethColor}
+                              boxSize={5}
+                            />
+                          </Button>
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => triggerEdit(row, index)}
+                            isDisabled={rowLoadingStates[index]}
+                          >
+                            <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                          </Button>
+
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => handleOpenConfirmationModal(index)}
+                            isDisabled={rowLoadingStates[index]}
+                          >
+                            <Icon
+                              as={DeleteIcon}
+                              color={ethColor}
+                              boxSize={5}
+                            />
+                          </Button>
+                        </>
+                      )}
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td colSpan={12}>
+                      <Collapse in={expandedRows[row._id]}>
+                        <Box
+                          p={4}
+                          bg={menuBg}
+                          style={{
+                            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                            borderRadius: "md",
+                          }}
+                        >
+                          <Flex alignItems="center">
+                            <h1
+                              style={{
+                                fontWeight: "bolder",
+                                marginRight: "5px",
+                              }}
+                            >
+                              Additional Info
+                            </h1>
+                            <Icon as={InfoIcon} color={ethColor} boxSize={5} />
+                          </Flex>
+                          <TableContainer>
+                            <Table
+                              variant="striped"
+                              size="md"
+                              colorScheme="gray"
+                            >
+                              <Thead>
+                                <Tr>
+                                  <Th>Created By</Th>
+                                </Tr>
+                              </Thead>
+                              <Tbody>
+                                <Tr>
+                                  <Td>{row?.createdBy?.name ?? "N/A"}</Td>
+                                </Tr>
+                              </Tbody>
+                            </Table>
+                          </TableContainer>
+                        </Box>
+                      </Collapse>
+                    </Td>
+                  </Tr>
+                </React.Fragment>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 };

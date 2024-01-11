@@ -40,10 +40,12 @@ import {
   getMembers,
 } from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
+import Loader from "components/loader/Loader";
 const MembersTable = () => {
   //States
   const navigate = useHistory();
   const dispatch = useDispatch();
+  const cancelRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
@@ -52,10 +54,10 @@ const MembersTable = () => {
   const [memberEditData, setMemberEditData] = useState(null);
   const [indexOfRow, setIndexOfRow] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [rowLoadingStates, setRowLoadingStates] = useState(
     members?.map(() => false) || []
   );
-  const cancelRef = useRef();
 
   const toggleAccordion = (rowId) => {
     setExpandedRows((prevRows) => ({
@@ -159,9 +161,16 @@ const MembersTable = () => {
   };
 
   useEffect(() => {
-    dispatch(getMembers()).then((res) => {
-      setMembers(res.payload);
-    });
+    setIsLoading(true);
+    dispatch(getMembers())
+      .then((res) => {
+        setMembers(res.payload);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log("error in getting members", err);
+        toast.error("Error in getting members");
+      });
   }, []);
 
   //Search
@@ -251,149 +260,173 @@ const MembersTable = () => {
           Add Member
         </Button>
       </Box>
-      <TableContainer>
-        <Table variant="striped">
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Email</Th>
-              <Th>Role</Th>
-              <Th>Current Salary</Th>
-              <Th>Department</Th>
-              <Th>Teams</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {members?.map((row, index) => (
-              <React.Fragment key={index}>
-                <Tr>
-                  <Td
-                    onClick={() => handleNavigate(row._id)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {row?.name}
-                  </Td>
-                  <Td>{row?.email}</Td>
-                  <Td>{row?.role}</Td>
-                  <Td>{row?.currentSalary ? `${row?.currentSalary} $ ` : "N/A"}</Td>
-                  <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
-                  <Td>
-                    {row?.teams && row?.teams.length > 0
-                      ? row?.teams?.map((team) => team?.name).join(", ")
-                      : "N/A"}
-                  </Td>
-                  
-                  <Td textAlign="center">
-                    {rowLoadingStates[index] ? (
-                      <Spinner size="sm" color="blue.500" />
-                    ) : (
-                      <>
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => toggleAccordion(row._id)}
-                        >
-                          <Icon
-                            as={expandedRows[row._id] ? ViewOffIcon : ViewIcon}
-                            color={ethColor}
-                            boxSize={5}
-                          />
-                        </Button>
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => triggerEditMember(row, index)}
-                          isDisabled={rowLoadingStates[index]}
-                        >
-                          <Icon as={EditIcon} color={ethColor} boxSize={5} />
-                        </Button>
+      {isLoading && <Loader />}
+      {!isLoading && (
+        <TableContainer>
+          <Table variant="striped">
+            <Thead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Role</Th>
+                <Th>Current Salary</Th>
+                <Th>Department</Th>
+                <Th>Teams</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {members?.map((row, index) => (
+                <React.Fragment key={index}>
+                  <Tr>
+                    <Td
+                      onClick={() => handleNavigate(row._id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {row?.name}
+                    </Td>
+                    <Td>{row?.email}</Td>
+                    <Td>{row?.role}</Td>
+                    <Td>
+                      {row?.currentSalary ? `${row?.currentSalary} $ ` : "N/A"}
+                    </Td>
+                    <Td>{row?.department ? row?.department?.name : "N/A"}</Td>
+                    <Td>
+                      {row?.teams && row?.teams.length > 0
+                        ? row?.teams?.map((team) => team?.name).join(", ")
+                        : "N/A"}
+                    </Td>
 
-                        <Button
-                          align="center"
-                          justifyContent="center"
-                          bg={bgButton}
-                          _hover={bgHover}
-                          _focus={bgFocus}
-                          _active={bgFocus}
-                          w="37px"
-                          h="37px"
-                          lineHeight="100%"
-                          borderRadius="10px"
-                          onClick={() => handleOpenConfirmationModal(index)}
-                          isDisabled={rowLoadingStates[index]}
-                        >
-                          <Icon as={DeleteIcon} color={ethColor} boxSize={5} />
-                        </Button>
-                      </>
-                    )}
-                  </Td>
-                </Tr>
-                <Tr>
-                  <Td colSpan={12}>
-                    <Collapse in={expandedRows[row._id]}>
-                      <Box
-                        p={4}
-                        bg={menuBg}
-                        style={{
-                          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                          borderRadius: "md",
-                        }}
-                      >
-                        <Flex alignItems="center">
-                          <h1
-                            style={{ fontWeight: "bolder", marginRight: "5px" }}
+                    <Td textAlign="center">
+                      {rowLoadingStates[index] ? (
+                        <Spinner size="sm" color="blue.500" />
+                      ) : (
+                        <>
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => toggleAccordion(row._id)}
                           >
-                            Additional Info
-                          </h1>
-                          <Icon as={InfoIcon} color={ethColor} boxSize={5} />
-                        </Flex>
-                        <TableContainer>
-                          <Table variant="striped" size="md" colorScheme="gray">
-                            <Thead>
-                              <Tr>
-                                <Th>Contact Number</Th>
-                                <Th>Emergency Contact Name</Th>
-                                <Th>Emergency Contact Contact</Th>
-                                <Th>Emergency Contact Relation</Th>
-                              </Tr>
-                            </Thead>
-                            <Tbody>
-                              <Tr>
-                                <Td>{row?.contactNumber ? row?.contactNumber : "N/A"}</Td>
-                                <Td>{row?.emergencyContactName ?? "N/A"}</Td>
-                                <Td>{row?.emergencyContactNumber ?? "N/A"}</Td>
-                                <Td>
-                                  {row?.emergencyContactRelation ?? "N/A"}
-                                </Td>
-                              </Tr>
-                            </Tbody>
-                          </Table>
-                        </TableContainer>
-                      </Box>
-                    </Collapse>
-                  </Td>
-                </Tr>
-              </React.Fragment>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+                            <Icon
+                              as={
+                                expandedRows[row._id] ? ViewOffIcon : ViewIcon
+                              }
+                              color={ethColor}
+                              boxSize={5}
+                            />
+                          </Button>
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => triggerEditMember(row, index)}
+                            isDisabled={rowLoadingStates[index]}
+                          >
+                            <Icon as={EditIcon} color={ethColor} boxSize={5} />
+                          </Button>
+
+                          <Button
+                            align="center"
+                            justifyContent="center"
+                            bg={bgButton}
+                            _hover={bgHover}
+                            _focus={bgFocus}
+                            _active={bgFocus}
+                            w="37px"
+                            h="37px"
+                            lineHeight="100%"
+                            borderRadius="10px"
+                            onClick={() => handleOpenConfirmationModal(index)}
+                            isDisabled={rowLoadingStates[index]}
+                          >
+                            <Icon
+                              as={DeleteIcon}
+                              color={ethColor}
+                              boxSize={5}
+                            />
+                          </Button>
+                        </>
+                      )}
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td colSpan={12}>
+                      <Collapse in={expandedRows[row._id]}>
+                        <Box
+                          p={4}
+                          bg={menuBg}
+                          style={{
+                            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                            borderRadius: "md",
+                          }}
+                        >
+                          <Flex alignItems="center">
+                            <h1
+                              style={{
+                                fontWeight: "bolder",
+                                marginRight: "5px",
+                              }}
+                            >
+                              Additional Info
+                            </h1>
+                            <Icon as={InfoIcon} color={ethColor} boxSize={5} />
+                          </Flex>
+                          <TableContainer>
+                            <Table
+                              variant="striped"
+                              size="md"
+                              colorScheme="gray"
+                            >
+                              <Thead>
+                                <Tr>
+                                  <Th>Contact Number</Th>
+                                  <Th>Emergency Contact Name</Th>
+                                  <Th>Emergency Contact Contact</Th>
+                                  <Th>Emergency Contact Relation</Th>
+                                </Tr>
+                              </Thead>
+                              <Tbody>
+                                <Tr>
+                                  <Td>
+                                    {row?.contactNumber
+                                      ? row?.contactNumber
+                                      : "N/A"}
+                                  </Td>
+                                  <Td>{row?.emergencyContactName ?? "N/A"}</Td>
+                                  <Td>
+                                    {row?.emergencyContactNumber ?? "N/A"}
+                                  </Td>
+                                  <Td>
+                                    {row?.emergencyContactRelation ?? "N/A"}
+                                  </Td>
+                                </Tr>
+                              </Tbody>
+                            </Table>
+                          </TableContainer>
+                        </Box>
+                      </Collapse>
+                    </Td>
+                  </Tr>
+                </React.Fragment>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 };
