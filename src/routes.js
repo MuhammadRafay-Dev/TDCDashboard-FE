@@ -1,38 +1,26 @@
-import React from "react";
 
 import { Icon } from "@chakra-ui/react";
+import { BsMicrosoftTeams } from "react-icons/bs";
+import { FaBuilding } from "react-icons/fa";
+import { FaHandHoldingDollar, FaHandshakeSimple, FaPeopleGroup } from "react-icons/fa6";
 import {
   MdBarChart,
-  MdPerson,
   MdHome,
-  MdLock,
-  MdOutlineShoppingCart,
+  MdLeaderboard, MdTask
 } from "react-icons/md";
-import { FaPeopleGroup } from "react-icons/fa6";
-import { FaBuilding } from "react-icons/fa";
-import { BsMicrosoftTeams } from "react-icons/bs";
-import { GoProjectSymlink } from "react-icons/go";
-import { MdLeaderboard } from "react-icons/md";
-import { LiaHandshakeSolid } from "react-icons/lia";
-import { BiTask } from "react-icons/bi";
-import { MdOutlineLockReset } from "react-icons/md";
-
+import { RiProjectorFill } from "react-icons/ri";
 // Admin Imports
-import MemberData from "views/admin/member_data";
-import NFTMarketplace from "views/admin/marketplace";
-import Profile from "views/admin/profile";
 import Welcome from "views/admin/default";
-import RTL from "views/admin/rtl";
-import Members from "views/members";
-import Departments from "views/departments";
-import Teams from "views/teams";
-import Projects from "views/projects";
-import Leads from "views/leads";
+import MemberData from "views/admin/member_data";
 import Clients from "views/clients";
+import Departments from "views/departments";
+import Leads from "views/leads";
+import Members from "views/members";
+import Projects from "views/projects";
+import Teams from "views/teams";
 
 // Auth Imports
-import SignInCentered from "views/auth/signIn";
-import PasswordReset from "views/forget_password/components/PasswordReset";
+import PayRollTable from "views/payroll";
 import TaskTable from "views/task";
 
 const routes = [
@@ -80,7 +68,7 @@ const routes = [
     name: "Projects",
     layout: "/admin",
     path: "/projects",
-    icon: <Icon as={GoProjectSymlink} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={RiProjectorFill} width="20px" height="20px" color="inherit" />,
     component: Projects,
   },
 
@@ -96,15 +84,22 @@ const routes = [
     name: "Clients",
     layout: "/admin",
     path: "/clients",
-    icon: <Icon as={LiaHandshakeSolid} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={FaHandshakeSimple} width="20px" height="20px" color="inherit" />,
     component: Clients,
   },
   {
     name: "Task",
     layout: "/admin",
     path: "/task",
-    icon: <Icon as={BiTask} width="20px" height="20px" color="inherit" />,
+    icon: <Icon as={MdTask} width="20px" height="20px" color="inherit" />,
     component: TaskTable,
+  },
+  {
+    name: "PayRoll",
+    layout: "/admin",
+    path: "/payroll/getAll",
+    icon: <Icon as={FaHandHoldingDollar} width="20px" height="20px" color="inherit" />,
+    component: PayRollTable,
   },
 
   // {

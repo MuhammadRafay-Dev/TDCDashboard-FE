@@ -13,7 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { clientValidationSchema } from "schema";
 import {
@@ -23,6 +23,8 @@ import {
 } from "store/thunk/client.thunk";
 
 const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
+  const { clients } = useSelector((state) => state.client.data);
+
   const dispatch = useDispatch();
   // const initialData = {
   //   name: "",
@@ -38,14 +40,6 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
   // const [clientData, setClientData] = useState(initialData);
 
   const isUpdateMode = !!clientId;
-  // useEffect(() => {
-  //   // Update the state when formProp changes
-  //   setClientData({ ...clientProp });
-  // }, [clientProp]);
-
-  // console.log(
-  //   "leadProp", leadProp,leadData
-  // );
 
   // const handleChange = (e) => {
   //   const { name, value } = e.target;
@@ -55,27 +49,47 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
   //   }));
   // };
 
+  const verifyEmail = (values) => {
+    const emailExists = clients?.filter(
+      (client) => client.email === values.email
+    );
+    if (emailExists[0]?.email) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+  const SecondaryEmail = (values) => {
+    const emailSecondaryExists = clients?.filter(
+      (client) => client.emailSecondary === values.emailSecondary
+    );
+    if (emailSecondaryExists[0]?.emailSecondary) {
+      return false;
+    } else {
+      return true;
+    }
+  };
   const handleSubmit = async (value) => {
+    if (!verifyEmail(value)) {
+      toast.error("Email already exists");
+      return;
+    }
+    if (!SecondaryEmail(value)) {
+      toast.error("Email Secondary already exists");
+      return;
+    }
     try {
       if (clientId) {
-        // Update existing Client
         await dispatch(updateClients({ value, clientId }));
         toast.success("Client Edit successfully!");
       } else {
-        // Add new Client
         await dispatch(addClients(value));
         toast.success("Client Add successfully!");
       }
-
-      // setClientData(initialData);
-
-      // Refresh Clients after the update
       dispatch(getClients());
 
-      // Close the modal after submitting
       onClose();
     } catch (error) {
-      // Display error toast
       toast.error("An error occurred. Please try again.");
     }
   };
@@ -106,8 +120,8 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
               contactNumber: clientProp?.contactNumber || "",
               platform: clientProp?.platform || "",
               dateContacted: clientProp?.dateContacted
-              ? new Date(clientProp.dateContacted).toLocaleDateString("en-CA")
-              : "",
+                ? new Date(clientProp.dateContacted).toLocaleDateString("en-CA")
+                : "",
               regionLocated: clientProp?.regionLocated || "",
               contactPlatformLink1: clientProp?.contactPlatformLink1 || "",
               contactPlatformLink2: clientProp?.contactPlatformLink2 || "",

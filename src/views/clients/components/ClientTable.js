@@ -1,8 +1,3 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
-import { deleteClients, getClients } from "store/thunk/client.thunk";
-import ClientModal from "./ClientModal";
 import {
   DeleteIcon,
   EditIcon,
@@ -11,6 +6,17 @@ import {
   ViewOffIcon,
 } from "@chakra-ui/icons";
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Box,
+  Button,
+  Collapse,
+  Flex,
+  Icon,
   Table,
   TableContainer,
   Tbody,
@@ -19,24 +25,19 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-  Box,
-  Button,
-  Collapse,
-  Flex,
-  Icon,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
 } from "@chakra-ui/react";
 import Loader from "components/loader/Loader";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { deleteClients, getClients } from "store/thunk/client.thunk";
+import ClientModal from "./ClientModal";
 
 const ClientTable = ({ filteredData }) => {
   const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [clients,setClients]=useState([]);
   const [clientProp, setClientProp] = useState({});
   const [clientId, setClientId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
@@ -61,7 +62,9 @@ const ClientTable = ({ filteredData }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        await dispatch(getClients());
+        await dispatch(getClients()).then((res)=>{
+          setClients(res.payload);
+        });
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);

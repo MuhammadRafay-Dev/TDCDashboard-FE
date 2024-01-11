@@ -7,6 +7,7 @@ import projectsReducer from "./reducer/projects.reducer";
 import leadReducer from "./reducer/lead.reducer";
 import clientReducer from "./reducer/clinet.reducer";
 import taskReducer from "./reducer/task.reducer";
+import payrollReducer from "./reducer/payroll.reducer";
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     lead: leadReducer,
     client: clientReducer,
     task: taskReducer,
+    payroll: payrollReducer,
   },
 });
 

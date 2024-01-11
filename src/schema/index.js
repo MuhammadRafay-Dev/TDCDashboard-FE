@@ -109,6 +109,7 @@ export const clientValidationSchema = Yup.object({
     .required("Contact Platform Link 2 is required"),
 });
 
+// Task Schema
 export const taskValidationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   lead: Yup.string().required("Lead name is required"),
@@ -129,4 +130,15 @@ export const taskValidationSchema = Yup.object().shape({
   taskLink3: Yup.string()
     .url("Invalid URL for Task Link3")
     .required("Task Link3 is required"),
+});
+
+
+// Pay Roll Schema
+
+export const payrollValidationSchema = Yup.object().shape({
+  member: Yup.string().required("Member is required"),
+  department: Yup.string().required("Department is required"),
+  accountTitle: Yup.string().required("Account Title is required"),
+  cnic: Yup.string().length(13,"CNIC must be exactly 13 ").required("CNIC is required"),
+  accountNo: Yup.string().required("Account Number is required"),
 });
