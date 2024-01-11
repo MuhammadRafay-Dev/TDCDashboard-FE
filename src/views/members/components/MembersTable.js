@@ -41,6 +41,7 @@ import {
 } from "store/thunk/member.thunk";
 import MemberModal from "./MemberModal";
 import Loader from "components/loader/Loader";
+import Pagination from "components/pagination";
 const MembersTable = () => {
   //States
   const navigate = useHistory();
@@ -49,6 +50,8 @@ const MembersTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
+  const role = useSelector((state) => state?.auth?.user?.role);
+  console.log("ROle", role);
   const memberData = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
@@ -58,6 +61,8 @@ const MembersTable = () => {
   const [rowLoadingStates, setRowLoadingStates] = useState(
     members?.map(() => false) || []
   );
+  const [curPage, setCurPage] = useState(0);
+  const itemLimit = 10;
 
   //functions
   const toggleAccordion = (rowId) => {
@@ -323,7 +328,7 @@ const MembersTable = () => {
                         ? row?.teams?.map((team) => team?.name).join(", ")
                         : "N/A"}
                     </Td>
-
+                    {}
                     <Td textAlign="center">
                       {rowLoadingStates[index] ? (
                         <Spinner size="sm" color="blue.500" />
@@ -366,27 +371,54 @@ const MembersTable = () => {
                           >
                             <Icon as={EditIcon} color={ethColor} boxSize={5} />
                           </Button>
-
-                          <Button
-                            align="center"
-                            justifyContent="center"
-                            bg={bgButton}
-                            _hover={bgHover}
-                            _focus={bgFocus}
-                            _active={bgFocus}
-                            w="37px"
-                            h="37px"
-                            lineHeight="100%"
-                            borderRadius="10px"
-                            onClick={() => handleOpenConfirmationModal(index)}
-                            isDisabled={rowLoadingStates[index]}
-                          >
-                            <Icon
-                              as={DeleteIcon}
-                              color={ethColor}
-                              boxSize={5}
-                            />
-                          </Button>
+                          {row?.role !== "SUPERADMIN" && (
+                            <Button
+                              align="center"
+                              justifyContent="center"
+                              bg={bgButton}
+                              _hover={bgHover}
+                              _focus={bgFocus}
+                              _active={bgFocus}
+                              w="37px"
+                              h="37px"
+                              lineHeight="100%"
+                              borderRadius="10px"
+                              isDisabled={rowLoadingStates[index]}
+                            >
+                              <Icon
+                                as={DeleteIcon}
+                                color={ethColor}
+                                onClick={() =>
+                                  handleOpenConfirmationModal(index)
+                                }
+                                boxSize={5}
+                              />
+                            </Button>
+                          )}
+                          {row?.role !== "SUPERADMIN" || (
+                            <Button
+                              align="center"
+                              justifyContent="center"
+                              bg={bgButton}
+                              _hover={bgHover}
+                              _focus={bgFocus}
+                              _active={bgFocus}
+                              w="37px"
+                              h="37px"
+                              lineHeight="100%"
+                              borderRadius="10px"
+                              isDisabled={true}
+                            >
+                              <Icon
+                                as={DeleteIcon}
+                                color={ethColor}
+                                onClick={() =>
+                                  handleOpenConfirmationModal(index)
+                                }
+                                boxSize={5}
+                              />
+                            </Button>
+                          )}
                         </>
                       )}
                     </Td>
@@ -455,6 +487,12 @@ const MembersTable = () => {
           </Table>
         </TableContainer>
       )}
+      <Pagination
+        totalItems={members?.length}
+        curPage={curPage}
+        setCurPage={setCurPage}
+        itemLimit={itemLimit}
+      />
     </div>
   );
 };
