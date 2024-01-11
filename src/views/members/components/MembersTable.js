@@ -237,6 +237,7 @@ const MembersTable = () => {
       <MemberModal
         open={isOpen}
         close={onClose}
+        members={members}
         onSave={handleSaveMember}
         editData={memberEditData}
         edit={handleEditMember}
