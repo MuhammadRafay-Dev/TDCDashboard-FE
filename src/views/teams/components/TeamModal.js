@@ -1,11 +1,7 @@
 import {
-  Box,
   Button,
-  Checkbox,
-  Collapse,
   FormControl,
   FormLabel,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,17 +10,15 @@ import {
   ModalHeader,
   ModalOverlay,
   VStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getProjects } from "store/thunk/project.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
 import { teamValidationSchema } from "schema";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import Select from "react-select";
 
 const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
@@ -44,8 +38,6 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   const [departments, setDepartments] = useState(departmentData);
   const projectData = useSelector((state) => state.projects?.data);
   const [projects, setProjects] = useState(projectData);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isExpanded2, setIsExpanded2] = useState(false);
   const [selectedMember, setSelectedMember] = useState([]);
   const [selectedProject, setSelectedProject] = useState([]);
 
@@ -57,8 +49,6 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
   };
 
   const handleModalClose = () => {
-    setIsExpanded(false);
-    setIsExpanded2(false);
     close();
   };
 
@@ -69,9 +59,6 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
       onSave(values);
       setTeamData(initialData);
     }
-
-    setIsExpanded(false);
-    setIsExpanded2(false);
 
     close();
   };
@@ -106,27 +93,31 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
     }
   }, [editData]);
 
-  // useEffect(() => {
-  //   if (editData?.members) {
-  //     setSelectedMember(
-  //       editData?.members?.map((member) => ({
-  //         label: member.name,
-  //         value: member._id,
-  //       }))
-  //     );
-  //   }
-  // }, [editData?.members]);
+  useEffect(() => {
+    if (editData?.members) {
+      setSelectedMember(
+        editData?.members?.map((member) => ({
+          label: member.name,
+          value: member._id,
+        }))
+      );
+    } else {
+      setSelectedMember([]);
+    }
+  }, [editData?.members]);
 
-  // useEffect(() => {
-  //   if (editData?.projects) {
-  //     setSelectedProject(
-  //       editData?.projects?.map((project) => ({
-  //         label: project.name,
-  //         value: project._id,
-  //       }))
-  //     );
-  //   }
-  // }, [editData?.project]);
+  useEffect(() => {
+    if (editData?.projects) {
+      setSelectedProject(
+        editData?.projects?.map((project) => ({
+          label: project.name,
+          value: project._id,
+        }))
+      );
+    } else {
+      setSelectedProject([]);
+    }
+  }, [editData?.projects]);
 
   //Form Styles
   const inputStyle = {
@@ -236,50 +227,32 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
                   </FormControl>
 
                   <FormControl>
-                    <Field name="members">
-                      {({ field }) => (
-                        <>
-                          <Box display="flex">
-                            <FormLabel mt={2}>Members</FormLabel>
-                            <IconButton
-                              icon={
-                                isExpanded ? <FaChevronUp /> : <FaChevronDown />
-                              }
-                              onClick={() => setIsExpanded(!isExpanded)}
-                              aria-label={isExpanded ? "Collapse" : "Expand"}
-                              mb={2}
-                            />
-                          </Box>
-                          <Collapse in={isExpanded}>
-                            <Wrap spacing={4}>
-                              {members?.map((option) => (
-                                <WrapItem key={option._id}>
-                                  <Checkbox
-                                    value={option._id}
-                                    onChange={(e) => {
-                                      const selectedValues = e.target.checked
-                                        ? [...field.value, option._id]
-                                        : field.value.filter(
-                                            (id) => id !== option._id
-                                          );
-                                      field.onChange({
-                                        target: {
-                                          name: field.name,
-                                          value: selectedValues,
-                                        },
-                                      });
-                                    }}
-                                    isChecked={field.value.includes(option._id)}
-                                  >
-                                    {option.name}
-                                  </Checkbox>
-                                </WrapItem>
-                              ))}
-                            </Wrap>
-                          </Collapse>
-                        </>
-                      )}
-                    </Field>
+                    <FormLabel>Members</FormLabel>
+                    <Field
+                      name="members"
+                      component={({ field, form }) => {
+                        const onChange = (selectedOptions) => {
+                          form.setFieldValue(
+                            "members",
+                            selectedOptions.map((option) => option.value)
+                          );
+                          setSelectedMember(selectedOptions);
+                        };
+
+                        return (
+                          <Select
+                            options={members?.map((row) => ({
+                              value: row._id,
+                              label: row.name,
+                            }))}
+                            isMulti
+                            onChange={onChange}
+                            value={selectedMember}
+                            placeholder="Members"
+                          />
+                        );
+                      }}
+                    />
                     <ErrorMessage
                       name="members"
                       component="p"
@@ -288,54 +261,32 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
                   </FormControl>
 
                   <FormControl>
-                    <Field name="projects">
-                      {({ field }) => (
-                        <>
-                          <Box display="flex">
-                            <FormLabel mt={2}>Projects</FormLabel>
-                            <IconButton
-                              icon={
-                                isExpanded2 ? (
-                                  <FaChevronUp />
-                                ) : (
-                                  <FaChevronDown />
-                                )
-                              }
-                              onClick={() => setIsExpanded2(!isExpanded2)}
-                              aria-label={isExpanded2 ? "Collapse" : "Expand"}
-                              mb={2}
-                            />
-                          </Box>
-                          <Collapse in={isExpanded2}>
-                            <Wrap spacing={4}>
-                              {projects?.map((option) => (
-                                <WrapItem key={option._id}>
-                                  <Checkbox
-                                    value={option._id}
-                                    onChange={(e) => {
-                                      const selectedValues = e.target.checked
-                                        ? [...field.value, option._id]
-                                        : field.value.filter(
-                                            (id) => id !== option._id
-                                          );
-                                      field.onChange({
-                                        target: {
-                                          name: field.name,
-                                          value: selectedValues,
-                                        },
-                                      });
-                                    }}
-                                    isChecked={field.value.includes(option._id)}
-                                  >
-                                    {option.name}
-                                  </Checkbox>
-                                </WrapItem>
-                              ))}
-                            </Wrap>
-                          </Collapse>
-                        </>
-                      )}
-                    </Field>
+                    <FormLabel>Projects</FormLabel>
+                    <Field
+                      name="projects"
+                      component={({ field, form }) => {
+                        const onChange = (selectedOptions) => {
+                          form.setFieldValue(
+                            "projects",
+                            selectedOptions.map((option) => option.value)
+                          );
+                          setSelectedProject(selectedOptions);
+                        };
+
+                        return (
+                          <Select
+                            options={projects?.map((row) => ({
+                              value: row._id,
+                              label: row.name,
+                            }))}
+                            isMulti
+                            onChange={onChange}
+                            value={selectedProject}
+                            placeholder="projects"
+                          />
+                        );
+                      }}
+                    />
                     <ErrorMessage
                       name="projects"
                       component="p"

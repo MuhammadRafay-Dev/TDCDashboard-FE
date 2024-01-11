@@ -1,11 +1,7 @@
 import {
-  Box,
   Button,
-  Checkbox,
-  Collapse,
   FormControl,
   FormLabel,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,11 +10,8 @@ import {
   ModalHeader,
   ModalOverlay,
   VStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getTeams } from "store/thunk/team.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
@@ -46,12 +39,9 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
     (state) => state.department?.data?.departments
   );
   const [departments, setDepartments] = useState(departmentData);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [selected, setSelected] = useState([]);
 
   const handleModalClose = () => {
-    setIsExpanded(false);
-    setSelected([]);
     close();
   };
 
@@ -63,7 +53,6 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
       setMemberData(initialData);
     }
 
-    setIsExpanded(false);
     close();
   };
 
@@ -100,6 +89,8 @@ const MemberModal = ({ open, close, onSave, editData, edit, index }) => {
           value: team._id,
         }))
       );
+    } else {
+      setSelected([]);
     }
   }, [editData?.teams]);
 
