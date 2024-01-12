@@ -38,8 +38,10 @@ import { editProject } from "store/thunk/project.thunk";
 import ProjectModal from "./ProjectModal";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import Loader from "components/loader/Loader";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const ProjectTable = () => {
+  const navigate = useHistory();
   const dispatch = useDispatch();
   const cancelRef = useRef();
   //States
@@ -62,6 +64,10 @@ const ProjectTable = () => {
       ...prevRows,
       [rowId]: !prevRows[rowId],
     }));
+  };
+
+  const handleNavigate = (id) => {
+    navigate.push(`/admin/project-data?id=${id}`);
   };
 
   const handleOpenConfirmationModal = (index) => {
@@ -305,7 +311,12 @@ const ProjectTable = () => {
               {projects?.map((row, index) => (
                 <React.Fragment key={index}>
                   <Tr>
-                    <Td>{row?.name}</Td>
+                    <Td
+                      onClick={() => handleNavigate(row._id)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {row?.name}
+                    </Td>
                     <Td>{row?.team_lead?.name ?? "N/A"}</Td>
                     <Td>
                       {row.teams_assigned && row.teams_assigned.length > 0

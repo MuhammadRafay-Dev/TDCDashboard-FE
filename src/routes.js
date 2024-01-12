@@ -1,17 +1,17 @@
-
 import { Icon } from "@chakra-ui/react";
 import { BsMicrosoftTeams } from "react-icons/bs";
 import { FaBuilding } from "react-icons/fa";
-import { FaHandHoldingDollar, FaHandshakeSimple, FaPeopleGroup } from "react-icons/fa6";
 import {
-  MdBarChart,
-  MdHome,
-  MdLeaderboard, MdTask
-} from "react-icons/md";
+  FaHandHoldingDollar,
+  FaHandshakeSimple,
+  FaPeopleGroup,
+} from "react-icons/fa6";
+import { MdBarChart, MdHome, MdLeaderboard, MdTask } from "react-icons/md";
 import { RiProjectorFill } from "react-icons/ri";
 // Admin Imports
 import Welcome from "views/admin/default";
 import MemberData from "views/admin/member_data";
+import ProjectData from "views/admin/project_data";
 import Clients from "views/clients";
 import Departments from "views/departments";
 import Leads from "views/leads";
@@ -39,12 +39,21 @@ const routes = [
     icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
     component: MemberData,
   },
+  {
+    name: "Project Data",
+    layout: "/admin",
+    path: "/project-data",
+    icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
+    component: ProjectData,
+  },
 
   {
     name: "Members",
     layout: "/admin",
     path: "/members",
-    icon: <Icon as={FaPeopleGroup} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon as={FaPeopleGroup} width="20px" height="20px" color="inherit" />
+    ),
     component: Members,
   },
 
@@ -60,7 +69,9 @@ const routes = [
     name: "Teams",
     layout: "/admin",
     path: "/teams",
-    icon: <Icon as={BsMicrosoftTeams} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon as={BsMicrosoftTeams} width="20px" height="20px" color="inherit" />
+    ),
     component: Teams,
   },
 
@@ -68,7 +79,9 @@ const routes = [
     name: "Projects",
     layout: "/admin",
     path: "/projects",
-    icon: <Icon as={RiProjectorFill} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon as={RiProjectorFill} width="20px" height="20px" color="inherit" />
+    ),
     component: Projects,
   },
 
@@ -76,7 +89,9 @@ const routes = [
     name: "Leads",
     layout: "/admin",
     path: "/leads",
-    icon: <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
+    ),
     component: Leads,
   },
 
@@ -84,7 +99,9 @@ const routes = [
     name: "Clients",
     layout: "/admin",
     path: "/clients",
-    icon: <Icon as={FaHandshakeSimple} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon as={FaHandshakeSimple} width="20px" height="20px" color="inherit" />
+    ),
     component: Clients,
   },
   {
@@ -98,7 +115,14 @@ const routes = [
     name: "PayRoll",
     layout: "/admin",
     path: "/payroll/getAll",
-    icon: <Icon as={FaHandHoldingDollar} width="20px" height="20px" color="inherit" />,
+    icon: (
+      <Icon
+        as={FaHandHoldingDollar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
     component: PayRollTable,
   },
 
@@ -133,7 +157,7 @@ const routes = [
   //   icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
   //   component: SignInCentered,
   // },
-  
+
   // {
   //   name: "Password Reset",
   //   layout: "/auth",

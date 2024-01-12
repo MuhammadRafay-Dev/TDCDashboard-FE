@@ -29,27 +29,27 @@ import {
 } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
-import { getMembers } from "store/thunk/member.thunk";
-import CheckTable from "views/admin/member_data/components/CheckTable";
-import ComplexTable from "views/admin/member_data/components/ComplexTable";
-import DailyTraffic from "views/admin/member_data/components/DailyTraffic";
-import PieCard from "views/admin/member_data/components/PieCard";
-import Tasks from "views/admin/member_data/components/Tasks";
-import TotalSpent from "views/admin/member_data/components/TotalSpent";
-import WeeklyRevenue from "views/admin/member_data/components/WeeklyRevenue";
+import CheckTable from "views/admin/project_data/components/CheckTable";
+import ComplexTable from "views/admin/project_data/components/ComplexTable";
+import DailyTraffic from "views/admin/project_data/components/DailyTraffic";
+import PieCard from "views/admin/project_data/components/PieCard";
+import Tasks from "views/admin/project_data/components/Tasks";
+import TotalSpent from "views/admin/project_data/components/TotalSpent";
+import WeeklyRevenue from "views/admin/project_data/components/WeeklyRevenue";
 import {
   columnsDataCheck,
   columnsDataComplex,
-} from "views/admin/member_data/variables/columnsData";
-import tableDataCheck from "views/admin/member_data/variables/tableDataCheck.json";
-import tableDataComplex from "views/admin/member_data/variables/tableDataComplex.json";
-import Loader from "../member_data/components/loader";
+} from "views/admin/project_data/variables/columnsData";
+import tableDataCheck from "views/admin/project_data/variables/tableDataCheck.json";
+import tableDataComplex from "views/admin/project_data/variables/tableDataComplex.json";
+import Loader from "../project_data/components/loader";
 import { toast } from "react-toastify";
+import { getProjects } from "store/thunk/project.thunk";
 
 export default function UserReports() {
   const dispatch = useDispatch();
 
-  const [member, setMember] = useState();
+  const [project, setProject] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   const { search } = useLocation();
@@ -58,16 +58,16 @@ export default function UserReports() {
 
   useEffect(() => {
     setIsLoading(true);
-    dispatch(getMembers())
+    dispatch(getProjects())
       .then((res) => {
-        const filteredMembers = res.payload?.filter(
-          (member) => member._id === id
+        const filteredProjects = res.payload?.filter(
+          (project) => project._id === id
         );
-        setMember(filteredMembers[0]);
+        setProject(filteredProjects[0]);
         setIsLoading(false);
       })
       .catch((err) => {
-        toast.error("Error in Getting Member's Data");
+        toast.error("Error in Getting Project's Data");
       });
   }, [id]);
 
@@ -81,12 +81,12 @@ export default function UserReports() {
         <>
           <SimpleGrid>
             <Box>
-              <Text fontSize="xl" fontWeight="bold">
-                {member?.name.toUpperCase()}
-                <span style={{ fontSize: "md", color: "grey" }}>
+              <Text fontSize="xl" fontWeight="bold" mb="15px">
+                {project?.name.toUpperCase()}
+                {/* <span style={{ fontSize: "md", color: "grey" }}>
                   {" "}
-                  ({member?.role})
-                </span>
+                  ({project?.role})
+                </span> */}
               </Text>
             </Box>
           </SimpleGrid>
@@ -112,8 +112,8 @@ export default function UserReports() {
                   }
                 />
               }
-              name="Revenue Generated"
-              value="$300.4"
+              name="Total Cost"
+              value={`$${project?.cost}` ?? "N/A"}
             />
             <MiniStatistics
               startContent={
@@ -131,8 +131,8 @@ export default function UserReports() {
                   }
                 />
               }
-              name="Profit"
-              value="$100.4"
+              name="Hourly Cost"
+              value={`$${project?.hourly_cost}` ?? "N/A"}
             />
             {/* growth="+23%" */}
             <MiniStatistics
@@ -151,8 +151,8 @@ export default function UserReports() {
                   }
                 />
               }
-              name="Salary"
-              value={`$${member?.currentSalary}` ?? "$200"}
+              name="Duration"
+              value={`${project?.duration} ${project?.duration_unit}` ?? "N/A"}
             />
             <MiniStatistics
               startContent={
@@ -170,8 +170,8 @@ export default function UserReports() {
                   }
                 />
               }
-              name="Total Projects"
-              value="5"
+              name="Contract Type"
+              value={`${project?.contract_type}` ?? "N/A"}
             />
             <MiniStatistics
               startContent={
@@ -184,8 +184,8 @@ export default function UserReports() {
                   }
                 />
               }
-              name="No. of Hours locked"
-              value="120Hrs"
+              name="Platform"
+              value={`${project?.platform}` ?? "N/A"}
             />
             <MiniStatistics
               startContent={
@@ -207,7 +207,7 @@ export default function UserReports() {
             {/* <TotalSpent /> */}
             <WeeklyRevenue />
             <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap="20px">
-              <Tasks />
+              <Tasks project={project} />
               <MiniCalendar h="100%" minW="100%" selectRange={false} />
             </SimpleGrid>
           </SimpleGrid>

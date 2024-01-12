@@ -79,14 +79,13 @@ const MemberModal = ({
     //  const sanitizedValues = sanitizeValues(values);
     //  console.log("Sanitized Values", sanitizedValues);
 
-    if (!verifyEmail(values)) {
-      toast.error("Email already exists");
-      return;
-    }
-
     if (editData) {
       edit(values, index);
     } else {
+      if (!verifyEmail(values)) {
+        toast.error("Email already exists");
+        return;
+      }
       onSave(values);
       setMemberData(initialData);
     }

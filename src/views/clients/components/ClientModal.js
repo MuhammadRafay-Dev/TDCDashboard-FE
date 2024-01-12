@@ -70,19 +70,19 @@ const ClientModal = ({ isOpen, onClose, onBack, clientProp, clientId }) => {
     }
   };
   const handleSubmit = async (value) => {
-    if (!verifyEmail(value)) {
-      toast.error("Email already exists");
-      return;
-    }
-    if (!SecondaryEmail(value)) {
-      toast.error("Email Secondary already exists");
-      return;
-    }
     try {
       if (clientId) {
         await dispatch(updateClients({ value, clientId }));
         toast.success("Client Edit successfully!");
       } else {
+        if (!verifyEmail(value)) {
+          toast.error("Email already exists");
+          return;
+        }
+        if (!SecondaryEmail(value)) {
+          toast.error("Email Secondary already exists");
+          return;
+        }
         await dispatch(addClients(value));
         toast.success("Client Add successfully!");
       }
