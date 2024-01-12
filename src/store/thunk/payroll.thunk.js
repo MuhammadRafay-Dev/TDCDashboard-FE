@@ -1,12 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  ADD_PAYROLL,
+  DELETE_PAYROLL,
+  GET_PAYROLL,
+  UPDATE_PAYROLL,
+} from "API/Urls";
 import axios from "axios";
 import { toast } from "react-toastify";
-import {
-    GET_PAYROLL,
-    ADD_PAYROLL,
-} from "API/Urls";
-import { DELETE_PAYROLL } from "API/Urls";
-import { UPDATE_PAYROLL } from "API/Urls";
 
 const notifyLogout = () => {
   toast.error("You Have been Logout");
@@ -33,20 +33,17 @@ const getPayRoll = createAsyncThunk("payroll/getPayRoll", async () => {
 });
 
 //Add Payroll
-const addPayRoll = createAsyncThunk(
-  "payroll/addPayRoll",
-  async (payrollId) => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    try {
-      const response = await axios.post(ADD_PAYROLL, payrollId, {
-        headers: { Authorization: `Bearer ${userData.accesstoken}` },
-      });
-      return response?.data?.data;
-    } catch (err) {
-      return err;
-    }
+const addPayRoll = createAsyncThunk("payroll/addPayRoll", async (payrollId) => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  try {
+    const response = await axios.post(ADD_PAYROLL, payrollId, {
+      headers: { Authorization: `Bearer ${userData.accesstoken}` },
+    });
+    return response?.data?.data;
+  } catch (err) {
+    return err;
   }
-);
+});
 
 // Delete PayRoll:
 const deletePayRoll = createAsyncThunk("payroll/deletePayRoll", async (id) => {
@@ -69,7 +66,7 @@ const updatePayRoll = createAsyncThunk(
   async ({ value, payrollId }) => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         UPDATE_PAYROLL + `/${payrollId}`,
         value,
         {
@@ -85,5 +82,4 @@ const updatePayRoll = createAsyncThunk(
   }
 );
 
-
-export { getPayRoll, addPayRoll,deletePayRoll,updatePayRoll };
+export { addPayRoll, deletePayRoll, getPayRoll, updatePayRoll };

@@ -34,7 +34,7 @@ export const UPDATE_TASK = BaseUrl + "task";
 export const GET_PAYROLL = BaseUrl + "payroll/getAll"
 export const ADD_PAYROLL = BaseUrl + "payroll/create"
 export const DELETE_PAYROLL = BaseUrl + "payroll/deleteById"
-export const UPDATE_PAYROLL = BaseUrl + "payroll/partiallyUpdateById"
+export const UPDATE_PAYROLL = BaseUrl + "payroll/updateById"
 
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";

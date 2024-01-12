@@ -13,14 +13,17 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { memo } from "react";
-import { useDispatch } from "react-redux";
+import { memo, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { payrollValidationSchema } from "schema";
-import { updatePayRoll } from "store/thunk/payroll.thunk";
-import { getPayRoll, addPayRoll } from "store/thunk/payroll.thunk";
+import {
+  addPayRoll,
+  getPayRoll,
+  updatePayRoll,
+} from "store/thunk/payroll.thunk";
 
-const TaskModal = ({
+const PayRollModal = ({
   isOpen,
   onClose,
   onBack,
@@ -30,7 +33,15 @@ const TaskModal = ({
   payrollId,
 }) => {
   const dispatch = useDispatch();
+  const { payrolls } = useSelector((state) => state.payroll.data);
+  const [payrollIds, setPayrollIds] = useState([]);
   const isUpdateMode = !!payrollId;
+
+  useEffect(() => {
+    if (payrolls) {
+      setPayrollIds(payrolls.map((payroll) => payroll?.member?._id));
+    }
+  }, [payrolls]);
 
   const handleSubmit = async (value) => {
     try {
@@ -81,29 +92,36 @@ const TaskModal = ({
           >
             <Form>
               <VStack spacing={4} align="stretch">
-                <FormControl>
-                  <FormLabel>Member</FormLabel>
-                  <Field
-                    as="select"
-                    name="member"
-                    placeholder="Memeber"
-                    style={inputStyle}
-                  >
-                    <option value="" disabled>
-                      Select Member
-                    </option>
-                    {members &&
-                      members?.map((row, index) => {
-                        return (
-                          <option key={row?._id} value={row?._id}>
-                            {row?.name}
-                          </option>
-                        );
-                      })}
-                  </Field>
-                  <ErrorMessage name="member" component="p" style={errorStyle} />
-                </FormControl>
-
+                {!isUpdateMode && (
+                  <FormControl>
+                    <FormLabel>Member</FormLabel>
+                    <Field
+                      as="select"
+                      name="member"
+                      placeholder="Member"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Member
+                      </option>
+                      {members &&
+                        members
+                          .filter((item) => !payrollIds.includes(item?._id))
+                          .map((row) => {
+                            return (
+                              <option key={row?._id} value={row?._id}>
+                                {row?.name}
+                              </option>
+                            );
+                          })}
+                    </Field>
+                    <ErrorMessage
+                      name="member"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+                )}
                 <FormControl>
                   <FormLabel>Department</FormLabel>
                   <Field
@@ -188,4 +206,4 @@ const TaskModal = ({
   );
 };
 
-export default memo(TaskModal);
+export default memo(PayRollModal);

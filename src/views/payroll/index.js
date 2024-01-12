@@ -2,16 +2,18 @@ import { Box, Button } from "@chakra-ui/react";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getMembers } from "store/thunk/member.thunk";
 import { getDepartments } from "store/thunk/department.thunk";
-import PayRollTable from "./components/PayRollTable";
+import { getMembers } from "store/thunk/member.thunk";
 import PayRollModal from "./components/PayRollModal";
+import PayRollTable from "./components/PayRollTable";
 export default function Task() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  
   const [members, setMembers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const dispatch = useDispatch();
-  const {payrolls} = useSelector((state)=> state.payroll.data)
+  const { payrolls } = useSelector((state) => state.payroll.data);
   const [filteredData, setFilteredData] = useState("");
 
   const handleClick = () => {
@@ -29,9 +31,9 @@ export default function Task() {
   }, [payrolls]);
 
   const handleBack = () => {
-    setIsModalOpen(false); 
+    setIsModalOpen(false);
   };
-  
+
   //Search
   const filterSearch = (search) => {
     const filterSearch = search.toLowerCase();
@@ -39,7 +41,7 @@ export default function Task() {
       return filterSearch === ""
         ? data
         : data?.member?.name.toLowerCase().includes(filterSearch) ||
-          data?.department?.name.toLowerCase().includes(filterSearch);
+            data?.department?.name.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };
@@ -48,9 +50,7 @@ export default function Task() {
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
       <Box display="flex" justifyContent="space-between">
         <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
-          <SearchBar
-           Filter={filterSearch}
-          />
+          <SearchBar Filter={filterSearch} />
         </Box>
         <Button colorScheme="blue" onClick={handleClick}>
           Add PayRoll
@@ -61,7 +61,7 @@ export default function Task() {
         onClose={() => setIsModalOpen(false)}
         onBack={handleBack}
         members={members}
-        departments= {departments}
+        departments={departments}
       />
       <Box>
         <PayRollTable filteredData={filteredData} />
