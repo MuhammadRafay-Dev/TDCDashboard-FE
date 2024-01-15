@@ -38,6 +38,7 @@ const TaskModal = ({
     if (taskProp?.taskTechResources) {
       setSelected(taskProp?.taskTechResources);
     }
+    // console.log(taskProp?.taskTechResources,"Task")
   }, [taskProp?.taskTechResources]);
 
   const handleSubmit = async (value) => {
@@ -71,7 +72,6 @@ const TaskModal = ({
     color: "red",
     marginTop: "5px",
   };
-  // console.log("JJ",taskProp?.taskTechResources)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">

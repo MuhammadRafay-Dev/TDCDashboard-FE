@@ -39,7 +39,7 @@ const PayRollModal = ({
 
   useEffect(() => {
     if (payrolls) {
-      setPayrollIds(payrolls.map((payroll) => payroll?.member?._id));
+      setPayrollIds(payrolls.map((payroll) => payroll?.members?._id));
     }
   }, [payrolls]);
 
@@ -92,7 +92,36 @@ const PayRollModal = ({
           >
             <Form>
               <VStack spacing={4} align="stretch">
-                {!isUpdateMode && (
+                  <FormControl>
+                    <FormLabel>Member</FormLabel>
+                    <Field
+                      as="select"
+                      name="member"
+                      placeholder="Member"
+                      style={inputStyle}
+                      disabled={isUpdateMode}
+                    >
+                      <option value="" disabled>
+                        Select Member
+                      </option>
+                      {members &&
+                        members
+                          .filter((item) => !payrollIds.includes(item?._id))
+                          .map((row) => {
+                            return (
+                              <option key={row?._id} value={row?._id}>
+                                {row?.name}
+                              </option>
+                            );
+                          })}
+                    </Field>
+                    <ErrorMessage
+                      name="member"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+                {/* {!isUpdateMode && (
                   <FormControl>
                     <FormLabel>Member</FormLabel>
                     <Field
@@ -121,7 +150,7 @@ const PayRollModal = ({
                       style={errorStyle}
                     />
                   </FormControl>
-                )}
+                )} */}
                 <FormControl>
                   <FormLabel>Department</FormLabel>
                   <Field

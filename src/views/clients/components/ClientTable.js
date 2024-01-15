@@ -37,7 +37,6 @@ const ClientTable = ({ filteredData }) => {
   const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [clients,setClients]=useState([]);
   const [clientProp, setClientProp] = useState({});
   const [clientId, setClientId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
@@ -62,9 +61,7 @@ const ClientTable = ({ filteredData }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        await dispatch(getClients()).then((res)=>{
-          setClients(res.payload);
-        });
+        await dispatch(getClients())
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);

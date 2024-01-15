@@ -36,6 +36,12 @@ export const ADD_PAYROLL = BaseUrl + "payroll/create"
 export const DELETE_PAYROLL = BaseUrl + "payroll/deleteById"
 export const UPDATE_PAYROLL = BaseUrl + "payroll/updateById"
 
+//Earning
+export const GET_EARNING = BaseUrl + "earnings/getAll"
+export const ADD_EARNING = BaseUrl + "earnings/create"
+export const DELETE_EARNING = BaseUrl + "earnings/deleteById"
+export const UPDATE_EARNING = BaseUrl + "earnings/updateById"
+
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
 export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";

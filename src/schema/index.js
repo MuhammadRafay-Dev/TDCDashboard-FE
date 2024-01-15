@@ -142,3 +142,12 @@ export const payrollValidationSchema = Yup.object().shape({
   cnic: Yup.string().length(13,"CNIC must be exactly 13 ").required("CNIC is required"),
   accountNo: Yup.string().required("Account Number is required"),
 });
+
+export const earningValidationSchema = Yup.object().shape({
+  member: Yup.string().required("Member is required"),
+  department: Yup.string().required("Department is required"),
+  totalOvertimeHours: Yup.number().required("Total Overtime Hours is required").positive("Total Overtime Hours must be a positive number"),
+  totalUnderTimeHours: Yup.number().required("Total Undertime Hours is required").min(0, "Total Undertime Hours cannot be negative"),
+  projectsWorkedOn: Yup.array().of(Yup.string()).required("Project is required"),
+  totalDeductions: Yup.number().required("Total Deductions is required").min(0, "Total Deductions cannot be negative"),
+});

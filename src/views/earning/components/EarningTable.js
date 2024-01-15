@@ -32,18 +32,22 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { getDepartments } from "store/thunk/department.thunk";
 import { getMembers } from "store/thunk/member.thunk";
-import { deletePayRoll, getPayRoll } from "store/thunk/payroll.thunk";
-import PayRollModal from "./PayRollModal";
+import EarningModal from "./EarningModal";
+import { getEarning } from "store/thunk/earning.thunk";
+import { deleteEarning } from "store/thunk/earning.thunk";
+import { getProjects } from "store/thunk/project.thunk";
 
-const PayRollTable = ({ filteredData }) => {
+const EarningTable = ({ filteredData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const [members, setMembers] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [payrollProp, setPayrollProp] = useState({});
-  const [payrollId, setPayrollId] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [earningProp, setEarningProp] = useState({});
+  const [earningId, setEarningId] = useState("");
   const [expandedRows, setExpandedRows] = useState({});
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
   const [deleteId, setDeleteId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const cancelRef = useRef();
@@ -56,7 +60,7 @@ const PayRollTable = ({ filteredData }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        await dispatch(getPayRoll());
+        await dispatch(getEarning());
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
@@ -83,8 +87,8 @@ const PayRollTable = ({ filteredData }) => {
   const handleConfirmDelete = async () => {
     try {
       setIsLoading(true);
-      await dispatch(deletePayRoll(deleteId));
-      await dispatch(getPayRoll());
+      await dispatch(deleteEarning(deleteId));
+      await dispatch(getEarning());
       toast.success("Task Deleted Successfully");
       setIsDeleteConfirmationOpen(false);
       setIsLoading(false);
@@ -100,14 +104,17 @@ const PayRollTable = ({ filteredData }) => {
   };
 
   const handleClickUpdate = (id, value) => {
-    setPayrollId(id);
-    setPayrollProp(value);
+    setEarningId(id);
+    setEarningProp(value);
     setIsModalOpen(true);
     dispatch(getMembers()).then((res) => {
       setMembers(res.payload);
     });
     dispatch(getDepartments()).then((res) => {
       setDepartments(res.payload);
+    });
+    dispatch(getProjects()).then((res) => {
+      setProjects(res.payload);
     });
   };
 
@@ -128,14 +135,15 @@ const PayRollTable = ({ filteredData }) => {
     <div>
       {/* Loader */}
       {isLoading && <Loader />}
-      <PayRollModal
+      <EarningModal
         isOpen={isModalOpen}
         members={members}
+        projects={projects}
         departments={departments}
         onClose={() => setIsModalOpen(false)}
         onBack={handleBack}
-        payrollProp={payrollProp}
-        payrollId={payrollId}
+        earningProp={earningProp}
+        earningId={earningId}
       />
 
       <AlertDialog
@@ -145,11 +153,11 @@ const PayRollTable = ({ filteredData }) => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete PayRoll
+              Delete Earning
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to delete this PayRoll?
+              Are you sure you want to delete this Earning?
             </AlertDialogBody>
 
             <AlertDialogFooter>
@@ -170,29 +178,49 @@ const PayRollTable = ({ filteredData }) => {
               <Tr>
                 <Th>Member Name</Th>
                 <Th>Department Name</Th>
-                <Th>Account Title</Th>
-                <Th>CNIC</Th>
-                <Th>Account No</Th>
-                <Th>Net Salary</Th>
-                <Th>Month</Th>
-                <Th>Year</Th>
+                <Th>Current Salary</Th>
+                <Th>Projects Assigned</Th>
+                <Th>Projects Worked On</Th>
+                <Th>Contracted Hours</Th>
                 <Th>Action</Th>
               </Tr>
             </Thead>
             <Tbody>
               {filteredData &&
                 filteredData?.map((row, index) => {
+                  // console.log(row, "Hello========");
                   return (
                     <React.Fragment key={row._id}>
                       <Tr>
                         <Td>{row?.member?.name ?? "N/A"}</Td>
                         <Td>{row?.department?.name ?? "N/A"}</Td>
-                        <Td>{row?.accountTitle}</Td>
-                        <Td>{row?.cnic}</Td>
-                        <Td>{row?.accountNo}</Td>
-                        <Td>{row?.netSalary ? `${row?.netSalary}$` : "N/A"}</Td>
-                        <Td>{row?.month}</Td>
-                        <Td>{row?.year}</Td>
+                        <Td>
+                          {row?.currentSalary
+                            ? `${row?.currentSalary}$`
+                            : "N/A"}
+                        </Td>
+                        <Td>
+                          {row?.projectsAssigned &&
+                          row?.projectsAssigned.length > 0
+                            ? row?.projectsAssigned
+                                ?.map((project) => project?.name)
+                                .join(", ")
+                            : "N/A"}
+                        </Td>
+                        <Td>
+                          {row?.projectsWorkedOn &&
+                          row?.projectsWorkedOn.length > 0
+                            ? row.projectsWorkedOn.map((project, index) => (
+                                <span key={project._id}>
+                                  {project.name}
+                                  {index < row.projectsWorkedOn.length - 1
+                                    ? ", "
+                                    : ""}
+                                </span>
+                              ))
+                            : "N/A"}
+                        </Td>
+                        <Td>{row?.contractedHours}</Td>
                         <Td>
                           <Button
                             align="center"
@@ -230,9 +258,15 @@ const PayRollTable = ({ filteredData }) => {
                               handleClickUpdate(row._id, {
                                 member: row?.member?._id,
                                 department: row?.department?._id,
-                                accountTitle: row?.accountTitle,
-                                cnic: row?.cnic,
-                                accountNo: row?.accountNo,
+                                totalOvertimeHours: row?.totalOvertimeHours,
+                                totalUnderTimeHours: row?.totalUnderTimeHours,
+                                projectsWorkedOn: row?.projectsWorkedOn?.map(
+                                  (resource) => ({
+                                    label: resource?.name,
+                                    value: resource?._id,
+                                  })
+                                ),
+                                totalDeductions: row?.totalDeductions,
                               })
                             }
                           >
@@ -294,12 +328,30 @@ const PayRollTable = ({ filteredData }) => {
                                 >
                                   <Thead>
                                     <Tr>
-                                      <Th>Extra Info</Th>
+                                      <Th>Total Overtime Hours</Th>
+                                      <Th>Total Undertime Hours</Th>
+                                      <Th>Total Worked Hours</Th>
+                                      <Th>Total Earnings</Th>
+                                      <Th>Total Deductions</Th>
+                                      <Th>Net Salary</Th>
+                                      <Th>Month</Th>
+                                      <Th>Year</Th>
                                     </Tr>
                                   </Thead>
                                   <Tbody>
                                     <Tr>
-                                      <Td>{row?.__v}</Td>
+                                      <Td>{row?.totalOvertimeHours}</Td>
+                                      <Td>{row?.totalUnderTimeHours}</Td>
+                                      <Td>{row?.totalWorkedHours}</Td>
+                                      <Td>{row?.totalEarnings}</Td>
+                                      <Td>{row?.totalDeductions}</Td>
+                                      <Td>
+                                        {row?.netSalary
+                                          ? `${row?.netSalary}$`
+                                          : "N/A"}
+                                      </Td>
+                                      <Td>{row?.month}</Td>
+                                      <Td>{row?.year}</Td>
                                     </Tr>
                                   </Tbody>
                                 </Table>
@@ -318,4 +370,4 @@ const PayRollTable = ({ filteredData }) => {
     </div>
   );
 };
-export default PayRollTable;
+export default EarningTable;

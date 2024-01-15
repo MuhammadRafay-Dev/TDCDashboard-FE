@@ -22,6 +22,7 @@ import Teams from "views/teams";
 // Auth Imports
 import PayRollTable from "views/payroll";
 import TaskTable from "views/task";
+import EarningTable from "views/earning";
 
 const routes = [
   {
@@ -124,6 +125,20 @@ const routes = [
       />
     ),
     component: PayRollTable,
+  },
+  {
+    name: "Earning",
+    layout: "/admin",
+    path: "/earnings/getAll",
+    icon: (
+      <Icon
+        as={FaHandHoldingDollar}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: EarningTable,
   },
 
   // {
