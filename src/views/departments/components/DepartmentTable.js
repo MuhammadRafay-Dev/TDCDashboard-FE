@@ -27,8 +27,10 @@ import {
 import { getMembers } from "store/thunk/member.thunk";
 import EmployeeFormModal from "./EmployeeFormModal";
 import Loader from "components/loader/Loader";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const DepartmentTable = ({ filteredData }) => {
+  const navigate = useHistory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
@@ -39,6 +41,11 @@ const DepartmentTable = ({ filteredData }) => {
   const [departmentId, setDepartmentId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const cancelRef = useRef();
+
+  
+  const handleNavigate = () => {
+    navigate.push(`/admin/deparment-data`);
+  };
 
   const handleBack = () => {
     setIsModalOpen(false);
@@ -160,7 +167,10 @@ const DepartmentTable = ({ filteredData }) => {
                 filteredData?.map((row, index) => {
                   return (
                     <Tr key={row._id}>
-                      <Td>{row.name}</Td>
+                      <Td
+                      onClick={() => handleNavigate(row._id)}
+                      style={{ cursor: "pointer" }}
+                      >{row.name}</Td>
                       <Td>{row?.departmentHead?.name}</Td>
                       <Td>{row?.departmentHead?.email}</Td>
                       <Td>
