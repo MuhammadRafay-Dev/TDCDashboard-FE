@@ -23,7 +23,7 @@ import Teams from "views/teams";
 import PayRollTable from "views/payroll";
 import TaskTable from "views/task";
 import EarningTable from "views/earning";
-import TeamTable from "views/admin/department_data";
+import DepartmentTeamTable from "views/admin/department_data";
 
 const routes = [
   {
@@ -67,11 +67,11 @@ const routes = [
     component: Departments,
   },
   {
-    name: "All Teams",
+    name: "Department Teams",
     layout: "/admin",
     path: "/deparment-data",
     icon: <Icon as={MdBarChart} width="20px" height="20px" color="inherit" />,
-    component: TeamTable,
+    component: DepartmentTeamTable,
   },
 
   {

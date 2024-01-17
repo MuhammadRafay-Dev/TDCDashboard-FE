@@ -19,7 +19,7 @@ import routes from "routes.js";
 // Custom Chakra theme
 export default function Dashboard(props) {
   const filteredRoutes = routes?.filter(
-    (route) => route.name !== "Member Data" && route.name !== "Project Data"
+    (route) => route.name !== "Member Data" && route.name !== "Project Data" && route.name !== "Department Teams"
   );
 
   const { ...rest } = props;

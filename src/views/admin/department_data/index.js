@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@chakra-ui/react";
-import TeamTable from "./componentss/TeamTable";
+import TeamTable from "./componentss/DepartmentTeamTable";
 
 
 export default function Teams() {

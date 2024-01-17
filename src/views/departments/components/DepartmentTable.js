@@ -43,8 +43,8 @@ const DepartmentTable = ({ filteredData }) => {
   const cancelRef = useRef();
 
   
-  const handleNavigate = () => {
-    navigate.push(`/admin/deparment-data`);
+  const handleNavigate = (id) => {
+    navigate.push(`/admin/deparment-data?id=${id}`);
   };
 
   const handleBack = () => {
@@ -168,8 +168,8 @@ const DepartmentTable = ({ filteredData }) => {
                   return (
                     <Tr key={row._id}>
                       <Td
-                      onClick={() => handleNavigate(row._id)}
-                      style={{ cursor: "pointer" }}
+                       onClick={() => handleNavigate(row._id)}
+                       style={{ cursor: "pointer" }}
                       >{row.name}</Td>
                       <Td>{row?.departmentHead?.name}</Td>
                       <Td>{row?.departmentHead?.email}</Td>
