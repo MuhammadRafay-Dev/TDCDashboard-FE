@@ -17,25 +17,33 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      state.user = action.payload;
-      state.isAuthenticated = true;
+      if (action?.payload) {
+        state.user.accesstoken = action?.payload?.accesstoken;
+        state.user.name = action?.payload?.name;
+        state.user.role = action?.payload?.role;
+        state.isAuthenticated = true;
+      }
     },
     clearUser: (state) => {
-      state.user = null;
+      state.user = initialState.user;
       state.isAuthenticated = false;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(login.fulfilled, (state, action) => {
-      state.isAuthenticated = true;
-      state.user.accesstoken = action.payload.accesstoken;
-      state.user.name = action.payload.name;
-      state.user.role = action.payload.role;
-    });
     builder.addCase(login.pending, (state, action) => {
       state.loading = true;
+    });
+    builder.addCase(login.fulfilled, (state, action) => {
+      if (action?.payload) {
+        state.isAuthenticated = true;
+        state.user.accesstoken = action?.payload?.accesstoken;
+        state.user.name = action?.payload?.name;
+        state.user.role = action?.payload?.role;
+      }
     });
   },
 });
 
 export default authSlice.reducer;
+
+export const { setUser, clearUser } = authSlice.actions;

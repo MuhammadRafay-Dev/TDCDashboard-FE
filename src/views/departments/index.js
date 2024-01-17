@@ -1,4 +1,4 @@
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DepartmentTable from "./components/DepartmentTable";
@@ -22,33 +22,28 @@ export default function Departments() {
   useEffect(() => {
     setFilteredData(departments);
   }, [departments]);
-   //Search
-   const filterSearch = (search) => {
+
+  //Search
+  const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = departments?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.departmentHead?.name.toLowerCase().includes(filterSearch) ||
+            data?.departmentHead?.email.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };
 
   const handleBack = () => {
-    // Handle going back logic
-    setIsModalOpen(false); // Close the modal when going back
+    setIsModalOpen(false); 
   };
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-      <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
-        <Box
-            padding={"8px"}
-            backgroundColor={"white"}
-            borderRadius={"30px"}
-          >
-            <SearchBar
-              Filter={filterSearch}
-              placeholder={"search by name..."}
-            />
+          <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
+            <SearchBar Filter={filterSearch} />
           </Box>
           <Button colorScheme="blue" onClick={handleClick}>
             Add Department
@@ -60,9 +55,8 @@ export default function Departments() {
           onBack={handleBack}
           members={members}
         />
-      </ChakraProvider>
       <Box>
-        <DepartmentTable filteredData={filteredData}/>
+        <DepartmentTable filteredData={filteredData} />
       </Box>
     </Box>
   );

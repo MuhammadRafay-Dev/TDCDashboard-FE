@@ -1,4 +1,4 @@
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getClients } from "store/thunk/client.thunk";
@@ -12,7 +12,7 @@ export default function Leads() {
   const [clients, setClients] = useState([]);
   const dispatch = useDispatch();
   const { leads } = useSelector((state) => state.lead.data);
-  const [filteredData, setFilteredData] = useState(null);
+  const [filteredData, setFilteredData] = useState("");
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -30,28 +30,27 @@ export default function Leads() {
   }, [leads]);
 
   const handleBack = () => {
-    // Handle going back logic
-    setIsModalOpen(false); // Close the modal when going back
+    setIsModalOpen(false); 
   };
+  
   //Search
   const filterSearch = (search) => {
+    const filterSearch = search.toLowerCase();
     const data = leads?.filter((data) => {
-      return search.toLowerCase() === ""
+      return filterSearch === ""
         ? data
-        : data.name.toLowerCase().includes(search);
+        : data?.name.toLowerCase().includes(filterSearch) ||
+            data?.salesTeamMember?.name.toLowerCase().includes(filterSearch) ||
+            data?.client?.name.toLowerCase().includes(filterSearch);
     });
     setFilteredData(data);
   };
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-      <ChakraProvider>
         <Box display="flex" justifyContent="space-between">
           <Box padding={"8px"} backgroundColor={"white"} borderRadius={"30px"}>
-            <SearchBar
-              Filter={filterSearch}
-              placeholder={"search by name..."}
-            />
+            <SearchBar Filter={filterSearch} />
           </Box>
           <Button colorScheme="blue" onClick={handleClick}>
             Add Lead
@@ -64,7 +63,6 @@ export default function Leads() {
           members={members}
           clients={clients}
         />
-      </ChakraProvider>
       <Box>
         <LeadTable filteredData={filteredData} />
       </Box>

@@ -13,7 +13,7 @@ export const getMembers = createAsyncThunk("data/getMembers", async () => {
   try {
     const response = await axios.get(MembersUrl, {
       headers: {
-        Authorization: `Bearer ${userData.accesstoken}`,
+        Authorization: `Bearer ${userData?.accesstoken}`,
       },
     });
     toast.success(response.data.message);
@@ -35,7 +35,7 @@ export const addMember = createAsyncThunk(
     try {
       const response = await axios.post(Add_MemberUrl, memberData, {
         headers: {
-          Authorization: `Bearer ${userData.accesstoken}`,
+          Authorization: `Bearer ${userData?.accesstoken}`,
         },
       });
       return response?.data;
@@ -55,7 +55,7 @@ export const editMember = createAsyncThunk(
         memberData,
         {
           headers: {
-            Authorization: `Bearer ${userData.accesstoken}`,
+            Authorization: `Bearer ${userData?.accesstoken}`,
           },
         }
       );
@@ -73,7 +73,7 @@ export const deleteMember = createAsyncThunk(
     try {
       await axios.delete(`${MembersUrl}/${id}`, {
         headers: {
-          Authorization: `Bearer ${userData.accesstoken}`,
+          Authorization: `Bearer ${userData?.accesstoken}`,
         },
       });
     } catch (error) {

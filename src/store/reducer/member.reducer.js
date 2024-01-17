@@ -1,9 +1,5 @@
 // authReducer.js
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { MembersUrl } from "API/Urls";
-import { Add_MemberUrl } from "API/Urls";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { createSlice } from "@reduxjs/toolkit";
 import { getMembers } from "store/thunk/member.thunk";
 
 const initialState = {

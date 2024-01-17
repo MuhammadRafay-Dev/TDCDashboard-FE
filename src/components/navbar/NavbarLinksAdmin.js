@@ -1,39 +1,36 @@
 // Chakra Imports
 import {
   Avatar,
-  Button,
   Flex,
   Icon,
-  Image,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from "@chakra-ui/react";
 // Custom Components
-import { ItemContent } from "components/menu/ItemContent";
-import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import PropTypes from "prop-types";
-import React from "react";
 // Assets
-import navImage from "assets/img/layout/Navbar.png";
-import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
-import routes from "routes.js";
-import { ThemeEditor } from "./ThemeEditor";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import routes from "routes.js";
+import { clearUser } from "store/reducer/auth.reducer";
+import { ThemeEditor } from "./ThemeEditor";
 export default function HeaderLinks(props) {
   const name = useSelector((state) => state.auth.user?.name);
-  const navigate = useHistory();
 
+  const dispatch = useDispatch();
+  const navigate = useHistory();
+  const path = navigate?.location?.pathname;
   const handleLogout = () => {
-    localStorage.clear();
-    navigate.push("/auth");
+    // localStorage.clear();
+    localStorage.removeItem("userData");
+    dispatch(clearUser());
+    navigate.push("/sign-in");
   };
 
   const { secondary } = props;
@@ -62,11 +59,13 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
-      <SearchBar
-        mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-        me="10px"
-        borderRadius="30px"
-      />
+      {/* {path === "/admin/default" && (
+        <SearchBar
+          mb={secondary ? { base: "10px", md: "unset" } : "unset"}
+          me="10px"
+          borderRadius="30px"
+        />
+      )} */}
       <Flex
         bg={ethBg}
         display={secondary ? "flex" : "none"}
@@ -102,7 +101,7 @@ export default function HeaderLinks(props) {
         </Text>
       </Flex>
       <SidebarResponsive routes={routes} />
-      <Menu>
+      {/* <Menu>
         <MenuButton p="0px">
           <Icon
             mt="6px"
@@ -163,7 +162,6 @@ export default function HeaderLinks(props) {
           </Flex>
         </MenuList>
       </Menu>
-
       <Menu>
         <MenuButton p="0px">
           <Icon
@@ -227,10 +225,8 @@ export default function HeaderLinks(props) {
             </Link>
           </Flex>
         </MenuList>
-      </Menu>
-
+      </Menu> */}
       <ThemeEditor navbarIcon={navbarIcon} />
-
       <Menu>
         <MenuButton p="0px">
           <Avatar
@@ -267,21 +263,24 @@ export default function HeaderLinks(props) {
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
-            <MenuItem
+            {/* <MenuItem
               _hover={{ bg: "none" }}
               _focus={{ bg: "none" }}
               borderRadius="8px"
               px="14px"
             >
               <Text fontSize="sm">Profile Settings</Text>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem
               _hover={{ bg: "none" }}
               _focus={{ bg: "none" }}
               borderRadius="8px"
               px="14px"
+              onClick={()=>{
+                navigate.push("/forget-password/verify")
+              }}
             >
-              <Text fontSize="sm">Newsletter Settings</Text>
+              <Text fontSize="sm" fontWeight={"700"}>Reset Password</Text>
             </MenuItem>
             <MenuItem
               _hover={{ bg: "none" }}
@@ -292,6 +291,7 @@ export default function HeaderLinks(props) {
               onClick={() => handleLogout()}
             >
               <Text fontSize="sm">Log out</Text>
+
             </MenuItem>
           </Flex>
         </MenuList>

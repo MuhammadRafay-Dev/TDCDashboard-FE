@@ -1,13 +1,11 @@
 import {
   Box,
   Button,
-  Checkbox,
   Collapse,
-  Flex,
   FormControl,
   FormLabel,
+  HStack,
   IconButton,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -20,124 +18,119 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Select,
-  Wrap,
-  WrapItem,
+  Radio,
+  RadioGroup,
+  VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { getTeams } from "store/thunk/team.thunk";
+import { getClients } from "store/thunk/client.thunk";
+import { getMembers } from "store/thunk/member.thunk";
+import { projectValidationSchema } from "schema";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import Select from "react-select";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 
-const ProjectModal = ({
-  open,
-  close,
-  onSave,
-  editData,
-  edit,
-  memberData,
-  teamData,
-}) => {
+const ProjectModal = ({ open, close, onSave, editData, edit, index }) => {
   const initialData = {
-    name: "",
-    tech_stack: "",
-    team_lead: "",
-    sales_coordinator: "",
-    teams_assigned: [],
-    platform: "",
-    contract_type: "",
-    client: "",
-    consultant: "",
-    status: "",
-    duration: 0,
-    duration_unit: "",
-    start_date: "",
-    end_date: "",
-    cost: "",
+    name: editData?.name || "",
+    tech_stack: editData?.tech_stack || "",
+    team_lead: editData?.team_lead?._id || "",
+    sales_coordinator: editData?.sales_coordinator?._id || "",
+    teams_assigned: editData?.teams_assigned || [],
+    members_assigned: editData?.members_assigned || [],
+    platform: editData?.platform || "",
+    contract_type: editData?.contract_type || "",
+    client: editData?.client?._id || "",
+    consultant: editData?.consultant || "",
+    status: editData?.status || "",
+    duration: editData?.duration || 0,
+    duration_unit: editData?.duration || "",
+    start_date: editData?.start_date || "",
+    end_date: editData?.end_date || "",
+    cost: editData?.cost || "",
   };
   const [projectData, setProjectData] = useState(initialData);
+  const memberData = useSelector((state) => state.members?.data);
+  const [members, setMembers] = useState(memberData);
+  const teamData = useSelector((state) => state.teams?.data);
+  const [teams, setTeams] = useState(teamData);
+  const clientData = useSelector((state) => state.client?.data?.leads);
+  const [clients, setClients] = useState(clientData);
+  const [selectedTeams, setSelectedTeams] = useState([]);
+  const [selectedMember, setSelectedMember] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleInputChange = (field, values) => {
-    setProjectData((prevData) => ({
-      ...prevData,
-      [field]: values,
-    }));
-  };
+  const [userSelection, setUserSelection] = useState(null);
 
   const handleModalClose = () => {
-    setIsExpanded(false);
     close();
+    setUserSelection(null);
+    setIsExpanded(false);
   };
 
-  const handleSubmit = () => {
-    if (!projectData.name) {
-      toast.error("Name is required!");
-      return;
-    }
-    if (!projectData.tech_stack) {
-      toast.error("Stack is required!");
-      return;
-    }
-    if (!projectData.team_lead) {
-      toast.error("Team Lead is required!");
-      return;
-    }
-    if (!projectData.sales_coordinator) {
-      toast.error("Sales Coordinator is required!");
-      return;
-    }
-    // if (!projectData.teams_assigned) {
-    //   toast.error("Department is required!");
-    //   return;
-    // }
-    if (!projectData.platform) {
-      toast.error("Platform is required!");
-      return;
-    }
-    if (!projectData.contract_type) {
-      toast.error("Contract Type is required!");
-      return;
-    }
-    if (!projectData.client) {
-      toast.error("CLient is required!");
-      return;
-    }
-    if (!projectData.consultant) {
-      toast.error("Consultant is required!");
-      return;
-    }
-    if (!projectData.status) {
-      toast.error("Status is required!");
-      return;
-    }
-    if (!projectData.duration_unit) {
-      toast.error("Duration Unit is required!");
-      return;
-    }
-    if (!projectData.cost) {
-      toast.error("Cost is required!");
-      return;
-    }
+  const handleUserSelection = (selection) => {
+    setUserSelection(selection);
+  };
 
-    if (editData) {
-      if (!projectData.teams_assigned) {
-        const { teams_assigned, ...newMemData } = teamData;
-        edit(newMemData);
-      } else {
-        edit(projectData);
+  const sanitizeValues = (values) => {
+    const sanitizedValues = {};
+    Object.entries(values).forEach(([key, value]) => {
+      if (
+        value !== undefined &&
+        value !== "" &&
+        !(Array.isArray(value) && value.length === 0)
+      ) {
+        sanitizedValues[key] = value;
       }
+    });
+    return sanitizedValues;
+  };
+
+  const handleSubmit = (values) => {
+    const sanitizedValues = sanitizeValues(values);
+    if (editData) {
+      edit(sanitizedValues, index);
     } else {
-      onSave(projectData);
+      onSave(sanitizedValues);
       setProjectData(initialData);
     }
 
+    setUserSelection(null);
     setIsExpanded(false);
-
     close();
   };
 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (open) {
+      dispatch(getTeams()).then((res) => {
+        setTeams(res.payload);
+      });
+      dispatch(getMembers()).then((res) => {
+        setMembers(res.payload);
+      });
+      dispatch(getClients()).then((res) => {
+        setClients(res.payload);
+      });
+    }
+  }, [open]);
+
   useEffect(() => {
     if (editData) {
+      setUserSelection(
+        editData?.teams_assigned &&
+          editData?.teams_assigned.length > 0 &&
+          editData?.members_assigned &&
+          editData?.members_assigned.length > 0
+          ? "both"
+          : editData?.teams_assigned && editData?.teams_assigned.length > 0
+          ? "teams"
+          : editData?.members_assigned && editData?.members_assigned.length > 0
+          ? "members"
+          : null
+      );
+
       setProjectData(editData);
       setProjectData((prevData) => ({
         ...prevData,
@@ -145,6 +138,8 @@ const ProjectModal = ({
         sales_coordinator: editData?.sales_coordinator?._id || "",
         client: editData?.client?._id || "",
         teams_assigned: editData?.teams_assigned?.map((team) => team._id) || "",
+        members_assigned:
+          editData?.members_assigned?.map((member) => member._id) || "",
         start_date: new Date(editData?.start_date).toISOString().split("T")[0],
         end_date: new Date(editData?.end_date).toISOString().split("T")[0],
       }));
@@ -153,257 +148,509 @@ const ProjectModal = ({
     }
   }, [editData]);
 
+  useEffect(() => {
+    if (editData?.teams_assigned) {
+      setSelectedTeams(
+        editData?.teams_assigned?.map((team) => ({
+          label: team.name,
+          value: team._id,
+        }))
+      );
+    } else {
+      setSelectedTeams([]);
+    }
+  }, [editData?.teams_assigned]);
+
+  useEffect(() => {
+    if (editData?.members_assigned) {
+      setSelectedMember(
+        editData?.members_assigned?.map((member) => ({
+          label: member.name,
+          value: member._id,
+        }))
+      );
+    } else {
+      setSelectedMember([]);
+    }
+  }, [editData?.members_assigned]);
+
+  //Form Styles
+  const inputStyle = {
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    width: "100%",
+    padding: "10px",
+  };
+
+  const errorStyle = {
+    color: "red",
+    marginTop: "5px",
+  };
+
   return (
     <>
       <Modal isOpen={open} onClose={close}>
         <ModalOverlay />
         <ModalContent overflowY="auto" maxHeight={500}>
-          <ModalHeader>Create your account</ModalHeader>
+          <ModalHeader>{editData ? "Edit Project" : "Add Project"}</ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
-            {/* <Flex direction="row" justify="space-between" flexWrap="wrap"> */}
-            <FormControl mt={4}>
-              <FormLabel>Name</FormLabel>
-              <Input
-                placeholder="Name"
-                value={projectData.name}
-                onChange={(e) => {
-                  handleInputChange("name", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+          <ModalBody>
+            <Formik
+              initialValues={projectData}
+              validationSchema={projectValidationSchema}
+              onSubmit={handleSubmit}
+            >
+              <Form>
+                <VStack spacing={4} align="stretch">
+                  <FormControl>
+                    <FormLabel>Name</FormLabel>
+                    <Field
+                      type="text"
+                      name="name"
+                      id="name"
+                      placeholder="Name"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="name"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Tech Stack</FormLabel>
-              <Input
-                placeholder="Tech Stack"
-                value={projectData.tech_stack}
-                onChange={(e) => {
-                  handleInputChange("tech_stack", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Tech Stack</FormLabel>
+                    <Field
+                      type="text"
+                      name="tech_stack"
+                      placeholder="Tech Stack"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="tech_stack"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Team Lead</FormLabel>
-              <Select
-                placeholder="Team Lead"
-                value={projectData.team_lead}
-                onChange={(e) => {
-                  handleInputChange("team_lead", e.target.value);
-                }}
-              >
-                {memberData?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Team Lead</FormLabel>
+                    <Field
+                      as="select"
+                      name="team_lead"
+                      placeholder="Team Lead"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Team Lead
+                      </option>
+                      {members?.map((option) => (
+                        <option key={option._id} value={option._id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="team_lead"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Sales Coordinator</FormLabel>
-              <Select
-                placeholder="Sales Coordinator"
-                value={projectData.sales_coordinator}
-                onChange={(e) => {
-                  handleInputChange("sales_coordinator", e.target.value);
-                }}
-              >
-                {memberData?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl mt={4}>
-              <Box display="flex">
-                <FormLabel mt={2}>Teams Assigned</FormLabel>
-                <IconButton
-                  icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  aria-label={isExpanded ? "Collapse" : "Expand"}
-                  mb={2}
-                />
-              </Box>
-              <Collapse in={isExpanded}>
-                <Wrap spacing={4}>
-                  {teamData?.map((option) => (
-                    <WrapItem key={option._id}>
-                      <Checkbox
-                        value={option._id}
-                        onChange={(e) => {
-                          const selectedValues = e.target.checked
-                            ? [...projectData.teams_assigned, option._id]
-                            : projectData.teams_assigned.filter(
-                                (id) => id !== option._id
-                              );
-                          handleInputChange("teams_assigned", selectedValues);
-                        }}
-                        isChecked={projectData.teams_assigned.includes(
-                          option._id
-                        )}
+                  <FormControl>
+                    <Box display="flex">
+                      <FormLabel mt={2}>Resources you want to assign</FormLabel>
+                      <IconButton
+                        icon={isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        aria-label={isExpanded ? "Collapse" : "Expand"}
+                        mb={2}
+                      />
+                    </Box>
+                    <Collapse in={isExpanded}>
+                      <RadioGroup
+                        onChange={(value) => handleUserSelection(value)}
+                        value={userSelection}
                       >
-                        {option.name}
-                      </Checkbox>
-                    </WrapItem>
-                  ))}
-                </Wrap>
-              </Collapse>
-            </FormControl>
+                        <HStack spacing={4}>
+                          <Radio value="teams">Teams</Radio>
+                          <Radio value="members">Members</Radio>
+                          <Radio value="both">Both</Radio>
+                        </HStack>
+                      </RadioGroup>
+                    </Collapse>
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Platform</FormLabel>
-              <Input
-                placeholder="PLatform"
-                value={projectData.platform}
-                onChange={(e) => {
-                  handleInputChange("platform", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+                  {userSelection === "teams" && (
+                    <FormControl>
+                      <FormLabel>Teams Assigned</FormLabel>
+                      <Field
+                        name="teams_assigned"
+                        component={({ field, form }) => {
+                          const onChange = (selectedOptions) => {
+                            form.setFieldValue(
+                              "teams_assigned",
+                              selectedOptions.map((option) => option.value)
+                            );
+                            setSelectedTeams(selectedOptions);
+                          };
 
-            <FormControl mt={4}>
-              <FormLabel>Contract Type</FormLabel>
-              <Select
-                placeholder="Contact Type"
-                value={projectData.contract_type}
-                onChange={(e) => {
-                  handleInputChange("contract_type", e.target.value);
-                }}
-                required
-              >
-                <option value={"Hourly"}>Hourly</option>
-                <option value={"Fixed"}>Fixed</option>
-                <option value={"Job"}>Job</option>
-                <option value={"Milestone"}>Milestone</option>
-              </Select>
-            </FormControl>
+                          return (
+                            <Select
+                              options={teams?.map((row) => ({
+                                value: row._id,
+                                label: row.name,
+                              }))}
+                              isMulti
+                              onChange={onChange}
+                              value={selectedTeams}
+                              placeholder="Teams Assigned"
+                            />
+                          );
+                        }}
+                      />
+                      <ErrorMessage
+                        name="teams_assigned"
+                        component="p"
+                        style={errorStyle}
+                      />
+                    </FormControl>
+                  )}
 
-            <FormControl mt={4}>
-              <FormLabel>Client</FormLabel>
-              <Select
-                placeholder="Client"
-                value={projectData.client}
-                onChange={(e) => {
-                  handleInputChange("client", e.target.value);
-                }}
-              >
-                {memberData?.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+                  {userSelection === "members" && (
+                    <FormControl>
+                      <FormLabel>Members Assigned</FormLabel>
+                      <Field
+                        name="members_assigned"
+                        component={({ field, form }) => {
+                          const onChange = (selectedOptions) => {
+                            form.setFieldValue(
+                              "members_assigned",
+                              selectedOptions.map((option) => option.value)
+                            );
+                            setSelectedMember(selectedOptions);
+                          };
 
-            <FormControl mt={4}>
-              <FormLabel>Consultant</FormLabel>
-              <Input
-                placeholder="Consultant"
-                value={projectData.consultant}
-                onChange={(e) => {
-                  handleInputChange("consultant", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+                          return (
+                            <Select
+                              options={members?.map((row) => ({
+                                value: row._id,
+                                label: row.name,
+                              }))}
+                              isMulti
+                              onChange={onChange}
+                              value={selectedMember}
+                              placeholder="Members Assigned"
+                            />
+                          );
+                        }}
+                      />
+                      <ErrorMessage
+                        name="members_assigned"
+                        component="p"
+                        style={errorStyle}
+                      />
+                    </FormControl>
+                  )}
 
-            <FormControl mt={4}>
-              <FormLabel>Status</FormLabel>
-              <Select
-                placeholder="Status"
-                value={projectData.status}
-                onChange={(e) => {
-                  handleInputChange("status", e.target.value);
-                }}
-              >
-                <option value={"on-going"}>On-Going</option>
-                <option value={"completed"}>Completed</option>
-              </Select>
-            </FormControl>
+                  {userSelection === "both" && (
+                    <>
+                      <FormControl>
+                        <FormLabel>Teams Assigned</FormLabel>
+                        <Field
+                          name="teams_assigned"
+                          component={({ field, form }) => {
+                            const onChange = (selectedOptions) => {
+                              form.setFieldValue(
+                                "teams_assigned",
+                                selectedOptions.map((option) => option.value)
+                              );
+                              setSelectedTeams(selectedOptions);
+                            };
 
-            <FormControl mt={4}>
-              <FormLabel>Duration</FormLabel>
-              <NumberInput
-                min={0}
-                value={projectData.duration}
-                onChange={(e) => {
-                  handleInputChange("duration", e);
-                }}
-              >
-                <NumberInputField />
-                <NumberInputStepper>
-                  <NumberIncrementStepper />
-                  <NumberDecrementStepper />
-                </NumberInputStepper>
-              </NumberInput>
-            </FormControl>
+                            return (
+                              <Select
+                                options={teams?.map((row) => ({
+                                  value: row._id,
+                                  label: row.name,
+                                }))}
+                                isMulti
+                                onChange={onChange}
+                                value={selectedTeams}
+                                placeholder="Teams Assigned"
+                              />
+                            );
+                          }}
+                        />
+                        <ErrorMessage
+                          name="teams_assigned"
+                          component="p"
+                          style={errorStyle}
+                        />
+                      </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Duration Unit</FormLabel>
-              <Select
-                placeholder="Duration Unit"
-                value={projectData.duration_unit}
-                onChange={(e) => {
-                  handleInputChange("duration_unit", e.target.value);
-                }}
-              >
-                <option value={"Months"}>Months</option>
-                <option value={"Weeks"}>Weeks</option>
-                <option value={"Days"}>Days</option>
-              </Select>
-            </FormControl>
+                      <FormControl>
+                        <FormLabel>Members Assigned</FormLabel>
+                        <Field
+                          name="members_assigned"
+                          component={({ field, form }) => {
+                            const onChange = (selectedOptions) => {
+                              form.setFieldValue(
+                                "members_assigned",
+                                selectedOptions.map((option) => option.value)
+                              );
+                              setSelectedMember(selectedOptions);
+                            };
 
-            <FormControl mt={4}>
-              <FormLabel>Cost</FormLabel>
-              <Input
-                placeholder="Cost"
-                value={projectData.cost}
-                onChange={(e) => {
-                  handleInputChange("cost", e.target.value);
-                }}
-                required
-              />
-            </FormControl>
+                            return (
+                              <Select
+                                options={members?.map((row) => ({
+                                  value: row._id,
+                                  label: row.name,
+                                }))}
+                                isMulti
+                                onChange={onChange}
+                                value={selectedMember}
+                                placeholder="Members Assigned"
+                              />
+                            );
+                          }}
+                        />
+                        <ErrorMessage
+                          name="members_assigned"
+                          component="p"
+                          style={errorStyle}
+                        />
+                      </FormControl>
+                    </>
+                  )}
 
-            <FormControl mt={4}>
-              <FormLabel>Start Date</FormLabel>
-              <Input
-                type="date"
-                value={projectData.start_date}
-                onChange={(e) => {
-                  handleInputChange("start_date", e.target.value);
-                }}
-              />
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Sales Coordinator</FormLabel>
+                    <Field
+                      as="select"
+                      name="sales_coordinator"
+                      placeholder="Sales Coordinator"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Sales Coordinator
+                      </option>
+                      {members?.map((option) => (
+                        <option key={option._id} value={option._id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="sales_coordinator"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>End Date</FormLabel>
-              <Input
-                type="date"
-                min={projectData.start_date}
-                value={projectData.end_date}
-                onChange={(e) => {
-                  handleInputChange("end_date", e.target.value);
-                }}
-              />
-            </FormControl>
+                  <FormControl>
+                    <FormLabel>Platform</FormLabel>
+                    <Field
+                      type="text"
+                      name="platform"
+                      placeholder="Platform "
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="platform"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
 
-            {/* </Flex> */}
+                  <FormControl>
+                    <FormLabel>Contract Type</FormLabel>
+                    <Field
+                      as="select"
+                      name="contract_type"
+                      placeholder="Contract Type"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Contract Type
+                      </option>
+                      <option value={"Hourly"}>Hourly</option>
+                      <option value={"Fixed"}>Fixed</option>
+                      <option value={"Job"}>Job</option>
+                      <option value={"Milestone"}>Milestone</option>
+                    </Field>
+                    <ErrorMessage
+                      name="contract_type"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Client</FormLabel>
+                    <Field
+                      as="select"
+                      name="client"
+                      placeholder="Client"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Client
+                      </option>
+                      {clients?.map((option) => (
+                        <option key={option._id} value={option._id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="client"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Consultant</FormLabel>
+                    <Field
+                      type="text"
+                      name="consultant"
+                      placeholder="Consultant"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="consultant"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Stauts</FormLabel>
+                    <Field
+                      as="select"
+                      name="status"
+                      placeholder="Status"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Status
+                      </option>
+                      <option value={"on-going"}>On-Going</option>
+                      <option value={"completed"}>Completed</option>
+                    </Field>
+                    <ErrorMessage
+                      name="status"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Duration</FormLabel>
+                    <Field name="duration">
+                      {({ field }) => (
+                        <NumberInput
+                          min={0}
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange({
+                              target: { name: field.name, value },
+                            });
+                          }}
+                        >
+                          <NumberInputField />
+                          <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                          </NumberInputStepper>
+                        </NumberInput>
+                      )}
+                    </Field>
+                    <ErrorMessage
+                      name="duration"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Duration Unit</FormLabel>
+                    <Field
+                      as="select"
+                      name="duration_unit"
+                      placeholder="Duration Unit"
+                      style={inputStyle}
+                    >
+                      <option value="" disabled>
+                        Select Duration Unit
+                      </option>
+                      <option value={"Months"}>Months</option>
+                      <option value={"Weeks"}>Weeks</option>
+                      <option value={"Days"}>Days</option>
+                    </Field>
+                    <ErrorMessage
+                      name="duration_unit"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Start Date</FormLabel>
+                    <Field
+                      type="date"
+                      name="start_date"
+                      placeholder="Start Date"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="start_date"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>End Date</FormLabel>
+                    <Field
+                      type="date"
+                      name="end_date"
+                      placeholder="End Date"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="end_date"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Cost</FormLabel>
+                    <Field
+                      type="text"
+                      name="cost"
+                      placeholder="Cost"
+                      style={inputStyle}
+                    />
+                    <ErrorMessage
+                      name="cost"
+                      component="p"
+                      style={errorStyle}
+                    />
+                  </FormControl>
+                </VStack>
+                <ModalFooter>
+                  <Button colorScheme="blue" mr={3} type="submit">
+                    Save
+                  </Button>
+                  <Button onClick={() => handleModalClose()}>Cancel</Button>
+                </ModalFooter>
+              </Form>
+            </Formik>
           </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => handleSubmit()}>
-              Save
-            </Button>
-            <Button onClick={() => handleModalClose()}>Cancel</Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

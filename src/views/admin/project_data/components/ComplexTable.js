@@ -1,7 +1,8 @@
 import {
   Flex,
   Table,
-  Checkbox,
+  Progress,
+  Icon,
   Tbody,
   Td,
   Text,
@@ -21,7 +22,10 @@ import {
 // Custom components
 import Card from "components/card/Card";
 import Menu from "components/menu/MainMenu";
-export default function CheckTable(props) {
+
+// Assets
+import { MdCheckCircle, MdCancel, MdOutlineError } from "react-icons/md";
+export default function ColumnsTable(props) {
   const { columnsData, tableData } = props;
 
   const columns = useMemo(() => columnsData, [columnsData]);
@@ -45,7 +49,7 @@ export default function CheckTable(props) {
     prepareRow,
     initialState,
   } = tableInstance;
-  initialState.pageSize = 11;
+  initialState.pageSize = 5;
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -55,13 +59,13 @@ export default function CheckTable(props) {
       w='100%'
       px='0px'
       overflowX={{ sm: "scroll", lg: "hidden" }}>
-      <Flex px='25px' justify='space-between' mb='20px' align='center'>
+      <Flex px='25px' justify='space-between' mb='10px' align='center'>
         <Text
           color={textColor}
           fontSize='22px'
           fontWeight='700'
           lineHeight='100%'>
-          Check Table
+          Complex Table
         </Text>
         <Menu />
       </Flex>
@@ -96,34 +100,40 @@ export default function CheckTable(props) {
                   let data = "";
                   if (cell.column.Header === "NAME") {
                     data = (
-                      <Flex align='center'>
-                        <Checkbox
-                          defaultChecked={cell.value[1]}
-                          colorScheme='brandScheme'
-                          me='10px'
-                        />
-                        <Text color={textColor} fontSize='sm' fontWeight='700'>
-                          {cell.value[0]}
-                        </Text>
-                      </Flex>
-                    );
-                  } else if (cell.column.Header === "PROGRESS") {
-                    data = (
-                      <Flex align='center'>
-                        <Text
-                          me='10px'
-                          color={textColor}
-                          fontSize='sm'
-                          fontWeight='700'>
-                          {cell.value}%
-                        </Text>
-                      </Flex>
-                    );
-                  } else if (cell.column.Header === "QUANTITY") {
-                    data = (
                       <Text color={textColor} fontSize='sm' fontWeight='700'>
                         {cell.value}
                       </Text>
+                    );
+                  } else if (cell.column.Header === "STATUS") {
+                    data = (
+                      <Flex align='center'>
+                        <Icon
+                          w='24px'
+                          h='24px'
+                          me='5px'
+                          color={
+                            cell.value === "Approved"
+                              ? "green.500"
+                              : cell.value === "Disable"
+                              ? "red.500"
+                              : cell.value === "Error"
+                              ? "orange.500"
+                              : null
+                          }
+                          as={
+                            cell.value === "Approved"
+                              ? MdCheckCircle
+                              : cell.value === "Disable"
+                              ? MdCancel
+                              : cell.value === "Error"
+                              ? MdOutlineError
+                              : null
+                          }
+                        />
+                        <Text color={textColor} fontSize='sm' fontWeight='700'>
+                          {cell.value}
+                        </Text>
+                      </Flex>
                     );
                   } else if (cell.column.Header === "DATE") {
                     data = (
@@ -131,12 +141,26 @@ export default function CheckTable(props) {
                         {cell.value}
                       </Text>
                     );
+                  } else if (cell.column.Header === "PROGRESS") {
+                    data = (
+                      <Flex align='center'>
+                        <Progress
+                          variant='table'
+                          colorScheme='brandScheme'
+                          h='8px'
+                          w='108px'
+                          value={cell.value}
+                        />
+                      </Flex>
+                    );
                   }
                   return (
                     <Td
                       {...cell.getCellProps()}
                       key={index}
                       fontSize={{ sm: "14px" }}
+                      maxH='30px !important'
+                      py='8px'
                       minW={{ sm: "150px", md: "200px", lg: "auto" }}
                       borderColor='transparent'>
                       {data}

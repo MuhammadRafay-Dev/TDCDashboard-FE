@@ -3,7 +3,6 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,13 +10,14 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   VStack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { memo } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { getLeads, addLeads, updateLeads } from "store/thunk/lead.thunk";
+import { leadValidationSchema } from "schema";
+import { addLeads, getLeads, updateLeads } from "store/thunk/lead.thunk";
 
 const LeadModal = ({
   isOpen,
@@ -28,66 +28,26 @@ const LeadModal = ({
   leadProp,
   leadId,
 }) => {
+  // console.log(leadProp, "testing members");
+  // console.log(leadProp, "LeadProps");
   const dispatch = useDispatch();
-  const [leadData, setLeadData] = useState({
-    name: "",
-    date: "",
-    salesTeamMember: "",
-    client: "",
-    linkJobApplied: "",
-    jobDescription: "",
-    sentDescription: "",
-    appointment: "",
-    call: "",
-    leadStatus: "",
-  });
-
   const isUpdateMode = !!leadId;
-  useEffect(() => {
-    // Update the state when formProp changes
-    setLeadData({ ...leadProp });
-  }, [leadProp]);
 
-  // console.log(
-  //   "leadProp", leadProp,leadData
-  // );
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLeadData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   await dispatch(addLeads({ leadData }));
-  //   //  console.log(addLeads)
-  //   dispatch(getLeads());
-
-  //   // Close the modal after submitting
-  //   onClose();
-  // };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+  const handleSubmit = async (value) => {
     try {
       if (leadId) {
-        // Update existing lead
-        await dispatch(updateLeads({ leadData, leadId }));
+        // Update existing Client
+        await dispatch(updateLeads({ value, leadId }));
+        toast.success("Lead Edit successfully!");
       } else {
-        // Add new lead
-        await dispatch(addLeads(leadData));
-        // console.log(leadData, "if check")
+        // Add new Lead
+        await dispatch(addLeads(value));
+        toast.success("Lead Add successfully!");
       }
-      // Display success toast
-      toast.success("Lead Update successfully!");
-  
-      // Refresh leads after the update
-       dispatch(getLeads());
-  
+
+      // Refresh Clients after the update
+      dispatch(getLeads());
+
       // Close the modal after submitting
       onClose();
     } catch (error) {
@@ -95,149 +55,231 @@ const LeadModal = ({
       toast.error("An error occurred. Please try again.");
     }
   };
+  const inputStyle = {
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    width: "100%",
+    padding: "10px",
+  };
 
-
-
+  const errorStyle = {
+    color: "red",
+    marginTop: "5px",
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md">
       <ModalOverlay />
       <ModalContent>
-      <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
+        <ModalHeader>{isUpdateMode ? "Edit Lead" : "Add Lead"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4} align="stretch">
-            <FormControl>
-              <FormLabel>Name</FormLabel>
-              <Input
-                type="text"
-                name="name"
-                value={leadData.name}
-                onChange={handleChange}
-              />
-            </FormControl>
+          <Formik
+            initialValues={{
+              name: leadProp?.name || "",
+              date: leadProp?.date
+                ? new Date(leadProp.date).toLocaleDateString("en-CA")
+                : "",
+              salesTeamMember: leadProp?.salesTeamMember || "",
+              client: leadProp?.client || "",
+              linkJobApplied: leadProp?.linkJobApplied || "",
+              jobDescription: leadProp?.jobDescription || "",
+              sentDescription: leadProp?.sentDescription || "",
+              appointment: leadProp?.appointment
+                ? new Date(leadProp.appointment).toLocaleDateString("en-CA")
+                : "",
+              call: leadProp?.call
+                ? new Date(leadProp.call).toLocaleDateString("en-CA")
+                : "",
+              leadStatus: leadProp?.leadStatus || "",
+            }}
+            validationSchema={leadValidationSchema}
+            onSubmit={handleSubmit}
+          >
+            <Form>
+              <VStack spacing={4} align="stretch">
+                <FormControl>
+                  <FormLabel>Name</FormLabel>
+                  <Field
+                    type="text"
+                    name="name"
+                    id="name"
+                    placeholder="Name"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage name="name" component="p" style={errorStyle} />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Date</FormLabel>
-              <Input
-                type="date"
-                name="date"
-                value={leadData.date}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Date</FormLabel>
+                  <Field
+                    type="date"
+                    name="date"
+                    placeholder="Date"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage name="date" component="p" style={errorStyle} />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Sales Team Member</FormLabel>
-              <Select
-                name="salesTeamMember"
-                value={leadData.salesTeamMember}
-                onChange={handleChange}
-              >
-                {members &&
-                  members.map((row, index) => {
-                    return (
-                      <option key={row?._id} value={row?._id}>
-                        {row?.name}
-                      </option>
-                    );
-                  })}
-              </Select>
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Sales Team Member</FormLabel>
+                  <Field
+                    as="select"
+                    name="salesTeamMember"
+                    placeholder="Sales Team Member"
+                    style={inputStyle}
+                  >
+                    <option value="" disabled>
+                      Select Sales Team Member
+                    </option>
+                    {members &&
+                      members?.map((row, index) => (
+                        <option key={row?._id} value={row?._id}>
+                          {row?.name}
+                        </option>
+                      ))}
+                  </Field>
+                  <ErrorMessage
+                    name="salesTeamMember"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Client</FormLabel>
-              <Select
-                name="client"
-                value={leadData.client}
-                onChange={handleChange}
-              >
-                {clients &&
-                  clients.map((row, index) => {
-                    return (
-                      <option key={row?._id} value={row?._id}>
-                        {row?.name}
-                      </option>
-                    );
-                  })}
-              </Select>
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Client</FormLabel>
+                  <Field
+                    as="select"
+                    name="client"
+                    placeholder="Client"
+                    style={inputStyle}
+                  >
+                    <option value="" disabled>
+                      Select Client
+                    </option>
+                    {clients &&
+                      clients?.map((row, index) => {
+                        // console.log(row, "Clients")
+                        return (
+                          <option key={row?._id} value={row?._id}>
+                            {row?.name}
+                          </option>
+                        );
+                      })}
+                  </Field>
+                  <ErrorMessage
+                    name="client"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Link Job Applied</FormLabel>
-              <Input
-                type="text"
-                name="linkJobApplied"
-                value={leadData.linkJobApplied}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Link Job Applied</FormLabel>
+                  <Field
+                    type="text"
+                    name="linkJobApplied"
+                    placeholder="Link Job Applied"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="linkJobApplied"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Job Description</FormLabel>
-              <Input
-                type="text"
-                name="jobDescription"
-                value={leadData.jobDescription}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Job Description</FormLabel>
+                  <Field
+                    type="text"
+                    name="jobDescription"
+                    placeholder="Job Description"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="jobDescription"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Sent Description</FormLabel>
-              <Input
-                type="text"
-                name="sentDescription"
-                value={leadData.sentDescription}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Sent Description</FormLabel>
+                  <Field
+                    type="text"
+                    name="sentDescription"
+                    placeholder="Sent Description"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="sentDescription"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Appointment</FormLabel>
-              <Input
-                type="date"
-                name="appointment"
-                value={leadData.appointment}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Appointment</FormLabel>
+                  <Field
+                    type="date"
+                    name="appointment"
+                    placeholder="Appointment"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage
+                    name="appointment"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Call</FormLabel>
-              <Input
-                type="date"
-                name="call"
-                value={leadData.call}
-                onChange={handleChange}
-              />
-            </FormControl>
+                <FormControl>
+                  <FormLabel>Call</FormLabel>
+                  <Field
+                    type="date"
+                    name="call"
+                    placeholder="Call"
+                    style={inputStyle}
+                  />
+                  <ErrorMessage name="call" component="p" style={errorStyle} />
+                </FormControl>
 
-            <FormControl>
-              <FormLabel>Lead Status</FormLabel>
-              <Select
-                name="leadStatus"
-                value={leadData.leadStatus}
-                onChange={handleChange}
-              >
-                <option value="HOT">HOT</option>
-                <option value="WARM">WARM</option>
-                <option value="COLD">COLD</option>
-              </Select>
-            </FormControl>
-          </VStack>
+                <FormControl>
+                  <FormLabel>Lead Status</FormLabel>
+                  <Field
+                    as="select"
+                    name="leadStatus"
+                    placeholder="Lead Status"
+                    style={inputStyle}
+                  >
+                    <option value="" disabled>
+                      Select Client
+                    </option>
+                    <option value="HOT">HOT</option>
+                    <option value="WARM">WARM</option>
+                    <option value="COLD">COLD</option>
+                  </Field>
+                  <ErrorMessage
+                    name="leadStatus"
+                    component="p"
+                    style={errorStyle}
+                  />
+                </FormControl>
+              </VStack>
+              <ModalFooter>
+                <HStack spacing={4}>
+                  <Button colorScheme="blue" type="submit">
+                    Submit
+                  </Button>
+                  <Button onClick={onBack}>Back</Button>
+                </HStack>
+              </ModalFooter>
+            </Form>
+          </Formik>
         </ModalBody>
-
-        <ModalFooter>
-          <HStack spacing={4}>
-            <Button colorScheme="blue" onClick={handleSubmit}>
-              Submit
-            </Button>
-            <Button onClick={onBack}>Back</Button>
-          </HStack>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );
 };
 
-export default LeadModal;
+export default memo(LeadModal);

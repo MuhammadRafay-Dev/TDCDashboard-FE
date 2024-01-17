@@ -57,13 +57,13 @@ const deleteLeads = createAsyncThunk("leads/deleteLeads", async (id) => {
 // Update Leads:
 const updateLeads = createAsyncThunk(
   "leads/updateLeads",
-  async ({ leadData, leadId }) => {
+  async ({ value, leadId }) => {
     // console.log("Id", id);
     const userData = JSON.parse(localStorage.getItem("userData"));
     try {
       const response = await axios.patch(
         UPDATE_LEADS + `/${leadId}`,
-        leadData,
+        value,
         {
           headers: {
             Authorization: `Bearer ${userData.accesstoken}`,

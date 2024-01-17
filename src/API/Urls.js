@@ -24,6 +24,24 @@ export const ADD_CLIENTS = GET_CLIENTS + "/create";
 export const DELETE_CLIENTS = BaseUrl + "clients";
 export const UPDATE_CLIENTS = BaseUrl + "clients";
 
+//Task:
+export const GET_TASK = BaseUrl + "task";
+export const ADD_TASK = GET_TASK + "/create";
+export const DELETE_TASK = BaseUrl + "task";
+export const UPDATE_TASK = BaseUrl + "task";
+
+//PayRoll
+export const GET_PAYROLL = BaseUrl + "payroll/getAll"
+export const ADD_PAYROLL = BaseUrl + "payroll/create"
+export const DELETE_PAYROLL = BaseUrl + "payroll/deleteById"
+export const UPDATE_PAYROLL = BaseUrl + "payroll/updateById"
+
+//Earning
+export const GET_EARNING = BaseUrl + "earnings/getAll"
+export const ADD_EARNING = BaseUrl + "earnings/create"
+export const DELETE_EARNING = BaseUrl + "earnings/deleteById"
+export const UPDATE_EARNING = BaseUrl + "earnings/updateById"
+
 export const ForgetPasswordUrl = BaseUrl + "forget-password";
 export const VerifyUrl = ForgetPasswordUrl + "/verify?token=";
 export const ResetForgotPasswordUrl = ForgetPasswordUrl + "/reset";
