@@ -20,7 +20,7 @@ import { teamValidationSchema } from "schema";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import Select from "react-select";
 
-const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
+const TeamModal = ({ open, close, onSave, editData, edit }) => {
   const initialData = {
     name: editData?.name || "",
     technology: editData?.technology || "",
@@ -54,7 +54,7 @@ const TeamModal = ({ open, close, onSave, editData, edit, index }) => {
 
   const handleSubmit = (values) => {
     if (editData) {
-      edit(values, index);
+      edit(values);
     } else {
       onSave(values);
       setTeamData(initialData);

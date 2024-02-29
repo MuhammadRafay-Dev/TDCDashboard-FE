@@ -137,7 +137,7 @@ const ClientTable = ({ filteredData }) => {
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Lead
+              Delete Client
             </AlertDialogHeader>
 
             <AlertDialogBody>

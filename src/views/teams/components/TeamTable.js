@@ -43,18 +43,19 @@ const TeamTable = () => {
   const dispatch = useDispatch();
   const cancelRef = useRef();
   //States
+  const [expandedRows, setExpandedRows] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
-  const [teamEditData, setTeamEditData] = useState(null);
-  const teamData = useSelector((state) => state.teams?.data);
-  const [teams, setTeams] = useState(teamData);
-  const [indexOfRow, setIndexOfRow] = useState(null);
-  const [expandedRows, setExpandedRows] = useState({});
+    const teamData = useSelector((state) => state.teams?.data);
+    const [teams, setTeams] = useState(teamData);
+    const [teamEditData, setTeamEditData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [rowLoadingStates, setRowLoadingStates] = useState(
-    teams?.map(() => false) || []
-  );
+  const [deleteId, setDeleteId] = useState("");
+  // const [indexOfRow, setIndexOfRow] = useState(null);
+  // const [rowLoadingStates, setRowLoadingStates] = useState(
+  //   teams?.map(() => false) || []
+  // );
 
   //functions
   const toggleAccordion = (rowId) => {
@@ -64,8 +65,8 @@ const TeamTable = () => {
     }));
   };
 
-  const handleOpenConfirmationModal = (index) => {
-    setIndexOfRow(index);
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
     setIsDeleteConfirmationOpen(true);
   };
 
@@ -96,86 +97,33 @@ const TeamTable = () => {
       });
   };
 
-  const handleDelete = (id, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
-
-    dispatch(deleteTeam(id))
+  const handleConfirmDelete = () => {
+    handleCancelDelete()
+    dispatch(deleteTeam(deleteId))
       .then((res) => {
         dispatch(getTeams())
           .then((res) => {
             setTeams(res.payload);
             toast.success("Team Deleted Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch(() => {
-            toast.error("Error while getting updated Team");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch(() => {
-        toast.error("Error Deleting Team");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
-  const triggerEdit = (rowData, index) => {
+  const triggerEdit = (rowData) => {
     setTeamEditData(rowData);
-    setIndexOfRow(index);
+    // setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditTeam = (teamData, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
-
+  const handleEditTeam = (teamData) => {
     dispatch(editTeam(teamData))
       .then((res) => {
         dispatch(getTeams())
           .then((res) => {
             setTeams(res.payload);
             toast.success("Team Edited Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch((err) => {
-            toast.error("Error while getting updated Team");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch((err) => {
-        toast.error("Error Editing Team");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
   //Search
@@ -235,7 +183,6 @@ const TeamTable = () => {
         onSave={handleSaveTeam}
         editData={teamEditData}
         edit={handleEditTeam}
-        index={indexOfRow}
       />
       <AlertDialog
         isOpen={isDeleteConfirmationOpen}
@@ -258,8 +205,7 @@ const TeamTable = () => {
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  handleDelete(teams[indexOfRow]._id, indexOfRow);
-                  handleCancelDelete();
+                  handleConfirmDelete()
                 }}
                 ml={3}
               >
@@ -317,9 +263,6 @@ const TeamTable = () => {
                         : "N/A"}
                     </Td>
                     <Td textAlign="center">
-                      {rowLoadingStates[index] ? (
-                        <Spinner size="sm" color="blue.500" />
-                      ) : (
                         <>
                           <Button
                             align="center"
@@ -353,8 +296,8 @@ const TeamTable = () => {
                             h="37px"
                             lineHeight="100%"
                             borderRadius="10px"
-                            onClick={() => triggerEdit(row, index)}
-                            isDisabled={rowLoadingStates[index]}
+                            onClick={() => triggerEdit(row)}
+                            // isDisabled={rowLoadingStates[index]}
                           >
                             <Icon as={EditIcon} color={ethColor} boxSize={5} />
                           </Button>
@@ -370,8 +313,10 @@ const TeamTable = () => {
                             h="37px"
                             lineHeight="100%"
                             borderRadius="10px"
-                            onClick={() => handleOpenConfirmationModal(index)}
-                            isDisabled={rowLoadingStates[index]}
+                            onClick={() =>
+                              handleClickDelete(row._id)
+                            }
+                            // isDisabled={rowLoadingStates[index]}
                           >
                             <Icon
                               as={DeleteIcon}
@@ -380,7 +325,6 @@ const TeamTable = () => {
                             />
                           </Button>
                         </>
-                      )}
                     </Td>
                   </Tr>
                   <Tr>

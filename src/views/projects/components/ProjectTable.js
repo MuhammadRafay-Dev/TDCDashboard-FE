@@ -48,15 +48,16 @@ const ProjectTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
-  const [projectEditData, setProjectEditData] = useState(null);
-  const projectData = useSelector((state) => state.projects?.data);
-  const [projects, setProjects] = useState(projectData);
-  const [indexOfRow, setIndexOfRow] = useState(null);
-  const [expandedRows, setExpandedRows] = useState({});
+    const [expandedRows, setExpandedRows] = useState({});
+    const projectData = useSelector((state) => state.projects?.data);
+    const [projects, setProjects] = useState(projectData);
+    const [projectEditData, setProjectEditData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [rowLoadingStates, setRowLoadingStates] = useState(
-    projects?.map(() => false) || []
-  );
+  const [deleteId, setDeleteId] = useState("");
+  // const [indexOfRow, setIndexOfRow] = useState(null);
+  // const [rowLoadingStates, setRowLoadingStates] = useState(
+  //   projects?.map(() => false) || []
+  // );
 
   //functions
   const toggleAccordion = (rowId) => {
@@ -70,8 +71,8 @@ const ProjectTable = () => {
     navigate.push(`/admin/project-data?id=${id}`);
   };
 
-  const handleOpenConfirmationModal = (index) => {
-    setIndexOfRow(index);
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
     setIsDeleteConfirmationOpen(true);
   };
 
@@ -93,95 +94,36 @@ const ProjectTable = () => {
             setProjects(res.payload);
             toast.success("Project Added Succesfully");
           })
-          .catch((err) => {
-            toast.error("Error while getting updated project");
-          });
       })
-      .catch((err) => {
-        toast.error("Error while adding project");
-      });
   };
 
-  const handleDelete = (id, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
+  const handleConfirmDelete = () => {
 
-    dispatch(deleteProject(id))
+    dispatch(deleteProject(deleteId))
       .then((res) => {
         dispatch(getProjects())
           .then((res) => {
             setProjects(res.payload);
             toast.success("Project Deleted Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch((err) => {
-            toast.error("Error while getting updated Project");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch((err) => {
-        toast.error("Error Deleting Project");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
-  const triggerEdit = (rowData, index) => {
+  const triggerEditProject = (rowData) => {
     setProjectEditData(rowData);
-    setIndexOfRow(index);
+    // setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditProject = (projectData, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
-
+  const handleEditProject = (projectData) => {
     dispatch(editProject(projectData))
       .then((res) => {
         dispatch(getProjects())
           .then((res) => {
             setProjects(res.payload);
             toast.success("Project Edited Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch((err) => {
-            toast.error("Error while getting updated Project");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch((err) => {
-        toast.error("Error Editing Project");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
   useEffect(() => {
@@ -244,7 +186,6 @@ const ProjectTable = () => {
         onSave={handleSaveProject}
         editData={projectEditData}
         edit={handleEditProject}
-        index={indexOfRow}
       />
       <AlertDialog
         isOpen={isDeleteConfirmationOpen}
@@ -267,8 +208,7 @@ const ProjectTable = () => {
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  handleDelete(projects[indexOfRow]._id, indexOfRow);
-                  handleCancelDelete();
+                  handleConfirmDelete()
                 }}
                 ml={3}
               >
@@ -337,9 +277,6 @@ const ProjectTable = () => {
                     <Td>{new Date(row.start_date).toLocaleDateString()}</Td>
                     <Td>{new Date(row.end_date).toLocaleDateString()}</Td>
                     <Td textAlign="center">
-                      {rowLoadingStates[index] ? (
-                        <Spinner size="sm" color="blue.500" />
-                      ) : (
                         <>
                           <Button
                             align="center"
@@ -373,8 +310,8 @@ const ProjectTable = () => {
                             h="37px"
                             lineHeight="100%"
                             borderRadius="10px"
-                            onClick={() => triggerEdit(row, index)}
-                            isDisabled={rowLoadingStates[index]}
+                            onClick={() => triggerEditProject(row)}
+                            // isDisabled={rowLoadingStates[index]}
                           >
                             <Icon as={EditIcon} color={ethColor} boxSize={5} />
                           </Button>
@@ -390,8 +327,10 @@ const ProjectTable = () => {
                             h="37px"
                             lineHeight="100%"
                             borderRadius="10px"
-                            onClick={() => handleOpenConfirmationModal(index)}
-                            isDisabled={rowLoadingStates[index]}
+                            onClick={() =>
+                              handleClickDelete(row._id)
+                            }
+                            // isDisabled={rowLoadingStates[index]}
                           >
                             <Icon
                               as={DeleteIcon}
@@ -400,7 +339,6 @@ const ProjectTable = () => {
                             />
                           </Button>
                         </>
-                      )}
                     </Td>
                   </Tr>
                   <Tr>

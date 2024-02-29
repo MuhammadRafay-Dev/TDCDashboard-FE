@@ -11,14 +11,14 @@ import {
   ModalOverlay,
   VStack,
 } from "@chakra-ui/react";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getTeams } from "store/thunk/team.thunk";
-import { getDepartments } from "store/thunk/department.thunk";
-import { memberValidationSchema } from "schema";
-import { ErrorMessage, Field, Form, Formik } from "formik";
 import Select from "react-select";
 import { toast } from "react-toastify";
+import { memberValidationSchema } from "schema";
+import { getDepartments } from "store/thunk/department.thunk";
+import { getTeams } from "store/thunk/team.thunk";
 
 const MemberModal = ({
   open,
@@ -27,7 +27,6 @@ const MemberModal = ({
   onSave,
   editData,
   edit,
-  index,
 }) => {
   const initialData = {
     name: editData?.name || "",
@@ -50,19 +49,11 @@ const MemberModal = ({
   const [departments, setDepartments] = useState(departmentData);
   const [selected, setSelected] = useState([]);
 
+
   const handleModalClose = () => {
     close();
   };
 
-  // const sanitizeValues = (values) => {
-  //   const sanitizedValues = {};
-  //   Object.entries(values).forEach(([key, value]) => {
-  //     if (value !== undefined && value !== "") {
-  //       sanitizedValues[key] = value;
-  //     }
-  //   });
-  //   return sanitizedValues;
-  // };
 
   const verifyEmail = (values) => {
     const emailExists = members?.filter(
@@ -80,7 +71,7 @@ const MemberModal = ({
     //  console.log("Sanitized Values", sanitizedValues);
 
     if (editData) {
-      edit(values, index);
+      edit(values);
     } else {
       if (!verifyEmail(values)) {
         toast.error("Email already exists");

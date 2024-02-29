@@ -50,17 +50,18 @@ const MembersTable = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
     useState(false);
+    const [expandedRows, setExpandedRows] = useState({});
   const role = useSelector((state) => state?.auth?.user?.role);
   console.log("ROle", role);
   const memberData = useSelector((state) => state.members?.data);
   const [members, setMembers] = useState(memberData);
   const [memberEditData, setMemberEditData] = useState(null);
-  const [indexOfRow, setIndexOfRow] = useState(null);
-  const [expandedRows, setExpandedRows] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const [rowLoadingStates, setRowLoadingStates] = useState(
-    members?.map(() => false) || []
-  );
+  const [deleteId, setDeleteId] = useState("");
+  // const [indexOfRow, setIndexOfRow] = useState(null);
+  // const [rowLoadingStates, setRowLoadingStates] = useState(
+  //   members?.map(() => false) || []
+  // );
   const [curPage, setCurPage] = useState(0);
   const itemLimit = 10;
 
@@ -76,10 +77,14 @@ const MembersTable = () => {
     navigate.push(`/admin/member-data?id=${id}`);
   };
 
-  const handleOpenConfirmationModal = (index) => {
-    setIndexOfRow(index);
+  const handleClickDelete = (id) => {
+    setDeleteId(id);
     setIsDeleteConfirmationOpen(true);
   };
+  // const handleOpenConfirmationModal = (index) => {
+  //   // setIndexOfRow(index);
+  //   setIsDeleteConfirmationOpen(true);
+  // };
 
   const handleCancelDelete = () => {
     setIsDeleteConfirmationOpen(false);
@@ -99,97 +104,36 @@ const MembersTable = () => {
             setMembers(res.payload);
             toast.success("Member Added Succesfully");
           })
-          .catch((err) => {
-            toast.success("Member Added Succesfully");
-            toast.error("Error while getting updated member");
-          });
       })
-      .catch((err) => {
-        console.log("Error", err);
-        toast.error("Error while adding member");
-      });
   };
 
-  const handleDelete = (id, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
-
-    dispatch(deleteMember(id))
+  const handleConfirmDelete = () => {
+    handleCancelDelete()
+    dispatch(deleteMember(deleteId))
       .then((res) => {
         dispatch(getMembers())
           .then((res) => {
             setMembers(res.payload);
             toast.success("Member Deleted Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch((err) => {
-            toast.error("Error while getting updated Member");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch((err) => {
-        toast.error("Error while deleting Member");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
-  const triggerEditMember = (rowData, index) => {
+  const triggerEditMember = (rowData) => {
     setMemberEditData(rowData);
-    setIndexOfRow(index);
+    // setIndexOfRow(index);
     onOpen();
   };
 
-  const handleEditMember = (memberData, index) => {
-    setRowLoadingStates((prevStates) => {
-      const newState = [...prevStates];
-      newState[index] = true;
-      return newState;
-    });
-
+  const handleEditMember = (memberData) => {
     dispatch(editMember(memberData))
       .then((res) => {
         dispatch(getMembers())
           .then((res) => {
             setMembers(res.payload);
             toast.success("Member Edited Succesfully");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
           })
-          .catch((err) => {
-            toast.error("Error while getting updated Member");
-            setRowLoadingStates((prevStates) => {
-              const newState = [...prevStates];
-              newState[index] = false;
-              return newState;
-            });
-          });
       })
-      .catch((err) => {
-        toast.error("Error while Editing Member");
-        setRowLoadingStates((prevStates) => {
-          const newState = [...prevStates];
-          newState[index] = false;
-          return newState;
-        });
-      });
   };
 
   useEffect(() => {
@@ -246,7 +190,6 @@ const MembersTable = () => {
         onSave={handleSaveMember}
         editData={memberEditData}
         edit={handleEditMember}
-        index={indexOfRow}
       />
       <AlertDialog
         isOpen={isDeleteConfirmationOpen}
@@ -269,8 +212,7 @@ const MembersTable = () => {
               <Button
                 colorScheme="red"
                 onClick={() => {
-                  handleDelete(members[indexOfRow]._id, indexOfRow);
-                  handleCancelDelete();
+                  handleConfirmDelete()
                 }}
                 ml={3}
               >
@@ -330,9 +272,6 @@ const MembersTable = () => {
                     </Td>
                     {}
                     <Td textAlign="center">
-                      {rowLoadingStates[index] ? (
-                        <Spinner size="sm" color="blue.500" />
-                      ) : (
                         <>
                           <Button
                             align="center"
@@ -366,8 +305,8 @@ const MembersTable = () => {
                             h="37px"
                             lineHeight="100%"
                             borderRadius="10px"
-                            onClick={() => triggerEditMember(row, index)}
-                            isDisabled={rowLoadingStates[index]}
+                            onClick={() => triggerEditMember(row)}
+                            // isDisabled={rowLoadingStates[index]}
                           >
                             <Icon as={EditIcon} color={ethColor} boxSize={5} />
                           </Button>
@@ -383,13 +322,13 @@ const MembersTable = () => {
                               h="37px"
                               lineHeight="100%"
                               borderRadius="10px"
-                              isDisabled={rowLoadingStates[index]}
+                              // isDisabled={rowLoadingStates[index]}
                             >
                               <Icon
                                 as={DeleteIcon}
                                 color={ethColor}
                                 onClick={() =>
-                                  handleOpenConfirmationModal(index)
+                                  handleClickDelete(row._id)
                                 }
                                 boxSize={5}
                               />
@@ -413,14 +352,13 @@ const MembersTable = () => {
                                 as={DeleteIcon}
                                 color={ethColor}
                                 onClick={() =>
-                                  handleOpenConfirmationModal(index)
+                                  handleClickDelete(row._id)
                                 }
                                 boxSize={5}
                               />
                             </Button>
                           )}
                         </>
-                      )}
                     </Td>
                   </Tr>
                   <Tr>
